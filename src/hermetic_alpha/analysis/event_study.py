@@ -2,19 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from statistics import mean, median
 from typing import Sequence
 
-
-@dataclass(frozen=True)
-class EventStudyResult:
-    events: int
-    horizon: int
-    baseline_bullish_probability: float | None
-    conditional_bullish_probability: float | None
-    average_return: float | None
-    median_return: float | None
+from hermetic_alpha.models import EventStudyResult
 
 
 def summarize_event_study(

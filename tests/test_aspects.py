@@ -1,3 +1,7 @@
+from datetime import datetime, timezone
+
+from hermetic_alpha.models import PlanetPosition
+
 from hermetic_alpha.astro import circular_distance, detect_aspect, find_aspects
 
 
@@ -18,3 +22,20 @@ def test_find_aspects_between_bodies():
         ("sun", "jupiter", "conjunction"),
         ("sun", "mars", "square"),
     }
+
+
+def test_detect_aspect_preserves_timestamp():
+    ts = datetime(2026, 5, 6, tzinfo=timezone.utc)
+    event = detect_aspect("sun", 10, "jupiter", 12, "conjunction", 3, timestamp=ts)
+    assert event is not None
+    assert event.timestamp == ts
+
+
+def test_find_aspects_propagates_planet_position_timestamp():
+    ts = datetime(2026, 5, 6, tzinfo=timezone.utc)
+    events = find_aspects({
+        "sun": PlanetPosition(ts, "sun", 0),
+        "jupiter": PlanetPosition(ts, "jupiter", 1),
+    }, {"conjunction": 3})
+    assert len(events) == 1
+    assert events[0].timestamp == ts

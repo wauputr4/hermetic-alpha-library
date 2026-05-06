@@ -92,3 +92,24 @@ This page defines the initial data structures Hermetic Alpha Library should supp
   "confidence_interval_7d": [0.498, 0.764]
 }
 ```
+
+## Implementation Status
+
+The initial domain model layer is now implemented under:
+
+```text
+src/hermetic_alpha/models/
+├─ astro.py
+└─ market.py
+```
+
+Current models:
+
+- `PlanetPosition`
+- `AspectDefinition`
+- `AspectEvent`
+- `MarketCandle`
+- `MarketLabel`
+- `EventStudyResult`
+
+Each model provides a `to_dict()` helper for JSON-compatible serialization. Timestamp fields are serialized with `datetime.isoformat()`.
