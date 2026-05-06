@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from itertools import combinations
 from typing import Mapping
+
+from hermetic_alpha.models import AspectEvent
 
 from .math import aspect_strength, circular_distance
 
@@ -15,18 +16,6 @@ ASPECT_ANGLES: dict[str, float] = {
     "trine": 120.0,
     "opposition": 180.0,
 }
-
-
-@dataclass(frozen=True)
-class AspectEvent:
-    body_a: str
-    body_b: str
-    aspect: str
-    target_angle: float
-    actual_angle: float
-    orb: float
-    max_orb: float
-    strength: float
 
 
 def detect_aspect(

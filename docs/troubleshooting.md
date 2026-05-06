@@ -95,3 +95,14 @@ Test note:
 - `pytest` and `pip` are not currently available in this runtime.
 - A direct Python smoke test was used instead and passed with `PYTHONPATH=src python3`.
 - Keep the pytest test files in the repository; run them once the Python dev environment is prepared.
+
+
+## 2026-05-06 — Core Domain Models
+
+Added explicit domain models under `src/hermetic_alpha/models/` for astro, market, labels, and event-study results.
+
+Notes:
+
+- Existing aspect detection now reuses the shared `AspectEvent` model.
+- Existing event-study summaries now reuse the shared `EventStudyResult` model.
+- Models expose `to_dict()` for JSON-compatible output, with datetimes serialized through `isoformat()`.
