@@ -106,3 +106,8 @@ Notes:
 - Existing aspect detection now reuses the shared `AspectEvent` model.
 - Existing event-study summaries now reuse the shared `EventStudyResult` model.
 - Models expose `to_dict()` for JSON-compatible output, with datetimes serialized through `isoformat()`.
+
+
+### Aspect events missing timestamps
+
+`detect_aspect(..., timestamp=...)` attaches a timestamp to a single detected event. `find_aspects()` also accepts `PlanetPosition` values and propagates their shared timestamp into the returned `AspectEvent` objects. If paired positions have different timestamps, pass an explicit `timestamp=` for the event-study sampling point.
