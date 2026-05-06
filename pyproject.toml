@@ -1,0 +1,20 @@
+[project]
+name = "hermetic-alpha"
+version = "0.1.0"
+description = "Core Python research engine for astro-financial pattern analysis."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Hermetic Alpha Contributors" }]
+license = { text = "TBD" }
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
