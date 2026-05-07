@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from statistics import mean, median
 
 from hermetic_alpha.models import EventStudyResult
@@ -33,7 +33,7 @@ def summarize_event_study(
 
 
 def summarize_multi_horizon_event_study(
-    all_labels: Sequence[Mapping[str, float | bool | None]],
+    all_labels: Sequence[dict[str, float | bool | None]],
     event_indexes: Sequence[int],
     horizons: Sequence[int],
 ) -> dict[int, EventStudyResult]:
