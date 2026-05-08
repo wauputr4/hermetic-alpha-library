@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from statistics import mean, median
-from typing import Sequence
 
 from hermetic_alpha.models import EventStudyResult
 
@@ -30,3 +30,21 @@ def summarize_event_study(
         average_return=mean(event_returns) if event_returns else None,
         median_return=median(event_returns) if event_returns else None,
     )
+
+
+def summarize_multi_horizon_event_study(
+    all_labels: Sequence[dict[str, float | bool | None]],
+    event_indexes: Sequence[int],
+    horizons: Sequence[int],
+) -> dict[int, EventStudyResult]:
+    """Summarize event-study results for multiple forward-return horizons.
+
+    The returned dictionary is keyed by horizon so callers can compare 1d, 7d,
+    30d, and other windows without rerunning event selection logic. Invalid event
+    indexes are ignored consistently for every horizon.
+    """
+    unique_horizons = list(dict.fromkeys(horizons))
+    return {
+        horizon: summarize_event_study(all_labels, event_indexes, horizon)
+        for horizon in unique_horizons
+    }
