@@ -48,8 +48,8 @@ wraps Swiss Ephemeris directly, exposes planetary position data including speed,
 and avoids forcing the library through birth-chart-oriented abstractions before
 the research model is stable.
 
-Kerykeion and Immanuel remain useful references because they provide higher
-level astrology workflows and structured chart output. They are not the first
+Kerykeion and Immanuel remain useful references because they provide higher-level
+astrology workflows and structured chart output. They are not the first
 backend because Hermetic Alpha currently needs a narrow, auditable source of
 positions for time-series research rather than full chart rendering,
 interpretation, localization, or synastry features.
@@ -66,7 +66,7 @@ Strengths:
 
 Limitations:
 
-- AGPLv3 licensing requires explicit compatibility review for downstream use.
+- AGPL-3.0 licensing requires explicit compatibility review for downstream use.
 - Higher-level chart scope is broader than the first research backend needs.
 - Current public release stream includes active alpha releases, so pinning a
   stable version would be important.
@@ -91,12 +91,12 @@ Strengths:
 
 - Direct Python extension for Swiss Ephemeris.
 - Swiss Ephemeris is a mature high-precision astrology calculation engine.
-- Exposes low-level calculation results suitable for longitude and speed based
+- Exposes low-level calculation results suitable for longitude- and speed-based
   retrograde detection.
 
 Limitations:
 
-- AGPL licensing and Swiss Ephemeris licensing need clear downstream policy
+- AGPL-3.0 licensing and Swiss Ephemeris licensing need clear downstream policy
   before making it a required dependency.
 - Native extension and ephemeris file path handling can complicate installation.
 - Low-level API needs a Hermetic Alpha adapter to keep research code clean.
@@ -117,4 +117,3 @@ Limitations:
 - Decide packaging extras, for example `hermetic-alpha[ephemeris]`.
 - Document license implications before publishing a release with the optional
   backend.
-
