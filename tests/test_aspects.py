@@ -21,6 +21,7 @@ def test_find_aspects_between_bodies():
     assert {(e.body_a, e.body_b, e.aspect) for e in events} == {
         ("sun", "jupiter", "conjunction"),
         ("sun", "mars", "square"),
+        ("jupiter", "mars", "square"),
     }
 
 
