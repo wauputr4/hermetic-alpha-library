@@ -76,6 +76,11 @@ Conditional bullish probability: 64.2%
 95% CI: 49.8% - 76.4%
 ```
 
+The library exposes `bootstrap_percentile_interval()` for dependency-free
+percentile intervals. It resamples the observed values with replacement,
+supports a deterministic random seed, and accepts a custom statistic function
+for probabilities or other summary metrics.
+
 ## 5. Permutation Test
 
 Permutation tests help check whether observed results are stronger than random chance.
@@ -86,6 +91,11 @@ Process:
 2. Randomly shuffle event dates or sample random dates.
 3. Recalculate event-study metrics.
 4. Compare the real result against the random distribution.
+
+The initial validation helper is `random_baseline_distribution()`. It samples
+random baseline subsets without replacement, supports a deterministic seed, and
+returns the selected statistic for each sample. This is a simple baseline
+distribution, not proof of causality.
 
 ## 6. Logistic Regression
 
@@ -148,3 +158,7 @@ Every result should show:
 - Median return.
 - Confidence interval where available.
 - Warning if sample size is too small.
+
+Use `low_sample_warning()` to surface small-sample caveats in reports. Low
+sample warnings do not invalidate a result; they mark it as exploratory until
+more observations are available.
