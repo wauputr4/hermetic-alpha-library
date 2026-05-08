@@ -45,7 +45,7 @@ def bootstrap_percentile_interval(
     rng = Random(seed)
     sample_size = len(values)
     bootstrap_statistics = sorted(
-        statistic([values[rng.randrange(sample_size)] for _ in range(sample_size)])
+        statistic(rng.choices(values, k=sample_size))
         for _ in range(samples)
     )
     tail = (1 - confidence) / 2

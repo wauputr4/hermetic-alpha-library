@@ -10,7 +10,7 @@ from hermetic_alpha.analysis import (
 def test_bootstrap_percentile_interval_is_seeded_and_stable():
     interval = bootstrap_percentile_interval([0.01, 0.02, 0.05, -0.01], samples=200, seed=7)
 
-    assert tuple(round(value, 4) for value in interval) == (-0.005, 0.0351)
+    assert tuple(round(value, 4) for value in interval) == (-0.0025, 0.035)
 
 
 def test_bootstrap_percentile_interval_supports_custom_statistic():
