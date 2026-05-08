@@ -92,3 +92,9 @@ The core library should support:
 - SvelteKit dashboard.
 - Jupyter notebooks.
 - Batch research jobs.
+
+## Ephemeris Backend Decision
+
+ADR 0001 selects `pyswisseph` as the first experimental ephemeris backend. The
+integration should be isolated behind a Hermetic Alpha adapter and remain
+optional until licensing and packaging policy are finalized.

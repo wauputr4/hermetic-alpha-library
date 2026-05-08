@@ -30,6 +30,9 @@ Mitigation:
 - Store the engine name and version in generated datasets.
 - Normalize timestamps to UTC.
 - Write regression tests for known dates.
+- Treat the first `pyswisseph` integration as optional and experimental until
+  packaging, native-extension installation, ephemeris-file paths, and licensing
+  implications are documented.
 
 ### Timezone and Candle Alignment
 
