@@ -22,9 +22,24 @@ def test_local_extrema_labels_mark_top_bottom_and_neutral_cases():
     assert labels[-1] == {"local_top_1d": None, "local_bottom_1d": None}
 
 
+def test_local_extrema_labels_support_multiple_windows():
+    labels = add_local_extrema_labels([100, 90, 110, 105, 95, 115, 108], [1, 2, 1])
+
+    assert list(labels[0].keys()) == ["local_top_1d", "local_bottom_1d", "local_top_2d", "local_bottom_2d"]
+    assert labels[2]["local_top_1d"] is True
+    assert labels[2]["local_top_2d"] is True
+    assert labels[4]["local_bottom_1d"] is True
+    assert labels[4]["local_bottom_2d"] is True
+    assert labels[1]["local_top_2d"] is None
+    assert labels[-2]["local_bottom_2d"] is None
+
+
 def test_local_extrema_labels_validate_window_size():
-    with pytest.raises(ValueError, match="window must be a positive integer"):
+    with pytest.raises(ValueError, match="windows must be positive integers"):
         add_local_extrema_labels([100, 90, 110], 0)
+
+    with pytest.raises(ValueError, match="windows must be positive integers"):
+        add_local_extrema_labels([100, 90, 110], [1, -2])
 
 
 def test_event_study_summary():
