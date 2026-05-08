@@ -1,4 +1,4 @@
-"""Market labeling helpers for forward-return based research."""
+"""Market labeling helpers for market-outcome research."""
 
 from __future__ import annotations
 
@@ -23,6 +23,41 @@ def add_forward_returns(closes: Sequence[float], horizons: Sequence[int]) -> lis
             forward_return = (closes[future_index] / close) - 1
             row[return_key] = forward_return
             row[bullish_key] = forward_return > 0
+        rows.append(row)
+    return rows
+
+
+def _normalize_windows(windows: int | Sequence[int]) -> list[int]:
+    if isinstance(windows, int):
+        normalized = [windows]
+    else:
+        normalized = list(dict.fromkeys(windows))
+
+    if not normalized or any(window <= 0 for window in normalized):
+        raise ValueError("windows must be positive integers")
+    return normalized
+
+
+def add_local_extrema_labels(closes: Sequence[float], windows: int | Sequence[int]) -> list[dict[str, bool | None]]:
+    """Label closes that are local tops or bottoms within centered windows."""
+    normalized_windows = _normalize_windows(windows)
+    close_count = len(closes)
+    keys = [(window, f"local_top_{window}d", f"local_bottom_{window}d") for window in normalized_windows]
+
+    rows: list[dict[str, bool | None]] = []
+    for index, close in enumerate(closes):
+        row: dict[str, bool | None] = {}
+        for window, top_key, bottom_key in keys:
+            start = index - window
+            end = index + window + 1
+            if start < 0 or end > close_count:
+                row[top_key] = None
+                row[bottom_key] = None
+                continue
+
+            window_closes = closes[start:end]
+            row[top_key] = close == max(window_closes)
+            row[bottom_key] = close == min(window_closes)
         rows.append(row)
     return rows
 

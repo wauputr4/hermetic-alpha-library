@@ -60,6 +60,8 @@ Mitigation:
 
 - Keep labels separate from features.
 - Clearly document whether an analysis is retrospective or predictive.
+- Treat `local_top_*` and `local_bottom_*` labels as retrospective outcomes only because centered windows inspect candles after the labeled timestamp.
+- Multi-window extrema labels share this caveat for every requested window. Larger windows leave more unlabeled edge rows because both prior and future candles are required.
 
 ### Overfitting and Cherry-Picking
 
