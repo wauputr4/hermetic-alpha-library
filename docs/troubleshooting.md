@@ -51,6 +51,7 @@ Mitigation:
 - Add low-sample warnings.
 - Use bootstrap confidence intervals.
 - Compare against random baselines.
+- Seed bootstrap and random-baseline helpers when results need to be reproducible in docs, tests, or PR reviews.
 
 ### Data Leakage
 
