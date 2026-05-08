@@ -73,6 +73,12 @@ This page defines the initial data structures Hermetic Alpha Library should supp
 }
 ```
 
+Local top and bottom labels are retrospective centered-window labels. For a
+window of 7, `local_top_7d` means the current close is the maximum close in the
+range from seven candles before through seven candles after the current candle.
+The first and last `window` rows cannot be labeled without incomplete context
+and should be represented as `null`.
+
 ## Event Study Result
 
 ```json
