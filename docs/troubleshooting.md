@@ -33,6 +33,17 @@ Mitigation:
 - Treat the first `pyswisseph` integration as optional and experimental until
   packaging, native-extension installation, ephemeris-file paths, and licensing
   implications are documented.
+- Install the optional backend with `hermetic-alpha[ephemeris]` when planetary
+  positions are needed. Core imports and tests should continue to work without
+  the native extension installed.
+- Pass `ephemeris_path=` to `SwissEphemerisAdapter` when Swiss Ephemeris data
+  files are stored outside the backend default search path.
+- The adapter accepts timezone-aware datetimes and normalizes them to UTC before
+  converting to Julian day. Naive datetimes are rejected to avoid silent candle
+  and ephemeris alignment errors.
+- `pyswisseph`/Swiss Ephemeris licensing remains a release policy concern. Keep
+  the dependency optional and document downstream obligations before any
+  packaged release depends on it by default.
 
 ### Timezone and Candle Alignment
 
