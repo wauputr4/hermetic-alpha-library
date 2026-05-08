@@ -1,4 +1,4 @@
-"""Market labeling helpers for forward-return based research."""
+"""Market labeling helpers for market-outcome research."""
 
 from __future__ import annotations
 
@@ -23,6 +23,30 @@ def add_forward_returns(closes: Sequence[float], horizons: Sequence[int]) -> lis
             forward_return = (closes[future_index] / close) - 1
             row[return_key] = forward_return
             row[bullish_key] = forward_return > 0
+        rows.append(row)
+    return rows
+
+
+def add_local_extrema_labels(closes: Sequence[float], window: int) -> list[dict[str, bool | None]]:
+    """Label closes that are local tops or bottoms within a centered window."""
+    if window <= 0:
+        raise ValueError("window must be a positive integer")
+
+    rows: list[dict[str, bool | None]] = []
+    for index, close in enumerate(closes):
+        row: dict[str, bool | None] = {
+            f"local_top_{window}d": None,
+            f"local_bottom_{window}d": None,
+        }
+        start = index - window
+        end = index + window + 1
+        if start < 0 or end > len(closes):
+            rows.append(row)
+            continue
+
+        window_closes = closes[start:end]
+        row[f"local_top_{window}d"] = close == max(window_closes)
+        row[f"local_bottom_{window}d"] = close == min(window_closes)
         rows.append(row)
     return rows
 
