@@ -13,6 +13,7 @@ Hermetic Alpha Library is the reusable Python core for astro-financial pattern r
 - [Data Model](data-model.md)
 - [Implementation Roadmap](roadmap.md)
 - [Troubleshooting Notes](troubleshooting.md)
+- [ADR 0001: First Ephemeris Engine](adr/0001-first-ephemeris-engine.md)
 
 ## Core Philosophy
 

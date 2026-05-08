@@ -46,6 +46,10 @@ Candidate engines:
 - Immanuel Python
 - Swiss Ephemeris / pyswisseph
 
+ADR 0001 selects `pyswisseph` as the first experimental backend because it is
+closest to the raw longitude and speed calculations Hermetic Alpha needs. The
+adapter should remain optional until licensing and packaging policy are clear.
+
 ### `hermetic_alpha.market`
 
 Responsible for market data ingestion and normalization.
@@ -141,4 +145,3 @@ The project should avoid:
 - Ignoring failed hypotheses.
 - Reporting probabilities without sample size.
 - Treating correlation as deterministic prediction.
-
