@@ -86,6 +86,7 @@ class SwissEphemerisAdapter:
             _decimal_utc_hour(utc_timestamp),
         )
         raw_result = self._backend.calc_ut(julian_day, body_id, flags)
+        self._raise_for_calc_error(raw_result)
         values = self._extract_position_values(raw_result)
         speed = values[3] if len(values) > 3 else None
 
@@ -99,6 +100,17 @@ class SwissEphemerisAdapter:
             zodiac="tropical",
             engine=self.engine_name,
         )
+
+    def _raise_for_calc_error(self, raw_result: Any) -> None:
+        if (
+            isinstance(raw_result, tuple)
+            and len(raw_result) >= 2
+            and isinstance(raw_result[-1], int)
+            and raw_result[-1] < 0
+        ):
+            get_errmsg = getattr(self._backend, "get_errmsg", None)
+            message = get_errmsg() if callable(get_errmsg) else f"error code {raw_result[-1]}"
+            raise ValueError(f"pyswisseph calc_ut error: {message}")
 
     @staticmethod
     def _extract_position_values(raw_result: Any) -> tuple[float, ...]:

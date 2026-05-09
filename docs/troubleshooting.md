@@ -37,10 +37,14 @@ Mitigation:
   positions are needed. Core imports and tests should continue to work without
   the native extension installed.
 - Pass `ephemeris_path=` to `SwissEphemerisAdapter` when Swiss Ephemeris data
-  files are stored outside the backend default search path.
+  files are stored outside the backend default search path. Swiss Ephemeris
+  stores that path as process-global backend state, so multiple adapter
+  instances with different paths can overwrite each other.
 - The adapter accepts timezone-aware datetimes and normalizes them to UTC before
   converting to Julian day. Naive datetimes are rejected to avoid silent candle
   and ephemeris alignment errors.
+- A negative `calc_ut` return flag is treated as a calculation failure and
+  raised instead of returning a potentially invalid zeroed position.
 - `pyswisseph`/Swiss Ephemeris licensing remains a release policy concern. Keep
   the dependency optional and document downstream obligations before any
   packaged release depends on it by default.

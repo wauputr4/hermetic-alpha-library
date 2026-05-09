@@ -35,6 +35,15 @@ class FakeSwissEph:
         return ((361.25, -0.5, 1.0, -0.02, 0.0, 0.0), 0)
 
 
+class FailingSwissEph(FakeSwissEph):
+    def calc_ut(self, julian_day, body_id, flags):
+        self.calc_args = (julian_day, body_id, flags)
+        return ((0.0, 0.0, 0.0, 0.0, 0.0, 0.0), -1)
+
+    def get_errmsg(self):
+        return "missing ephemeris data"
+
+
 def test_swiss_ephemeris_adapter_returns_normalized_planet_position():
     backend = FakeSwissEph()
     adapter = SwissEphemerisAdapter(ephemeris_path="/tmp/ephe", backend=backend)
@@ -79,6 +88,13 @@ def test_swiss_ephemeris_adapter_rejects_unsupported_body():
 
     with pytest.raises(ValueError, match="Unsupported body"):
         adapter.position(datetime(2026, 5, 8, tzinfo=timezone.utc), "ceres")
+
+
+def test_swiss_ephemeris_adapter_rejects_negative_calc_status():
+    adapter = SwissEphemerisAdapter(backend=FailingSwissEph())
+
+    with pytest.raises(ValueError, match="pyswisseph calc_ut error: missing ephemeris data"):
+        adapter.position(datetime(2026, 5, 8, tzinfo=timezone.utc), "sun")
 
 
 def test_body_id_map_includes_major_research_bodies():
