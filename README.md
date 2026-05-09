@@ -57,6 +57,14 @@ This repository contains only the reusable core logic. User-facing tools such as
 PYTHONPATH=src python3 examples/basic_event_study.py
 ```
 
+Fetch normalized BTC daily candles through the first market provider:
+
+```python
+from hermetic_alpha.market import YahooFinanceProvider
+
+candles = YahooFinanceProvider().fetch_daily_btc("2024-01-01", "2024-01-31")
+```
+
 When `pytest` is available:
 
 ```bash

@@ -57,12 +57,16 @@ and returns Hermetic Alpha `PlanetPosition` models instead of exposing raw
 
 Responsible for market data ingestion and normalization.
 
-Planned responsibilities:
+Responsibilities:
 
 - Fetch OHLCV data from providers such as Yahoo Finance, Binance, CoinGecko, or CCXT-compatible exchanges.
 - Normalize timestamps.
 - Resample candles.
 - Store reusable local datasets.
+
+The first implemented provider is `YahooFinanceProvider`, which fetches daily
+`BTC-USD` candles from Yahoo Finance's chart endpoint and returns normalized
+`MarketCandle` models with `source="yahoo_finance"` and `interval="1d"`.
 
 ### `hermetic_alpha.features`
 
