@@ -107,6 +107,41 @@ Wau's preferred workflow:
 - Commit and push completed changes using GitHub CLI when available.
 - Keep library and CLI responsibilities separated.
 
+## Python Development Environment
+
+Use `uv` when it is available:
+
+```bash
+uv venv
+uv pip install -e ".[dev]"
+uv run python3 -m pytest -q
+```
+
+If `uv` is not installed, use the standard library virtual environment flow:
+
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+python3 -m pip install -U pip
+python3 -m pip install -e ".[dev]"
+python3 -m pytest -q
+```
+
+The project requires Python 3.11 or newer. If `python3 -m pytest -q` cannot
+import `hermetic_alpha`, confirm the editable install completed or run tests
+from the repository root so the `pyproject.toml` pytest `pythonpath` setting can
+take effect.
+
+On Debian/Ubuntu, `python3 -m venv .venv` can fail when `ensurepip` is missing.
+Install the matching `python3.11-venv` or `python3-venv` system package before
+creating the virtual environment. If `pip` reports an `externally-managed-environment`
+error, do not install into the system Python; create a venv first or use `uv`.
+
+CI should use the same development extra and pytest command so local failures
+match pull request failures. Adding the workflow requires a GitHub credential
+with `workflow` scope; otherwise GitHub rejects pushes that create files under
+`.github/workflows/`.
+
 ## 2026-05-06 — Initial MVP Scaffold
 
 Implemented the first library scaffold:

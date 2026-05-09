@@ -12,11 +12,32 @@ Thank you for considering a contribution.
 
 ## Local Development
 
+Preferred setup with `uv`:
+
+```bash
+uv venv
+uv pip install -e ".[dev]"
+uv run python3 -m pytest -q
+```
+
+Standard `venv` setup:
+
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+python3 -m pip install -U pip
+python3 -m pip install -e ".[dev]"
+python3 -m pytest -q
+```
+
+The development extra installs `pytest`, and the repository's
+`pyproject.toml` config points pytest at `src/` and `tests/`.
+
 ```bash
 PYTHONPATH=src python3 examples/basic_event_study.py
 ```
 
-When `pytest` is available:
+When the development extra is installed:
 
 ```bash
 python3 -m pytest -q

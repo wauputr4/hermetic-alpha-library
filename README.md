@@ -53,6 +53,27 @@ This repository contains only the reusable core logic. User-facing tools such as
 
 ## Development Quickstart
 
+Create a local development environment with `uv` when it is available:
+
+```bash
+uv venv
+uv pip install -e ".[dev]"
+uv run python3 -m pytest -q
+```
+
+Or use the standard library `venv` plus `pip`:
+
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+python3 -m pip install -U pip
+python3 -m pip install -e ".[dev]"
+python3 -m pytest -q
+```
+
+The `pyproject.toml` pytest configuration sets `pythonpath = ["src"]`, so tests
+can import the editable package without manually exporting `PYTHONPATH`.
+
 ```bash
 PYTHONPATH=src python3 examples/basic_event_study.py
 ```
@@ -65,7 +86,7 @@ from hermetic_alpha.market import YahooFinanceProvider
 candles = YahooFinanceProvider().fetch_daily_btc("2024-01-01", "2024-01-31")
 ```
 
-When `pytest` is available:
+When the development extra is installed:
 
 ```bash
 python3 -m pytest -q
