@@ -72,7 +72,8 @@ python3 -m pytest -q
 ```
 
 The `pyproject.toml` pytest configuration sets `pythonpath = ["src"]`, so tests
-can import the editable package without manually exporting `PYTHONPATH`.
+can import the package directly from the source tree even before an editable
+install is created.
 
 ```bash
 PYTHONPATH=src python3 examples/basic_event_study.py

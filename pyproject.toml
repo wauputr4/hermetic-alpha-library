@@ -5,7 +5,7 @@ description = "Core Python research engine for astro-financial pattern analysis.
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [{ name = "Hermetic Alpha Contributors" }]
-license = "MIT"
+license = { text = "MIT" }
 dependencies = []
 classifiers = [
     "Development Status :: 3 - Alpha",
