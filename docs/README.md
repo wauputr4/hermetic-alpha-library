@@ -9,6 +9,7 @@ Hermetic Alpha Library is the reusable Python core for astro-financial pattern r
 - [Overview](overview.md)
 - [Architecture](architecture.md)
 - [Research Concepts](concepts.md)
+- [Anti-Overfitting Guide](anti-overfitting.md)
 - [Statistical Methods](statistical-methods.md)
 - [Data Model](data-model.md)
 - [Implementation Roadmap](roadmap.md)

@@ -2,6 +2,11 @@
 
 Hermetic Alpha should start with transparent methods before adding complex models.
 
+All statistical reports should follow the
+[anti-overfitting guide](anti-overfitting.md). Probability estimates are
+exploratory unless they include enough observations, baseline comparison,
+uncertainty estimates, and validation outside the discovery sample.
+
 ## 1. Event Study
 
 Event study is the first core method.

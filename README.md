@@ -6,6 +6,16 @@ The library is designed to calculate planetary positions, derive astrological as
 
 > This project does not claim deterministic prediction. It provides transparent tools for statistical research, event studies, and reproducible backtesting.
 
+Hermetic Alpha is not financial advice and should not be used as a standalone
+trading signal. Any observed relationship between astrological features and
+market outcomes must be interpreted as exploratory until it is supported by
+adequate sample size, baseline comparison, confidence intervals, and validation
+on data that was not used to discover the pattern.
+
+See the [anti-overfitting guide](docs/anti-overfitting.md) for the project
+rules on responsible probability reporting, leakage prevention, and
+cherry-picking control.
+
 ## Goals
 
 - Compute planetary positions and astrological aspects for historical timestamps.

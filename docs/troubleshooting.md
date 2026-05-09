@@ -94,6 +94,8 @@ Testing many aspects can produce false positives.
 
 Mitigation:
 
+- Follow the [anti-overfitting guide](anti-overfitting.md) before presenting a
+  probability as meaningful.
 - Report all tested hypotheses.
 - Use holdout periods.
 - Add permutation tests.

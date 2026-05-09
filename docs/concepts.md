@@ -6,6 +6,11 @@ Hermetic Alpha explores whether astrological configurations can be transformed i
 
 The project does not assume that astrology deterministically predicts price. Instead, it treats aspects and chart states as time-based signals that can be measured, compared, and statistically evaluated.
 
+Research findings should follow the project
+[anti-overfitting guide](anti-overfitting.md): report sample size, compare
+against baselines, avoid future-label leakage, and describe probabilities as
+exploratory historical frequencies rather than deterministic predictions.
+
 ## Main Research Object
 
 The primary object is an **astro-market event**.
