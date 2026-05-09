@@ -49,6 +49,9 @@ Candidate engines:
 ADR 0001 selects `pyswisseph` as the first experimental backend because it is
 closest to the raw longitude and speed calculations Hermetic Alpha needs. The
 adapter should remain optional until licensing and packaging policy are clear.
+The initial adapter lives behind `hermetic_alpha.astro.SwissEphemerisAdapter`
+and returns Hermetic Alpha `PlanetPosition` models instead of exposing raw
+`swisseph` results.
 
 ### `hermetic_alpha.market`
 

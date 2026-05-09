@@ -10,6 +10,7 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
+ephemeris = ["pyswisseph>=2.10"]
 
 [build-system]
 requires = ["hatchling"]
