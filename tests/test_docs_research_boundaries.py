@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 
 ROOT = Path(__file__).parent.parent
 
@@ -17,27 +19,31 @@ def test_readme_includes_research_disclaimer_and_guide_link():
     assert "docs/anti-overfitting.md" in readme
 
 
-def test_anti_overfitting_guide_covers_required_research_cautions():
-    guide = read_doc("docs/anti-overfitting.md").lower()
-
-    required_terms = [
+@pytest.mark.parametrize(
+    "term",
+    [
         "baseline",
         "sample size",
         "confidence intervals",
         "data leakage",
         "cherry-picking",
         "out-of-sample",
-    ]
+    ],
+)
+def test_anti_overfitting_guide_covers_required_research_caution(term):
+    guide = read_doc("docs/anti-overfitting.md").lower()
 
-    for term in required_terms:
-        assert term in guide
+    assert term in guide
 
 
-def test_related_docs_link_to_anti_overfitting_guide():
-    for path in [
+@pytest.mark.parametrize(
+    "path",
+    [
         "docs/README.md",
         "docs/concepts.md",
         "docs/statistical-methods.md",
         "docs/troubleshooting.md",
-    ]:
-        assert "anti-overfitting" in read_doc(path)
+    ],
+)
+def test_related_doc_links_to_anti_overfitting_guide(path):
+    assert "anti-overfitting" in read_doc(path)
