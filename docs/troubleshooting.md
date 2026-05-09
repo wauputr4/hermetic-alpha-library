@@ -58,6 +58,12 @@ Mitigation:
 - Internally use UTC.
 - Make candle interval explicit.
 - Avoid mixing daily candles from different exchange timezone conventions without recording the source.
+- `YahooFinanceProvider` requests daily candles with UTC period boundaries,
+  records `source="yahoo_finance"` and `interval="1d"`, and skips incomplete
+  rows where Yahoo returns missing OHLC values.
+- Yahoo Finance is an unofficial public data source and can change response
+  shape, throttle requests, or revise historical candles. Treat it as a
+  convenient research input, not a canonical audit feed.
 
 ### Small Sample Size
 
