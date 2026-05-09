@@ -48,7 +48,7 @@ def chart_payload():
 def test_yahoo_finance_provider_fetches_normalized_btc_daily_candles():
     requests = []
 
-    def opener(request, timeout):
+    def opener(request, *, timeout):
         requests.append((request, timeout))
         return FakeResponse(chart_payload())
 
@@ -76,8 +76,19 @@ def test_yahoo_finance_provider_fetches_normalized_btc_daily_candles():
     assert params["events"] == ["history"]
 
 
+def test_yahoo_finance_provider_passes_timeout_by_keyword():
+    def opener(request, data=None, timeout=None):
+        assert data is None
+        assert timeout == 7.0
+        return FakeResponse(chart_payload())
+
+    provider = YahooFinanceProvider(opener=opener, timeout=7.0)
+
+    assert provider.fetch_daily_btc("2024-05-08", "2024-05-09")
+
+
 def test_yahoo_finance_provider_requires_aware_datetimes():
-    provider = YahooFinanceProvider(opener=lambda request, timeout: FakeResponse(chart_payload()))
+    provider = YahooFinanceProvider(opener=lambda request, *, timeout: FakeResponse(chart_payload()))
 
     with pytest.raises(ValueError, match="timezone-aware"):
         provider.fetch_daily_btc(datetime(2024, 5, 8), "2024-05-09")
@@ -85,7 +96,15 @@ def test_yahoo_finance_provider_requires_aware_datetimes():
 
 def test_yahoo_finance_provider_reports_chart_errors():
     payload = {"chart": {"result": None, "error": {"code": "Not Found", "description": "No data"}}}
-    provider = YahooFinanceProvider(opener=lambda request, timeout: FakeResponse(payload))
+    provider = YahooFinanceProvider(opener=lambda request, *, timeout: FakeResponse(payload))
 
     with pytest.raises(MarketDataProviderError, match="Yahoo Finance chart error"):
+        provider.fetch_daily_btc("2024-05-08", "2024-05-09")
+
+
+def test_yahoo_finance_provider_reports_empty_quote_arrays():
+    payload = {"chart": {"result": [{"timestamp": [1715126400], "indicators": {"quote": []}}], "error": None}}
+    provider = YahooFinanceProvider(opener=lambda request, *, timeout: FakeResponse(payload))
+
+    with pytest.raises(MarketDataProviderError, match="missing timestamps or quotes"):
         provider.fetch_daily_btc("2024-05-08", "2024-05-09")

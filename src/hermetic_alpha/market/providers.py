@@ -12,7 +12,7 @@ from urllib.request import Request, urlopen
 from hermetic_alpha.models import MarketCandle
 
 
-UrlOpen = Callable[[Request, float], Any]
+UrlOpen = Callable[..., Any]
 
 
 class MarketDataProviderError(RuntimeError):
@@ -58,7 +58,7 @@ class YahooFinanceProvider:
             headers={"User-Agent": "hermetic-alpha-library/0.1"},
         )
         try:
-            with self._opener(request, self._timeout) as response:
+            with self._opener(request, timeout=self._timeout) as response:
                 return json.loads(response.read().decode("utf-8"))
         except OSError as exc:
             raise MarketDataProviderError(f"Yahoo Finance request failed for {asset}") from exc
@@ -100,9 +100,10 @@ def _candles_from_chart_result(
     interval: str,
 ) -> list[MarketCandle]:
     timestamps = result.get("timestamp")
-    quote = result.get("indicators", {}).get("quote", [{}])[0]
-    if not isinstance(timestamps, list) or not isinstance(quote, dict):
+    quotes = (result.get("indicators") or {}).get("quote") or []
+    if not isinstance(timestamps, list) or not quotes or not isinstance(quotes[0], dict):
         raise MarketDataProviderError("Yahoo Finance chart result is missing timestamps or quotes")
+    quote = quotes[0]
 
     opens = quote.get("open", [])
     highs = quote.get("high", [])
