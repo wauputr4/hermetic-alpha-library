@@ -77,6 +77,13 @@ Mitigation:
 - Compare against random baselines.
 - Seed bootstrap and random-baseline helpers when results need to be reproducible in docs, tests, or PR reviews.
 
+### Exact-Orb Aspect Queries
+
+Aspect detection supports `max_orb=0` for exact-match searches. Decimal
+longitude arithmetic can leave tiny floating-point residuals around an otherwise
+exact angle, so exact-orb matching treats residuals within `1e-9` degrees as
+zero and records the event with `orb=0.0` and `strength=1.0`.
+
 ### Data Leakage
 
 Top/bottom labels require future data, so they must not be used as predictive features.
