@@ -8,7 +8,7 @@ from typing import Mapping
 
 from hermetic_alpha.models import AspectEvent, PlanetPosition
 
-from .math import aspect_strength, circular_distance
+from .math import ANGLE_TOLERANCE, aspect_strength, circular_distance
 
 ASPECT_ANGLES: dict[str, float] = {
     "conjunction": 0.0,
@@ -36,7 +36,9 @@ def detect_aspect(
     target_angle = ASPECT_ANGLES[aspect]
     orb = abs(actual_angle - target_angle)
 
-    if orb > max_orb:
+    if max_orb == 0 and orb <= ANGLE_TOLERANCE:
+        orb = 0.0
+    elif orb > max_orb:
         return None
 
     return AspectEvent(

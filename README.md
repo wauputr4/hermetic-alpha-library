@@ -39,22 +39,25 @@ The first version focuses on:
 ## Planned Python Package
 
 ```python
-from hermetic_alpha.analysis import aspect_event_study
+from hermetic_alpha.analysis import summarize_event_study
+from hermetic_alpha.astro import detect_aspect
+from hermetic_alpha.labels import add_forward_returns
 
-result = aspect_event_study(
-    asset="BTC-USD",
-    aspect={
-        "body_a": "sun",
-        "body_b": "jupiter",
-        "type": "conjunction",
-        "orb": 3,
-    },
-    start="2015-01-01",
-    end="2026-01-01",
-    horizons=[1, 7, 30],
+closes = [100, 110, 99, 120, 95, 128]
+labels = add_forward_returns(closes, horizons=[1, 7, 30])
+
+aspect = detect_aspect(
+    body_a="sun",
+    longitude_a=10,
+    body_b="jupiter",
+    longitude_b=12,
+    aspect="conjunction",
+    max_orb=3,
 )
 
-print(result.summary())
+assert aspect is not None
+result = summarize_event_study(labels, event_indexes=[0, 1], horizon=1)
+print(result)
 ```
 
 ## Repository Role

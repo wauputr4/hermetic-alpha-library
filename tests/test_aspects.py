@@ -25,6 +25,26 @@ def test_find_aspects_between_bodies():
     }
 
 
+def test_find_aspects_supports_exact_orb_zero():
+    events = find_aspects({"sun": 0, "jupiter": 0}, {"conjunction": 0})
+
+    assert len(events) == 1
+    event = events[0]
+    assert event.aspect == "conjunction"
+    assert event.orb == 0
+    assert event.strength == 1.0
+
+
+def test_find_aspects_supports_float_tolerance_for_exact_orb_zero():
+    events = find_aspects({"sun": 10.1, "jupiter": 70.1}, {"sextile": 0})
+
+    assert len(events) == 1
+    event = events[0]
+    assert event.aspect == "sextile"
+    assert event.orb == 0
+    assert event.strength == 1.0
+
+
 def test_detect_aspect_preserves_timestamp():
     ts = datetime(2026, 5, 6, tzinfo=timezone.utc)
     event = detect_aspect("sun", 10, "jupiter", 12, "conjunction", 3, timestamp=ts)
