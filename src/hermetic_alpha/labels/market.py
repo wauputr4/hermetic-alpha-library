@@ -6,7 +6,11 @@ from collections.abc import Sequence
 
 
 def add_forward_returns(closes: Sequence[float], horizons: Sequence[int]) -> list[dict[str, float | bool | None]]:
-    """Create forward return and bullish labels for a sequence of close prices."""
+    """Create forward return and bullish labels for a sequence of close prices.
+
+    Non-positive base closes (for example zero) are treated as invalid for return
+    calculation and produce ``None`` labels for that row.
+    """
     rows: list[dict[str, float | bool | None]] = []
     for index, close in enumerate(closes):
         row: dict[str, float | bool | None] = {}
@@ -17,6 +21,10 @@ def add_forward_returns(closes: Sequence[float], horizons: Sequence[int]) -> lis
             return_key = f"return_{horizon}d"
             bullish_key = f"bullish_{horizon}d"
             if future_index >= len(closes):
+                row[return_key] = None
+                row[bullish_key] = None
+                continue
+            if close <= 0:
                 row[return_key] = None
                 row[bullish_key] = None
                 continue

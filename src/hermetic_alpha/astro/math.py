@@ -15,9 +15,15 @@ def circular_distance(a: float, b: float) -> float:
 
 
 def aspect_strength(orb: float, max_orb: float) -> float:
-    """Return a 0..1 strength score where tighter orbs are stronger."""
-    if max_orb <= 0:
-        raise ValueError("max_orb must be greater than zero")
+    """Return a 0..1 strength score where tighter orbs are stronger.
+
+    ``max_orb`` may be zero to represent exact-match aspect matching; in that
+    case strength is ``1.0`` when ``orb == 0`` and ``0.0`` otherwise.
+    """
+    if max_orb < 0:
+        raise ValueError("max_orb must be non-negative")
     if orb < 0:
         raise ValueError("orb cannot be negative")
+    if max_orb == 0:
+        return 1.0 if orb == 0 else 0.0
     return max(0.0, min(1.0, 1 - (orb / max_orb)))

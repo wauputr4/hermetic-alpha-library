@@ -144,6 +144,22 @@ match pull request failures. Adding the workflow requires a GitHub credential
 with `workflow` scope; otherwise GitHub rejects pushes that create files under
 `.github/workflows/`.
 
+## Reliable test verification (local + CI)
+
+Recommended one-command local verification after checkout:
+
+```bash
+python3 -m pip install -e ".[dev]" && python3 -m pytest -q
+```
+
+If `python3 -m pytest -q` fails because `pytest` is missing, the install step
+did not complete in the active environment. Re-run the install command and then
+retry the test command in the same shell.
+
+Core tests and mock ephemeris coverage should run without `hermetic-alpha[ephemeris]`.
+Optional ephemeris dependencies are exercised by mocks in
+`tests/test_ephemeris.py`, so CI can keep the dependency set lightweight.
+
 ## 2026-05-06 — Initial MVP Scaffold
 
 Implemented the first library scaffold:

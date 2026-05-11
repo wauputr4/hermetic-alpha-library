@@ -8,6 +8,19 @@ from statistics import mean, median
 from hermetic_alpha.models import EventStudyResult
 
 
+def aspect_event_study(
+    all_labels: Sequence[dict[str, float | bool | None]],
+    event_indexes: Sequence[int],
+    horizon: int,
+) -> EventStudyResult:
+    """Backward-compatible alias for ``summarize_event_study``.
+
+    Existing notebooks and docs that still import ``aspect_event_study`` can
+    continue to run while the preferred public name is ``summarize_event_study``.
+    """
+    return summarize_event_study(all_labels, event_indexes, horizon)
+
+
 def summarize_event_study(
     all_labels: Sequence[dict[str, float | bool | None]],
     event_indexes: Sequence[int],

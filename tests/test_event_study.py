@@ -11,6 +11,15 @@ def test_forward_returns_and_bullish_probability():
     assert bullish_probability(labels, 1) == 2 / 3
 
 
+def test_forward_returns_with_zero_close_is_safe():
+    labels = add_forward_returns([100, 0, 110], [1])
+
+    assert labels[0]["return_1d"] == -1.0
+    assert labels[0]["bullish_1d"] is False
+    assert labels[1]["return_1d"] is None
+    assert labels[1]["bullish_1d"] is None
+
+
 def test_local_extrema_labels_mark_top_bottom_and_neutral_cases():
     labels = add_local_extrema_labels([100, 90, 110, 105, 95, 115, 108], 1)
 
