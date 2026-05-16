@@ -48,6 +48,12 @@ hermetic_alpha/
    └─ csv.py
 ```
 
+The initial `hermetic_alpha.exports` package provides dependency-free helpers
+for serializing library-owned models and result dictionaries. JSON export
+accepts mappings, sequences, and objects with `to_dict()`. CSV export is limited
+to flat rows with scalar values so notebooks, future CLIs, and batch jobs do not
+silently invent incompatible nested flattening rules.
+
 ## Data Model Concepts
 
 ### Aspect Event

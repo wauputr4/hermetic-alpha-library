@@ -60,6 +60,18 @@ result = summarize_event_study(labels, event_indexes=[0, 1], horizon=1)
 print(result)
 ```
 
+Export library result objects without adding runtime dependencies:
+
+```python
+from hermetic_alpha.exports import to_csv, to_json
+
+json_text = to_json(result)
+csv_text = to_csv([result])
+```
+
+CSV export is intentionally limited to flat rows. Flatten nested research
+structures before writing CSV so downstream column names remain explicit.
+
 ## Repository Role
 
 This repository contains only the reusable core logic. User-facing tools such as command-line interfaces, APIs, and dashboards should call this library instead of duplicating analysis logic.

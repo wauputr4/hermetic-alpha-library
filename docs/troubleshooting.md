@@ -151,6 +151,17 @@ match pull request failures. Adding the workflow requires a GitHub credential
 with `workflow` scope; otherwise GitHub rejects pushes that create files under
 `.github/workflows/`.
 
+## Export Helpers
+
+Use `hermetic_alpha.exports.to_json()` or `write_json()` for deterministic JSON
+serialization of mappings, sequences, and model objects with `to_dict()`.
+
+Use `to_csv()` or `write_csv()` only for flat row data. CSV export writes a
+stable header based on first-seen field order unless `fieldnames=` is supplied,
+and it raises `TypeError` for nested dictionaries, lists, tuples, or other
+structured values. Flatten nested research outputs explicitly before exporting
+them to CSV so column names remain auditable.
+
 ## Reliable test verification (local + CI)
 
 Recommended one-command local verification after checkout:
