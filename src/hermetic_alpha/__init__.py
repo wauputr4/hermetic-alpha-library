@@ -10,6 +10,7 @@ from .models import (
     MarketLabel,
     PlanetPosition,
 )
+from .similarity import encode_longitude, encode_planet_positions
 
 __all__ = [
     "__version__",
@@ -19,4 +20,6 @@ __all__ = [
     "MarketCandle",
     "MarketLabel",
     "PlanetPosition",
+    "encode_longitude",
+    "encode_planet_positions",
 ]

@@ -124,6 +124,15 @@ rows; nested mappings or sequences should be flattened by the caller before
 export. When passing explicit CSV `fieldnames`, every row must fit that header
 exactly apart from missing fields, which are emitted as blank cells.
 
+## Similarity Encoding
+
+Longitude similarity must use circular encodings. Raw degree values make `359`
+and `1` look far apart even though they are only two degrees away around the
+zodiac wheel. Use `encode_longitude()` for one value or
+`encode_planet_positions()` for chart-state vectors. Position vectors are sorted
+by timestamp, body, and zodiac before encoding, then each position contributes
+`longitude_sin` followed by `longitude_cos`.
+
 ## Python Development Environment
 
 Use `uv` when it is available:

@@ -69,7 +69,8 @@ Goals:
 
 Goals:
 
-- Encode chart states as vectors.
+- Encode chart states as vectors. Initial sine/cosine longitude encoding is
+  implemented in `hermetic_alpha.similarity`.
 - Use sin/cos encoding for circular values.
 - Implement K-nearest-neighbor search.
 - Return similar historical chart-market states.

@@ -122,6 +122,11 @@ Example:
 angle = 359° and angle = 1° are close, not far apart.
 ```
 
+The initial dependency-free similarity layer exposes `encode_longitude()` and
+`encode_planet_positions()`. Position vectors are ordered by timestamp, then
+body name, then zodiac, and each position contributes `longitude_sin` followed
+by `longitude_cos`.
+
 Recommended methods:
 
 - Circular distance.
