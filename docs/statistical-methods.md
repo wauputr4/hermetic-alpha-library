@@ -139,8 +139,12 @@ longitude_cos = cos(longitude)
 
 `hermetic_alpha.similarity.encode_planet_positions()` applies this encoding to
 `PlanetPosition` values with deterministic timestamp/body/zodiac ordering. The
-helper only creates numeric chart-state vectors; nearest-neighbor indexing and
-modeling remain future layers.
+helper creates numeric chart-state vectors that can be passed to
+`find_nearest()` with `SimilarityCandidate` values for dependency-free
+nearest-neighbor ranking. The default metric is cosine similarity; Euclidean
+distance is also available. Empty candidate sets return no neighbors, while
+empty vectors, zero vectors under cosine similarity, and vector length
+mismatches raise `ValueError`.
 
 Recommended methods:
 

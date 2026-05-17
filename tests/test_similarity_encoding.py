@@ -1,8 +1,17 @@
 from datetime import datetime, timedelta, timezone
 from math import isclose
 
+import pytest
+
 from hermetic_alpha.models import PlanetPosition
-from hermetic_alpha.similarity import encode_longitude, encode_planet_positions
+from hermetic_alpha.similarity import (
+    SimilarityCandidate,
+    cosine_similarity,
+    encode_longitude,
+    encode_planet_positions,
+    euclidean_distance,
+    find_nearest,
+)
 
 
 def test_encode_longitude_normalizes_circular_degrees():
@@ -55,3 +64,96 @@ def test_encode_planet_positions_compares_aware_timestamps_chronologically():
         *encode_longitude(0),
         *encode_longitude(90),
     ]
+
+
+def test_find_nearest_ranks_similar_vectors_first_with_cosine_metric():
+    query = [1.0, 0.0]
+    candidates = [
+        SimilarityCandidate("far", [0.0, 1.0], payload={"row": 2}),
+        SimilarityCandidate("near", [0.99, 0.1], payload={"row": 1}),
+    ]
+
+    results = find_nearest(query, candidates)
+
+    assert [result.id for result in results] == ["near", "far"]
+    assert results[0].payload == {"row": 1}
+    assert results[0].score > results[1].score
+
+
+def test_find_nearest_supports_euclidean_metric_and_limit():
+    results = find_nearest(
+        [1.0, 1.0],
+        [
+            SimilarityCandidate("distant", [4.0, 4.0]),
+            SimilarityCandidate("nearest", [1.5, 1.5]),
+            SimilarityCandidate("middle", [2.0, 2.0]),
+        ],
+        limit=2,
+        metric="euclidean",
+    )
+
+    assert [result.id for result in results] == ["nearest", "middle"]
+    assert results[0].distance < results[1].distance
+
+
+def test_find_nearest_breaks_exact_ties_by_candidate_id():
+    results = find_nearest(
+        [1.0, 0.0],
+        [
+            SimilarityCandidate("b", [1.0, 0.0]),
+            SimilarityCandidate("a", [1.0, 0.0]),
+        ],
+    )
+
+    assert [result.id for result in results] == ["a", "b"]
+
+
+def test_find_nearest_accepts_encoded_planet_position_vectors():
+    timestamp = datetime(2026, 5, 17, 0, 0, tzinfo=timezone.utc)
+    query = encode_planet_positions(
+        [
+            PlanetPosition(timestamp, "jupiter", 0),
+            PlanetPosition(timestamp, "sun", 90),
+        ]
+    )
+    nearest = encode_planet_positions(
+        [
+            PlanetPosition(timestamp, "jupiter", 1),
+            PlanetPosition(timestamp, "sun", 89),
+        ]
+    )
+    distant = encode_planet_positions(
+        [
+            PlanetPosition(timestamp, "jupiter", 180),
+            PlanetPosition(timestamp, "sun", 270),
+        ]
+    )
+
+    results = find_nearest(
+        query,
+        [
+            SimilarityCandidate("distant-chart", distant),
+            SimilarityCandidate("near-chart", nearest),
+        ],
+    )
+
+    assert [result.id for result in results] == ["near-chart", "distant-chart"]
+
+
+def test_similarity_search_validates_inputs():
+    assert find_nearest([1.0], []) == []
+
+    with pytest.raises(ValueError, match="vectors must have the same length"):
+        cosine_similarity([1.0], [1.0, 2.0])
+
+    with pytest.raises(ValueError, match="cosine similarity requires non-zero vectors"):
+        cosine_similarity([0.0, 0.0], [1.0, 0.0])
+
+    with pytest.raises(ValueError, match="vectors must not be empty"):
+        euclidean_distance([], [])
+
+    with pytest.raises(ValueError, match="limit must be a positive integer"):
+        find_nearest([1.0], [SimilarityCandidate("a", [1.0])], limit=0)
+
+    with pytest.raises(ValueError, match="metric must be 'cosine' or 'euclidean'"):
+        find_nearest([1.0], [SimilarityCandidate("a", [1.0])], metric="manhattan")

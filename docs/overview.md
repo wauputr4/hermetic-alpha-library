@@ -129,11 +129,17 @@ by `longitude_cos`. Aware timestamps are compared as datetimes, so equivalent
 instants in different timezone offsets keep chronological ordering before the
 body and zodiac tie-breakers are applied.
 
+The search layer exposes `SimilarityCandidate`, `find_nearest()`,
+`cosine_similarity()`, and `euclidean_distance()` for small in-memory
+nearest-neighbor workflows. It is intentionally dependency-free and returns
+ranked neighbors with caller-provided IDs and optional payloads. Exact score
+ties are ordered by candidate ID for reproducible reports.
+
 Recommended methods:
 
 - Circular distance.
 - Cosine similarity.
-- K-nearest neighbors.
+- K-nearest neighbors for small in-memory candidate sets.
 - Vector search over historical chart states.
 
 ## Statistical Principles

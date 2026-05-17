@@ -136,6 +136,13 @@ comparison instead of ISO strings so timezone-aware values representing the same
 instant are ordered by the body and zodiac tie-breakers, not by their textual
 offset representation.
 
+Use `find_nearest()` with `SimilarityCandidate` values for small in-memory
+nearest-neighbor searches. The default cosine metric rejects zero vectors
+because their direction is undefined; use Euclidean distance only when magnitude
+differences are meaningful for the research question. Exact score ties are
+ordered by candidate ID, so choose stable IDs when reports need reproducible
+ordering.
+
 ## Python Development Environment
 
 Use `uv` when it is available:
