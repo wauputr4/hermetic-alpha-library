@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from math import isclose
 
 from hermetic_alpha.models import PlanetPosition
@@ -36,4 +36,22 @@ def test_encode_planet_positions_uses_stable_timestamp_body_ordering():
         *encode_longitude(0),
         *encode_longitude(90),
         *encode_longitude(180),
+    ]
+
+
+def test_encode_planet_positions_compares_aware_timestamps_chronologically():
+    utc = datetime(2026, 5, 17, 0, 0, tzinfo=timezone.utc)
+    same_instant_wib = datetime(
+        2026, 5, 17, 7, 0, tzinfo=timezone(timedelta(hours=7))
+    )
+    positions = [
+        PlanetPosition(same_instant_wib, "sun", 90),
+        PlanetPosition(utc, "jupiter", 0),
+    ]
+
+    vector = encode_planet_positions(positions)
+
+    assert vector == [
+        *encode_longitude(0),
+        *encode_longitude(90),
     ]

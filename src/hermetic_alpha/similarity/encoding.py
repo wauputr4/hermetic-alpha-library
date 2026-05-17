@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from math import cos, radians, sin
 from typing import Sequence
 
@@ -29,5 +30,5 @@ def encode_planet_positions(positions: Sequence[PlanetPosition]) -> list[float]:
     return vector
 
 
-def _position_sort_key(position: PlanetPosition) -> tuple[str, str, str]:
-    return (position.timestamp.isoformat(), position.body, position.zodiac)
+def _position_sort_key(position: PlanetPosition) -> tuple[datetime, str, str]:
+    return (position.timestamp, position.body, position.zodiac)

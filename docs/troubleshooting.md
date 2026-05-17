@@ -131,7 +131,10 @@ and `1` look far apart even though they are only two degrees away around the
 zodiac wheel. Use `encode_longitude()` for one value or
 `encode_planet_positions()` for chart-state vectors. Position vectors are sorted
 by timestamp, body, and zodiac before encoding, then each position contributes
-`longitude_sin` followed by `longitude_cos`.
+`longitude_sin` followed by `longitude_cos`. Timestamp sorting uses datetime
+comparison instead of ISO strings so timezone-aware values representing the same
+instant are ordered by the body and zodiac tie-breakers, not by their textual
+offset representation.
 
 ## Python Development Environment
 

@@ -125,7 +125,9 @@ angle = 359° and angle = 1° are close, not far apart.
 The initial dependency-free similarity layer exposes `encode_longitude()` and
 `encode_planet_positions()`. Position vectors are ordered by timestamp, then
 body name, then zodiac, and each position contributes `longitude_sin` followed
-by `longitude_cos`.
+by `longitude_cos`. Aware timestamps are compared as datetimes, so equivalent
+instants in different timezone offsets keep chronological ordering before the
+body and zodiac tie-breakers are applied.
 
 Recommended methods:
 
