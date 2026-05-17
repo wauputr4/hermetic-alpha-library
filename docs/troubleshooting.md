@@ -121,6 +121,15 @@ longitude arithmetic can leave tiny floating-point residuals around an otherwise
 exact angle, so exact-orb matching treats residuals within `1e-9` degrees as
 zero and records the event with `orb=0.0` and `strength=1.0`.
 
+### Historical Aspect Scans
+
+`scan_aspect_series()` groups `PlanetPosition` rows by exact timestamp and scans
+each timestamp independently. Missing bodies at a timestamp are not filled or
+carried forward from nearby timestamps; only bodies present in that group are
+scanned. Position timestamps must be timezone-aware, body names must be
+non-empty, and duplicate body rows for the same timestamp are rejected so a scan
+cannot silently choose between conflicting longitudes.
+
 ### Data Leakage
 
 Top/bottom labels require future data, so they must not be used as predictive features.

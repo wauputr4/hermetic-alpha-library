@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from itertools import combinations
-from typing import Mapping
+from typing import Iterable, Mapping
 
 from hermetic_alpha.models import AspectEvent, PlanetPosition
 
@@ -95,4 +95,39 @@ def find_aspects(
             if event is not None:
                 events.append(event)
 
+    return events
+
+
+def scan_aspect_series(
+    positions: Iterable[PlanetPosition],
+    aspects: Mapping[str, float] | None = None,
+) -> list[AspectEvent]:
+    """Scan timestamped planet positions for aspects at each timestamp.
+
+    Positions are grouped by exact timestamp, then each timestamp group is
+    scanned independently. Missing bodies are ignored instead of inferred.
+    """
+    grouped: dict[datetime, dict[str, PlanetPosition]] = {}
+    for position in positions:
+        if not isinstance(position, PlanetPosition):
+            raise ValueError("positions must contain PlanetPosition values")
+        if position.timestamp.tzinfo is None or position.timestamp.utcoffset() is None:
+            raise ValueError("position timestamps must be timezone-aware")
+        if not position.body:
+            raise ValueError("position body must not be empty")
+
+        timestamp_group = grouped.setdefault(position.timestamp, {})
+        if position.body in timestamp_group:
+            raise ValueError(
+                f"duplicate position for body {position.body!r} at {position.timestamp.isoformat()}"
+            )
+        timestamp_group[position.body] = position
+
+    events: list[AspectEvent] = []
+    for timestamp in sorted(grouped):
+        timestamp_positions = {
+            body: grouped[timestamp][body]
+            for body in sorted(grouped[timestamp])
+        }
+        events.extend(find_aspects(timestamp_positions, aspects=aspects, timestamp=timestamp))
     return events

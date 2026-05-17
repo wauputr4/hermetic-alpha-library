@@ -1,8 +1,10 @@
 from datetime import datetime, timezone
 
+import pytest
+
 from hermetic_alpha.models import PlanetPosition
 
-from hermetic_alpha.astro import circular_distance, detect_aspect, find_aspects
+from hermetic_alpha.astro import circular_distance, detect_aspect, find_aspects, scan_aspect_series
 
 
 def test_circular_distance_wraps_zero_boundary():
@@ -60,3 +62,67 @@ def test_find_aspects_propagates_planet_position_timestamp():
     }, {"conjunction": 3})
     assert len(events) == 1
     assert events[0].timestamp == ts
+
+
+def test_scan_aspect_series_groups_by_timestamp_without_mixing_positions():
+    ts1 = datetime(2026, 5, 6, tzinfo=timezone.utc)
+    ts2 = datetime(2026, 5, 7, tzinfo=timezone.utc)
+
+    events = scan_aspect_series(
+        [
+            PlanetPosition(ts2, "sun", 0),
+            PlanetPosition(ts1, "mars", 90),
+            PlanetPosition(ts1, "sun", 0),
+            PlanetPosition(ts2, "mars", 120),
+            PlanetPosition(ts2, "venus", 180),
+        ],
+        {"square": 3, "trine": 3, "opposition": 3},
+    )
+
+    assert [(event.timestamp, event.body_a, event.body_b, event.aspect) for event in events] == [
+        (ts1, "mars", "sun", "square"),
+        (ts2, "mars", "sun", "trine"),
+        (ts2, "sun", "venus", "opposition"),
+    ]
+
+
+def test_scan_aspect_series_scans_only_bodies_present_at_each_timestamp():
+    ts1 = datetime(2026, 5, 6, tzinfo=timezone.utc)
+    ts2 = datetime(2026, 5, 7, tzinfo=timezone.utc)
+
+    events = scan_aspect_series(
+        [
+            PlanetPosition(ts1, "sun", 0),
+            PlanetPosition(ts1, "mars", 90),
+            PlanetPosition(ts2, "sun", 0),
+        ],
+        {"square": 3},
+    )
+
+    assert len(events) == 1
+    assert events[0].timestamp == ts1
+    assert (events[0].body_a, events[0].body_b, events[0].aspect) == ("mars", "sun", "square")
+
+
+def test_scan_aspect_series_empty_input_returns_no_events():
+    assert scan_aspect_series([]) == []
+
+
+@pytest.mark.parametrize(
+    ("positions", "message"),
+    [
+        ([object()], "PlanetPosition"),
+        ([PlanetPosition(datetime(2026, 5, 6), "sun", 0)], "timezone-aware"),
+        ([PlanetPosition(datetime(2026, 5, 6, tzinfo=timezone.utc), "", 0)], "body must not be empty"),
+        (
+            [
+                PlanetPosition(datetime(2026, 5, 6, tzinfo=timezone.utc), "sun", 0),
+                PlanetPosition(datetime(2026, 5, 6, tzinfo=timezone.utc), "sun", 1),
+            ],
+            "duplicate position",
+        ),
+    ],
+)
+def test_scan_aspect_series_rejects_invalid_position_rows(positions, message):
+    with pytest.raises(ValueError, match=message):
+        scan_aspect_series(positions)

@@ -56,6 +56,11 @@ Use `generate_planet_positions()` when research code needs a deterministic
 timestamp/body series from any adapter with a `position(timestamp, body)`
 method. The helper keeps ordering as timestamp first, then the caller-supplied
 body order, while leaving UTC normalization to the adapter.
+Use `scan_aspect_series()` to group timestamped `PlanetPosition` rows and run
+the existing aspect detector independently for each timestamp. The scanner
+orders results by timestamp, then sorted body pair and configured aspect order;
+if a timestamp is missing a body, it scans only the bodies present at that
+timestamp instead of inventing positions.
 
 ### `hermetic_alpha.market`
 

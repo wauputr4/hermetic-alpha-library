@@ -18,6 +18,10 @@ Process:
 3. Calculate forward returns after selected horizons.
 4. Summarize bullish probability, average return, median return, and sample size.
 
+Use `scan_aspect_series()` when event studies start from timestamped
+`PlanetPosition` rows. It scans each timestamp independently and preserves the
+event timestamp so joins to market labels stay explicit.
+
 Multi-horizon event studies should reuse the same selected event indexes across all configured horizons so 1D, 7D, and 30D summaries are comparable and auditable.
 
 Example output:
