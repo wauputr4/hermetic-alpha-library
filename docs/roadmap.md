@@ -54,7 +54,9 @@ Goals:
 
 - Evaluate Kerykeion, Immanuel, and pyswisseph.
 - Select first implementation engine.
-- Generate planetary positions for a date range.
+- Generate planetary positions for a date range. `generate_planet_positions()`
+  now provides the dependency-free orchestration helper for adapter-backed
+  timestamp/body loops.
 - Detect major aspects over historical timestamps.
 
 ## Phase 4 — Statistical Validation

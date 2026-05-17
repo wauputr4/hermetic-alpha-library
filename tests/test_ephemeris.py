@@ -7,7 +7,9 @@ from hermetic_alpha.astro.ephemeris import (
     EphemerisBackendUnavailable,
     SwissEphemerisAdapter,
     _import_swisseph,
+    generate_planet_positions,
 )
+from hermetic_alpha.models import PlanetPosition
 
 
 class FakeSwissEph:
@@ -42,6 +44,122 @@ class FailingSwissEph(FakeSwissEph):
 
     def get_errmsg(self):
         return "missing ephemeris data"
+
+
+class RecordingAdapter:
+    def __init__(self):
+        self.calls = []
+
+    def position(self, timestamp, body):
+        self.calls.append((timestamp, body))
+        return PlanetPosition(
+            timestamp=timestamp.astimezone(timezone.utc),
+            body=body.lower(),
+            longitude=len(self.calls),
+            engine="fake",
+        )
+
+
+def test_generate_planet_positions_orders_timestamps_then_supplied_body_order():
+    adapter = RecordingAdapter()
+    start = datetime(2026, 5, 8, 0, 0, tzinfo=timezone.utc)
+    end = datetime(2026, 5, 10, 0, 0, tzinfo=timezone.utc)
+
+    positions = generate_planet_positions(
+        adapter,
+        start=start,
+        end=end,
+        step=timedelta(days=1),
+        bodies=["mars", "sun"],
+    )
+
+    assert adapter.calls == [
+        (datetime(2026, 5, 8, tzinfo=timezone.utc), "mars"),
+        (datetime(2026, 5, 8, tzinfo=timezone.utc), "sun"),
+        (datetime(2026, 5, 9, tzinfo=timezone.utc), "mars"),
+        (datetime(2026, 5, 9, tzinfo=timezone.utc), "sun"),
+        (datetime(2026, 5, 10, tzinfo=timezone.utc), "mars"),
+        (datetime(2026, 5, 10, tzinfo=timezone.utc), "sun"),
+    ]
+    assert [(position.timestamp, position.body) for position in positions] == [
+        (datetime(2026, 5, 8, tzinfo=timezone.utc), "mars"),
+        (datetime(2026, 5, 8, tzinfo=timezone.utc), "sun"),
+        (datetime(2026, 5, 9, tzinfo=timezone.utc), "mars"),
+        (datetime(2026, 5, 9, tzinfo=timezone.utc), "sun"),
+        (datetime(2026, 5, 10, tzinfo=timezone.utc), "mars"),
+        (datetime(2026, 5, 10, tzinfo=timezone.utc), "sun"),
+    ]
+
+
+def test_generate_planet_positions_includes_exact_end_boundary_only():
+    adapter = RecordingAdapter()
+
+    positions = generate_planet_positions(
+        adapter,
+        start=datetime(2026, 5, 8, tzinfo=timezone.utc),
+        end=datetime(2026, 5, 9, 12, tzinfo=timezone.utc),
+        step=timedelta(days=1),
+        bodies=["sun"],
+    )
+
+    assert [position.timestamp for position in positions] == [
+        datetime(2026, 5, 8, tzinfo=timezone.utc),
+        datetime(2026, 5, 9, tzinfo=timezone.utc),
+    ]
+
+
+def test_generate_planet_positions_accepts_timezone_aware_range():
+    adapter = RecordingAdapter()
+    wib = timezone(timedelta(hours=7))
+
+    positions = generate_planet_positions(
+        adapter,
+        start=datetime(2026, 5, 8, 7, tzinfo=wib),
+        end=datetime(2026, 5, 8, 7, tzinfo=wib),
+        step=timedelta(days=1),
+        bodies=["sun"],
+    )
+
+    assert adapter.calls == [(datetime(2026, 5, 8, 7, tzinfo=wib), "sun")]
+    assert positions[0].timestamp == datetime(2026, 5, 8, tzinfo=timezone.utc)
+
+
+@pytest.mark.parametrize(
+    ("start", "end", "step", "bodies", "message"),
+    [
+        (
+            datetime(2026, 5, 8),
+            datetime(2026, 5, 9, tzinfo=timezone.utc),
+            timedelta(days=1),
+            ["sun"],
+            "timezone-aware",
+        ),
+        (
+            datetime(2026, 5, 8, tzinfo=timezone.utc),
+            datetime(2026, 5, 7, tzinfo=timezone.utc),
+            timedelta(days=1),
+            ["sun"],
+            "end must be greater than or equal to start",
+        ),
+        (
+            datetime(2026, 5, 8, tzinfo=timezone.utc),
+            datetime(2026, 5, 9, tzinfo=timezone.utc),
+            timedelta(0),
+            ["sun"],
+            "step must be positive",
+        ),
+        (
+            datetime(2026, 5, 8, tzinfo=timezone.utc),
+            datetime(2026, 5, 9, tzinfo=timezone.utc),
+            timedelta(days=1),
+            [],
+            "bodies must not be empty",
+        ),
+    ],
+)
+def test_generate_planet_positions_rejects_invalid_inputs(start, end, step, bodies, message):
+    with pytest.raises(ValueError, match=message):
+        generate_planet_positions(RecordingAdapter(), start, end, step, bodies)
 
 
 def test_swiss_ephemeris_adapter_returns_normalized_planet_position():

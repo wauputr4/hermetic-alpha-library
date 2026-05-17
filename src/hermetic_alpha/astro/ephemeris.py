@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from types import ModuleType
-from typing import Any
+from typing import Any, Protocol, Sequence
 
 from hermetic_alpha.models import PlanetPosition
 
@@ -13,6 +13,13 @@ from .math import normalize_degrees
 
 class EphemerisBackendUnavailable(RuntimeError):
     """Raised when an optional ephemeris backend is not installed."""
+
+
+class EphemerisAdapter(Protocol):
+    """Minimal protocol for objects that can calculate planetary positions."""
+
+    def position(self, timestamp: datetime, body: str) -> PlanetPosition:
+        """Return a planetary position for a timezone-aware timestamp."""
 
 
 BODY_IDS: dict[str, str] = {
@@ -42,6 +49,32 @@ def _decimal_utc_hour(timestamp: datetime) -> float:
         + (timestamp.second / 3600)
         + (timestamp.microsecond / 3_600_000_000)
     )
+
+
+def generate_planet_positions(
+    adapter: EphemerisAdapter,
+    start: datetime,
+    end: datetime,
+    step: timedelta,
+    bodies: Sequence[str],
+) -> list[PlanetPosition]:
+    """Generate positions ordered by timestamp and caller-supplied body order."""
+    _require_aware_datetime(start)
+    _require_aware_datetime(end)
+    if end < start:
+        raise ValueError("end must be greater than or equal to start")
+    if step <= timedelta(0):
+        raise ValueError("step must be positive")
+    if not bodies:
+        raise ValueError("bodies must not be empty")
+
+    positions: list[PlanetPosition] = []
+    timestamp = start
+    while timestamp <= end:
+        for body in bodies:
+            positions.append(adapter.position(timestamp, body))
+        timestamp += step
+    return positions
 
 
 def _import_swisseph() -> ModuleType:
