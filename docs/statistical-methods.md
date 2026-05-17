@@ -137,6 +137,11 @@ longitude_sin = sin(longitude)
 longitude_cos = cos(longitude)
 ```
 
+`hermetic_alpha.similarity.encode_planet_positions()` applies this encoding to
+`PlanetPosition` values with deterministic timestamp/body/zodiac ordering. The
+helper only creates numeric chart-state vectors; nearest-neighbor indexing and
+modeling remain future layers.
+
 Recommended methods:
 
 - K-nearest neighbors.
