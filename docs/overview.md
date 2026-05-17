@@ -67,6 +67,8 @@ Responsibilities:
 The first implemented provider is `YahooFinanceProvider`, which fetches daily
 `BTC-USD` candles from Yahoo Finance's chart endpoint and returns normalized
 `MarketCandle` models with `source="yahoo_finance"` and `interval="1d"`.
+Use `write_candles_json()` and `read_candles_json()` when notebooks or examples
+need a small dependency-free local cache of those normalized candles.
 
 ### `hermetic_alpha.features`
 
