@@ -57,7 +57,9 @@ Goals:
 - Generate planetary positions for a date range. `generate_planet_positions()`
   now provides the dependency-free orchestration helper for adapter-backed
   timestamp/body loops.
-- Detect major aspects over historical timestamps.
+- Detect major aspects over historical timestamps. `scan_aspect_series()` now
+  groups timestamped positions and applies the existing aspect detector per
+  timestamp without mixing data across dates.
 
 ## Phase 4 — Statistical Validation
 

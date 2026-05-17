@@ -1,4 +1,4 @@
-from .aspects import ASPECT_ANGLES, AspectEvent, detect_aspect, find_aspects
+from .aspects import ASPECT_ANGLES, AspectEvent, detect_aspect, find_aspects, scan_aspect_series
 from hermetic_alpha.models import AspectDefinition
 from .ephemeris import (
     BODY_IDS,
@@ -20,6 +20,7 @@ __all__ = [
     "generate_planet_positions",
     "detect_aspect",
     "find_aspects",
+    "scan_aspect_series",
     "circular_distance",
     "aspect_strength",
 ]
