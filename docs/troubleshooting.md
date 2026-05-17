@@ -43,6 +43,10 @@ Mitigation:
 - The adapter accepts timezone-aware datetimes and normalizes them to UTC before
   converting to Julian day. Naive datetimes are rejected to avoid silent candle
   and ephemeris alignment errors.
+- `generate_planet_positions()` also requires timezone-aware start/end values,
+  a positive step, a non-empty body list, and `end >= start`. It preserves the
+  supplied timezone-aware timestamps when calling the adapter, so adapter-level
+  UTC normalization remains the single source of truth.
 - A negative `calc_ut` return flag is treated as a calculation failure and
   raised instead of returning a potentially invalid zeroed position.
 - `pyswisseph`/Swiss Ephemeris licensing remains a release policy concern. Keep

@@ -52,6 +52,10 @@ adapter should remain optional until licensing and packaging policy are clear.
 The initial adapter lives behind `hermetic_alpha.astro.SwissEphemerisAdapter`
 and returns Hermetic Alpha `PlanetPosition` models instead of exposing raw
 `swisseph` results.
+Use `generate_planet_positions()` when research code needs a deterministic
+timestamp/body series from any adapter with a `position(timestamp, body)`
+method. The helper keeps ordering as timestamp first, then the caller-supplied
+body order, while leaving UTC normalization to the adapter.
 
 ### `hermetic_alpha.market`
 
