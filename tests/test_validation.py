@@ -2,10 +2,12 @@ import pytest
 
 from hermetic_alpha.analysis import (
     PermutationTestResult,
+    WalkForwardSplit,
     bootstrap_percentile_interval,
     low_sample_warning,
     permutation_test,
     random_baseline_distribution,
+    walk_forward_splits,
 )
 
 
@@ -83,6 +85,62 @@ def test_permutation_test_supports_event_study_style_probability_statistic():
 
     assert result.observed_statistic == pytest.approx(2 / 3)
     assert 0 < result.p_value <= 1
+
+
+def test_walk_forward_splits_generate_chronological_windows():
+    splits = walk_forward_splits(["d1", "d2", "d3", "d4", "d5", "d6"], train_size=3, test_size=1)
+
+    assert splits == [
+        WalkForwardSplit(("d1", "d2", "d3"), ("d4",), 0, 3, 3, 4),
+        WalkForwardSplit(("d2", "d3", "d4"), ("d5",), 1, 4, 4, 5),
+        WalkForwardSplit(("d3", "d4", "d5"), ("d6",), 2, 5, 5, 6),
+    ]
+    assert splits[0].to_dict() == {
+        "train": ["d1", "d2", "d3"],
+        "test": ["d4"],
+        "train_start_index": 0,
+        "train_end_index": 3,
+        "test_start_index": 3,
+        "test_end_index": 4,
+    }
+
+
+def test_walk_forward_splits_support_index_counts_and_step_size():
+    splits = walk_forward_splits(10, train_size=3, test_size=2, step_size=2)
+
+    assert [(split.train, split.test) for split in splits] == [
+        ((0, 1, 2), (3, 4)),
+        ((2, 3, 4), (5, 6)),
+        ((4, 5, 6), (7, 8)),
+    ]
+
+
+def test_walk_forward_splits_prevent_train_test_leakage():
+    splits = walk_forward_splits(range(8), train_size=3, test_size=2, step_size=2)
+
+    for split in splits:
+        assert split.train_end_index == split.test_start_index
+        assert max(split.train) < min(split.test)
+
+
+def test_walk_forward_splits_validate_inputs():
+    with pytest.raises(ValueError, match="observations must be"):
+        walk_forward_splits([], train_size=1, test_size=1)
+
+    with pytest.raises(ValueError, match="train_size must be"):
+        walk_forward_splits([1, 2], train_size=0, test_size=1)
+
+    with pytest.raises(ValueError, match="test_size must be"):
+        walk_forward_splits([1, 2], train_size=1, test_size=0)
+
+    with pytest.raises(ValueError, match="step_size must be"):
+        walk_forward_splits([1, 2, 3], train_size=1, test_size=1, step_size=0)
+
+    with pytest.raises(ValueError, match="avoid overlapping test windows"):
+        walk_forward_splits([1, 2, 3, 4, 5], train_size=2, test_size=2, step_size=1)
+
+    with pytest.raises(ValueError, match="must not exceed observations length"):
+        walk_forward_splits([1, 2], train_size=2, test_size=1)
 
 
 def test_validation_helpers_validate_inputs():
