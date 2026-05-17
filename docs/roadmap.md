@@ -22,6 +22,7 @@ Goals:
 - Add basic aspect detection.
 - Add market label generation from OHLCV data.
 - Add event-study summary function.
+- Add dependency-free JSON and flat CSV result export helpers.
 - Add unit tests for math and labels.
 
 Expected outputs:
@@ -29,6 +30,7 @@ Expected outputs:
 - Python importable package.
 - Simple event-study API.
 - JSON-compatible result object.
+- Stable JSON and CSV exports for model objects and result mappings.
 
 ## Phase 2 — Data Providers
 
