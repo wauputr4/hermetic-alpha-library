@@ -59,6 +59,12 @@ local-bottom labels are retrospective outcomes because they inspect candles
 after the labeled timestamp. They can support event-study analysis, but they
 must not be fed into a forward-looking model as if they were known at the time.
 
+For chronological validation, use `walk_forward_splits()` to keep each test
+window strictly after its train window. The helper makes split boundaries
+inspectable, but the resulting scores remain exploratory unless the hypothesis,
+features, horizons, and reporting metric were chosen before evaluating the
+holdout windows.
+
 ## Cherry-Picking Control
 
 Overfitting risk grows when many aspects, orbs, assets, horizons, and date
@@ -68,6 +74,8 @@ ranges are tested. To reduce false discoveries:
 - Prefer predeclared aspect/orb/horizon sets for formal comparisons.
 - Compare against random baseline distributions or permutation tests.
 - Recheck promising findings on later out-of-sample periods.
+- Prefer walk-forward windows when evaluating rules over chronological market
+  samples.
 - Avoid changing the rule set after seeing the result unless the change is
   clearly marked as exploratory.
 

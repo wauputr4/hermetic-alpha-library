@@ -174,6 +174,14 @@ To reduce overfitting:
 3. Move the window forward.
 4. Report stability.
 
+Use `walk_forward_splits()` to generate dependency-free chronological
+train/test window definitions from ordered observations or positional indexes.
+The helper uses fixed `train_size`, `test_size`, and optional `step_size`
+values. Every test window begins immediately after its train window, and
+`step_size` must be at least `test_size` so reported test windows do not overlap.
+Walk-forward validation reduces leakage risk, but it does not prove predictive
+value by itself.
+
 ## Reporting Requirements
 
 Every result should show:

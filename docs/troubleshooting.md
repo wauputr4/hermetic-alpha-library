@@ -101,6 +101,15 @@ The helper raises `ValueError` for empty samples, non-positive permutation
 counts, unsupported alternatives, or statistics that do not return finite
 numeric values.
 
+### Walk-Forward Split Boundaries
+
+`walk_forward_splits()` expects ordered observations or a positive observation
+count. It rejects empty inputs, non-positive train/test/step sizes, impossible
+window lengths, and `step_size < test_size` because that would create overlapping
+test windows in reports. Train windows are rolling fixed-size slices and each
+test window starts immediately after its matching train window, so future test
+observations are not included in that train slice.
+
 ### Exact-Orb Aspect Queries
 
 Aspect detection supports `max_orb=0` for exact-match searches. Decimal
