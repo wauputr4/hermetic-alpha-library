@@ -38,7 +38,8 @@ Goals:
 
 - Add market provider abstraction.
 - Support at least one BTC data source.
-- Cache or store downloaded candles locally.
+- Cache or store downloaded candles locally. Dependency-free JSON candle cache
+  helpers are implemented in `hermetic_alpha.market`.
 - Normalize timestamps and intervals.
 
 Candidate providers:

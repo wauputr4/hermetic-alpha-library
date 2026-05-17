@@ -54,6 +54,12 @@ accepts mappings, sequences, and objects with `to_dict()`. CSV export is limited
 to flat rows with scalar values so notebooks, future CLIs, and batch jobs do not
 silently invent incompatible nested flattening rules.
 
+The `hermetic_alpha.market.storage` module provides dependency-free JSON
+persistence for non-empty `MarketCandle` datasets. It is intended as a local
+research cache for provider results and preserves timestamp timezone offsets,
+asset, OHLCV, volume, source, and interval fields without adding database or CLI
+responsibilities to the core library.
+
 ## Data Model Concepts
 
 ### Aspect Event

@@ -65,6 +65,16 @@ Mitigation:
   shape, throttle requests, or revise historical candles. Treat it as a
   convenient research input, not a canonical audit feed.
 
+### Local Candle Cache Files
+
+`write_candles_json()` and `read_candles_json()` persist normalized
+`MarketCandle` rows as a JSON list. Cache files must contain at least one row,
+must include `timestamp`, `asset`, `open`, `high`, `low`, `close`, and
+`interval`, and timestamps must be timezone-aware ISO datetimes. These files are
+convenience caches for repeatable local research runs, not audit-grade market
+data stores; keep upstream source metadata and regenerate them when provider
+normalization rules change.
+
 ### Small Sample Size
 
 Some aspects occur rarely. Probabilities can look impressive but be statistically weak.
