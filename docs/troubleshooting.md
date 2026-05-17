@@ -76,6 +76,20 @@ Mitigation:
 - Use bootstrap confidence intervals.
 - Compare against random baselines.
 - Seed bootstrap and random-baseline helpers when results need to be reproducible in docs, tests, or PR reviews.
+- Seed `permutation_test()` and report its `alternative`, `permutations`, and
+  p-value correction behavior when using permutation p-values in research notes.
+
+### Permutation Test Interpretation
+
+`permutation_test()` compares observed outcomes with baseline outcomes by
+randomly relabeling the combined sample. It validates only the supplied
+statistic and alternative direction. If the aspect, horizon, orb, date range, or
+statistic was chosen after looking at many alternatives, the p-value is still
+exploratory and should be paired with the anti-overfitting guide.
+
+The helper raises `ValueError` for empty samples, non-positive permutation
+counts, unsupported alternatives, or statistics that do not return finite
+numeric values.
 
 ### Exact-Orb Aspect Queries
 

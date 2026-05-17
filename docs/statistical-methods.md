@@ -102,6 +102,19 @@ random baseline subsets without replacement, supports a deterministic seed, and
 returns the selected statistic for each sample. This is a simple baseline
 distribution, not proof of causality.
 
+The library also exposes `permutation_test()` for dependency-free two-sample
+random relabeling. Pass observed event outcomes and baseline outcomes, choose a
+statistic such as mean return or bullish probability, and set `seed=` when the
+report must be reproducible. The helper returns a `PermutationTestResult` with
+the observed statistic, null distribution, null mean, p-value, alternative,
+permutation count, and seed metadata. P-values use plus-one correction and can
+be calculated as `greater`, `less`, or `two-sided`.
+
+Permutation tests do not remove overfitting by themselves. They only compare one
+declared statistic against a random relabeling baseline for the supplied sample.
+Use them with predeclared hypotheses, sample-size warnings, and out-of-sample
+checks before treating a pattern as meaningful.
+
 ## 6. Logistic Regression
 
 Useful after the event-study engine is stable.

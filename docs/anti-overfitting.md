@@ -71,6 +71,11 @@ ranges are tested. To reduce false discoveries:
 - Avoid changing the rule set after seeing the result unless the change is
   clearly marked as exploratory.
 
+When using `permutation_test()`, record the statistic, alternative direction,
+permutation count, and seed with the result. Treat the p-value as a check
+against one declared random-label baseline, not as proof that the relationship
+will persist out of sample.
+
 ## Reporting Language
 
 Use cautious language:
