@@ -26,6 +26,15 @@ def test_json_exports_model_objects_and_mappings(tmp_path):
     assert '"events": 2' in path.read_text(encoding="utf-8")
 
 
+def test_json_exports_native_dates():
+    ts = datetime(2026, 5, 17, 1, 2, tzinfo=timezone.utc)
+
+    text = to_json({"timestamp": ts, "date": ts.date()})
+
+    assert '"timestamp": "2026-05-17T01:02:00+00:00"' in text
+    assert '"date": "2026-05-17"' in text
+
+
 def test_csv_exports_model_rows_with_stable_header(tmp_path):
     ts = datetime(2026, 5, 6, tzinfo=timezone.utc)
     rows = [
@@ -43,6 +52,14 @@ def test_csv_exports_model_rows_with_stable_header(tmp_path):
     assert path.read_text(encoding="utf-8") == text
 
 
+def test_csv_exports_native_dates():
+    ts = datetime(2026, 5, 17, 1, 2, tzinfo=timezone.utc)
+
+    text = to_csv([{"timestamp": ts, "date": ts.date(), "asset": "BTC-USD"}])
+
+    assert "2026-05-17T01:02:00+00:00,2026-05-17,BTC-USD\n" in text
+
+
 def test_csv_empty_inputs_and_explicit_header():
     assert to_csv([]) == "\r\n" or to_csv([]) == "\n"
     assert to_csv([], fieldnames=["asset", "close"]) == "asset,close\n"
@@ -51,3 +68,8 @@ def test_csv_empty_inputs_and_explicit_header():
 def test_csv_rejects_nested_values():
     with pytest.raises(TypeError, match="unsupported nested value"):
         to_csv([{"asset": "BTC-USD", "nested": {"close": 1.0}}])
+
+
+def test_csv_rejects_extra_fields_with_explicit_header():
+    with pytest.raises(ValueError, match="outside the configured header: extra"):
+        to_csv([{"asset": "BTC-USD", "close": 1.0, "extra": "nope"}], fieldnames=["asset", "close"])

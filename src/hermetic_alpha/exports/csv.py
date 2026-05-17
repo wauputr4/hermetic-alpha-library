@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+from datetime import date, datetime
 from io import StringIO
 from os import PathLike
 from pathlib import Path
@@ -22,14 +23,17 @@ def to_csv(rows: Any, *, fieldnames: Sequence[str] | None = None) -> str:
     writer.writeheader()
     for row in normalized_rows:
         _validate_flat_row(row)
-        writer.writerow({key: row.get(key) for key in header})
+        if fieldnames is not None:
+            _validate_header_fields(row, header)
+        writer.writerow(row)
     return output.getvalue()
 
 
 def write_csv(rows: Any, path: str | PathLike[str], *, fieldnames: Sequence[str] | None = None) -> None:
     """Write CSV text to ``path``."""
 
-    Path(path).write_text(to_csv(rows, fieldnames=fieldnames), encoding="utf-8")
+    with Path(path).open("w", encoding="utf-8", newline="") as file:
+        file.write(to_csv(rows, fieldnames=fieldnames))
 
 
 def _normalize_rows(rows: Any) -> list[dict[str, Any]]:
@@ -47,7 +51,7 @@ def _normalize_row(row: Any) -> dict[str, Any]:
         row = row.to_dict()
     if not isinstance(row, Mapping):
         raise TypeError("CSV rows must be mappings or objects with to_dict()")
-    return {str(key): value for key, value in row.items()}
+    return {str(key): _normalize_flat_value(value) for key, value in row.items()}
 
 
 def _is_row(value: Any) -> bool:
@@ -56,10 +60,12 @@ def _is_row(value: Any) -> bool:
 
 def _fieldnames(rows: Sequence[Mapping[str, Any]]) -> list[str]:
     fieldnames: list[str] = []
+    seen: set[str] = set()
     for row in rows:
         for key in row:
-            if key not in fieldnames:
+            if key not in seen:
                 fieldnames.append(key)
+                seen.add(key)
     return fieldnames
 
 
@@ -67,3 +73,16 @@ def _validate_flat_row(row: Mapping[str, Any]) -> None:
     for key, value in row.items():
         if not isinstance(value, FlatValue):
             raise TypeError(f"CSV field {key!r} contains unsupported nested value {type(value).__name__}")
+
+
+def _validate_header_fields(row: Mapping[str, Any], fieldnames: Sequence[str]) -> None:
+    extra_fields = set(row).difference(fieldnames)
+    if extra_fields:
+        fields = ", ".join(sorted(extra_fields))
+        raise ValueError(f"CSV row contains fields outside the configured header: {fields}")
+
+
+def _normalize_flat_value(value: Any) -> Any:
+    if isinstance(value, datetime | date):
+        return value.isoformat()
+    return value

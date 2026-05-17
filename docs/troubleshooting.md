@@ -116,6 +116,14 @@ Wau's preferred workflow:
 - Commit and push completed changes using GitHub CLI when available.
 - Keep library and CLI responsibilities separated.
 
+## Export Helpers
+
+JSON and CSV export helpers normalize native `date` and `datetime` values to
+ISO strings before serialization. CSV helpers are intentionally limited to flat
+rows; nested mappings or sequences should be flattened by the caller before
+export. When passing explicit CSV `fieldnames`, every row must fit that header
+exactly apart from missing fields, which are emitted as blank cells.
+
 ## Python Development Environment
 
 Use `uv` when it is available:

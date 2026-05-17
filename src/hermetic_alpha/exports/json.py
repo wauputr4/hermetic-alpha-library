@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import date, datetime
 from os import PathLike
 from pathlib import Path
 from typing import Any, Mapping, Sequence
@@ -31,6 +32,10 @@ def write_json(
 def _normalize(value: ExportValue) -> ExportValue:
     if hasattr(value, "to_dict") and callable(value.to_dict):
         return _normalize(value.to_dict())
+    if isinstance(value, datetime):
+        return value.isoformat()
+    if isinstance(value, date):
+        return value.isoformat()
     if isinstance(value, Mapping):
         return {str(key): _normalize(item) for key, item in value.items()}
     if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
