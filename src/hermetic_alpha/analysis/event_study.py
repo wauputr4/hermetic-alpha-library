@@ -244,6 +244,37 @@ def summarize_validated_event_study(
     )
 
 
+def summarize_validated_multi_horizon_event_study(
+    all_labels: Sequence[dict[str, float | bool | None]],
+    event_indexes: Sequence[int],
+    horizons: Sequence[int],
+    *,
+    bootstrap_samples: int = 1000,
+    bootstrap_confidence: float = 0.95,
+    bootstrap_seed: int | None = None,
+    minimum_events: int = 30,
+) -> dict[int, ValidatedEventStudyReport]:
+    """Summarize validated event-study reports for multiple horizons.
+
+    Horizon ordering and duplicate handling match
+    ``summarize_multi_horizon_event_study`` so callers can use one selected
+    event set across comparable 1d, 7d, 30d, and other reports.
+    """
+    unique_horizons = list(dict.fromkeys(horizons))
+    return {
+        horizon: summarize_validated_event_study(
+            all_labels,
+            event_indexes,
+            horizon,
+            bootstrap_samples=bootstrap_samples,
+            bootstrap_confidence=bootstrap_confidence,
+            bootstrap_seed=bootstrap_seed,
+            minimum_events=minimum_events,
+        )
+        for horizon in unique_horizons
+    }
+
+
 def _event_return_values(
     all_labels: Sequence[dict[str, float | bool | None]],
     event_indexes: Sequence[int],

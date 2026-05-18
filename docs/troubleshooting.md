@@ -96,6 +96,10 @@ Mitigation:
   event-study summary, low-sample warning, bootstrap settings, and optional
   return confidence interval together. If selected event rows have no valid
   forward returns, the helper leaves the interval as `None` instead of failing.
+- Use `summarize_validated_multi_horizon_event_study()` when comparing the same
+  selected events across horizons. It deduplicates repeated horizons in caller
+  order and applies identical bootstrap/sample-size settings to each horizon so
+  notebook reports do not accidentally mix validation metadata.
 - Use `validated_event_study_report_row()` before CSV export. `to_csv()` is
   intentionally generic and rejects nested values, while validated reports keep
   their JSON representation nested; the flat row helper bridges those two

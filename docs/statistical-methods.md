@@ -34,6 +34,10 @@ event-study summary with validation metadata. The helper delegates core
 statistics to `summarize_event_study()`, adds `low_sample_warning()` output for
 the matched event count, and optionally computes a seeded bootstrap percentile
 interval for event forward returns when valid returns exist.
+Use `summarize_validated_multi_horizon_event_study()` when the same selected
+events need cautious reports across ordered horizons. The helper preserves
+caller horizon order, deduplicates repeated horizons, and passes the same
+bootstrap and minimum-sample settings to every single-horizon report.
 Use `validated_event_study_report_row()` when that validated report needs CSV
 output. It converts the nested summary and validation metadata into explicit
 flat scalar columns, including separate lower/upper return confidence interval
