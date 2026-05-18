@@ -21,6 +21,11 @@ Process:
 Use `scan_aspect_series()` when event studies start from timestamped
 `PlanetPosition` rows. It scans each timestamp independently and preserves the
 event timestamp so joins to market labels stay explicit.
+Use `join_aspect_events_to_market_labels()` when aspect events and market labels
+need exact timestamp matching before calling `summarize_event_study()`. The
+helper rejects duplicate market-label timestamps and untimestamped aspect
+events, skips unmatched events, and reports matched label indexes plus unmatched
+event indexes for audit notes.
 
 Multi-horizon event studies should reuse the same selected event indexes across all configured horizons so 1D, 7D, and 30D summaries are comparable and auditable.
 
