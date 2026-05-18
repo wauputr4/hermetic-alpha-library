@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 
 from hermetic_alpha.analysis import (
     ValidatedEventStudyReport,
+    event_study_baseline_comparison_row,
     join_aspect_events_to_market_labels,
     summarize_event_study,
     summarize_multi_horizon_event_study,
@@ -289,6 +290,43 @@ def test_validated_event_study_report_row_uses_none_for_missing_interval_bounds(
     assert row["return_confidence_interval_lower"] is None
     assert row["return_confidence_interval_upper"] is None
     assert row["average_return"] is None
+
+
+def test_event_study_baseline_comparison_row_calculates_delta_and_lift():
+    result = summarize_event_study(add_forward_returns([100, 110, 99, 120], [1]), [0, 1], 1)
+
+    row = event_study_baseline_comparison_row(result)
+
+    assert row == {
+        "events": 2,
+        "horizon": 1,
+        "baseline_bullish_probability": 2 / 3,
+        "conditional_bullish_probability": 1 / 2,
+        "probability_delta": pytest.approx(-1 / 6),
+        "relative_lift": pytest.approx(-0.25),
+    }
+
+
+def test_event_study_baseline_comparison_row_uses_none_for_missing_probabilities():
+    result = summarize_event_study(add_forward_returns([100], [1]), [0], 1)
+
+    row = event_study_baseline_comparison_row(result)
+
+    assert row["baseline_bullish_probability"] is None
+    assert row["conditional_bullish_probability"] is None
+    assert row["probability_delta"] is None
+    assert row["relative_lift"] is None
+
+
+def test_event_study_baseline_comparison_row_uses_none_for_zero_baseline_lift():
+    result = summarize_event_study(add_forward_returns([100, 90, 80], [1]), [0], 1)
+
+    row = event_study_baseline_comparison_row(result)
+
+    assert row["baseline_bullish_probability"] == 0
+    assert row["conditional_bullish_probability"] == 0
+    assert row["probability_delta"] == 0
+    assert row["relative_lift"] is None
 
 
 def test_join_aspect_events_to_market_labels_orders_matches_by_event_timestamp():

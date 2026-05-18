@@ -288,6 +288,11 @@ them to CSV so column names remain auditable.
 `to_csv()` without nested-value errors. The helper records the row as an active
 aspect event; it does not pivot absent aspects into false indicator columns.
 
+`event_study_baseline_comparison_row()` is the preferred flat row helper when
+reports need probability deltas and relative lift. It leaves derived fields as
+`None` if either probability is missing, and leaves `relative_lift` as `None`
+when baseline probability is zero to avoid division-by-zero ambiguity.
+
 ## Reliable test verification (local + CI)
 
 Recommended one-command local verification after checkout:

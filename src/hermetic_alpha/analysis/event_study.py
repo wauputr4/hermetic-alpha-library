@@ -108,6 +108,28 @@ def validated_event_study_report_row(report: ValidatedEventStudyReport) -> dict[
     }
 
 
+def event_study_baseline_comparison_row(result: EventStudyResult) -> dict[str, object]:
+    """Return flat baseline comparison fields for an event-study result."""
+
+    baseline = result.baseline_bullish_probability
+    conditional = result.conditional_bullish_probability
+    probability_delta: float | None = None
+    relative_lift: float | None = None
+    if baseline is not None and conditional is not None:
+        probability_delta = conditional - baseline
+        if baseline != 0:
+            relative_lift = probability_delta / baseline
+
+    return {
+        "events": result.events,
+        "horizon": result.horizon,
+        "baseline_bullish_probability": baseline,
+        "conditional_bullish_probability": conditional,
+        "probability_delta": probability_delta,
+        "relative_lift": relative_lift,
+    }
+
+
 def aspect_event_study(
     all_labels: Sequence[dict[str, float | bool | None]],
     event_indexes: Sequence[int],
