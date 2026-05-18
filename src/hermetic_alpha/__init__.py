@@ -10,7 +10,7 @@ from .models import (
     MarketLabel,
     PlanetPosition,
 )
-from .features import aspect_event_feature_rows
+from .features import aspect_event_feature_matrix_rows, aspect_event_feature_rows
 from .similarity import encode_longitude, encode_planet_positions
 
 __all__ = [
@@ -21,6 +21,7 @@ __all__ = [
     "MarketCandle",
     "MarketLabel",
     "PlanetPosition",
+    "aspect_event_feature_matrix_rows",
     "aspect_event_feature_rows",
     "encode_longitude",
     "encode_planet_positions",
