@@ -8,6 +8,7 @@ from hermetic_alpha.analysis import (
     summarize_event_study,
     summarize_multi_horizon_event_study,
     summarize_validated_event_study,
+    summarize_validated_multi_horizon_event_study,
     validated_event_study_report_row,
 )
 from hermetic_alpha.labels import (
@@ -235,6 +236,62 @@ def test_validated_event_study_report_skips_interval_when_returns_are_missing():
     assert report.summary.events == 0
     assert report.summary.average_return is None
     assert report.return_confidence_interval is None
+
+
+def test_validated_multi_horizon_event_study_reports_preserve_order_and_settings():
+    labels = add_forward_returns([100, 110, 99, 120, 126], [1, 2])
+
+    reports = summarize_validated_multi_horizon_event_study(
+        labels,
+        [0, 1, 2],
+        [2, 1],
+        bootstrap_samples=100,
+        bootstrap_confidence=0.9,
+        bootstrap_seed=17,
+        minimum_events=5,
+    )
+    duplicate = summarize_validated_multi_horizon_event_study(
+        labels,
+        [0, 1, 2],
+        [2, 1],
+        bootstrap_samples=100,
+        bootstrap_confidence=0.9,
+        bootstrap_seed=17,
+        minimum_events=5,
+    )
+
+    assert list(reports.keys()) == [2, 1]
+    assert reports == duplicate
+    assert all(isinstance(report, ValidatedEventStudyReport) for report in reports.values())
+    assert [report.summary.horizon for report in reports.values()] == [2, 1]
+    assert {report.bootstrap_samples for report in reports.values()} == {100}
+    assert {report.bootstrap_confidence for report in reports.values()} == {0.9}
+    assert {report.bootstrap_seed for report in reports.values()} == {17}
+    assert reports[2].summary.events == 3
+    assert reports[1].low_sample_warning == (
+        "Low sample size: 3 observations; treat results as exploratory until at least 5 are available."
+    )
+
+
+def test_validated_multi_horizon_event_study_deduplicates_horizons():
+    labels = add_forward_returns([100, 110, 121, 90], [1, 2])
+
+    reports = summarize_validated_multi_horizon_event_study(labels, [0, 1], [1, 2, 1], bootstrap_samples=10)
+
+    assert list(reports.keys()) == [1, 2]
+    assert reports[1].summary.events == 2
+    assert reports[2].summary.events == 2
+
+
+def test_validated_multi_horizon_event_study_keeps_missing_return_interval_behavior():
+    labels = add_forward_returns([100, 110], [1, 2])
+
+    reports = summarize_validated_multi_horizon_event_study(labels, [1], [1, 2], bootstrap_samples=10, minimum_events=1)
+
+    assert reports[1].summary.events == 0
+    assert reports[1].return_confidence_interval is None
+    assert reports[2].summary.events == 0
+    assert reports[2].return_confidence_interval is None
 
 
 def test_validated_event_study_report_serializes_summary_and_metadata():
