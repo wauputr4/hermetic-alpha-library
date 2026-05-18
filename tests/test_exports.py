@@ -2,7 +2,12 @@ from datetime import datetime, timezone
 
 import pytest
 
-from hermetic_alpha.analysis import summarize_validated_event_study, validated_event_study_report_row
+from hermetic_alpha.analysis import (
+    event_study_baseline_comparison_row,
+    summarize_event_study,
+    summarize_validated_event_study,
+    validated_event_study_report_row,
+)
 from hermetic_alpha.exports import to_csv, to_json, write_csv, write_json
 from hermetic_alpha.labels import add_forward_returns
 from hermetic_alpha.models import EventStudyResult, MarketCandle
@@ -87,3 +92,15 @@ def test_csv_accepts_flat_validated_event_study_report_rows():
     assert "events,horizon,baseline_bullish_probability" in header
     assert "return_confidence_interval_lower,return_confidence_interval_upper" in header
     assert "Low sample size: 2 observations" in text
+
+
+def test_csv_accepts_flat_baseline_comparison_rows():
+    labels = add_forward_returns([100, 110, 99, 120], [1])
+    result = summarize_event_study(labels, [0, 1], 1)
+
+    text = to_csv([event_study_baseline_comparison_row(result)])
+
+    assert text.splitlines()[0] == (
+        "events,horizon,baseline_bullish_probability,conditional_bullish_probability,"
+        "probability_delta,relative_lift"
+    )

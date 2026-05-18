@@ -38,6 +38,10 @@ Use `validated_event_study_report_row()` when that validated report needs CSV
 output. It converts the nested summary and validation metadata into explicit
 flat scalar columns, including separate lower/upper return confidence interval
 fields, so the generic CSV exporter can remain limited to flat rows.
+Use `event_study_baseline_comparison_row()` when a report needs explicit
+baseline comparison fields. It preserves the core event count and probabilities,
+then adds absolute `probability_delta` and relative `relative_lift` values while
+returning `None` when probabilities are missing or the baseline is zero.
 
 Example output:
 
@@ -82,6 +86,11 @@ Recommended baselines:
 - Random timestamps with same sample size.
 - Same asset and same horizon.
 - Same market regime if regime filtering exists later.
+
+Baseline comparison deltas are reporting conveniences, not predictive claims.
+`relative_lift` is calculated as `(conditional - baseline) / baseline`, so a
+zero baseline is intentionally left as `None` instead of inventing an infinite
+or undefined value.
 
 ## 4. Bootstrap Confidence Interval
 
