@@ -2,9 +2,11 @@ import pytest
 from datetime import datetime, timezone
 
 from hermetic_alpha.analysis import (
+    ValidatedEventStudyReport,
     join_aspect_events_to_market_labels,
     summarize_event_study,
     summarize_multi_horizon_event_study,
+    summarize_validated_event_study,
 )
 from hermetic_alpha.labels import (
     add_candle_forward_returns,
@@ -137,6 +139,58 @@ def test_multi_horizon_event_study_summary():
     assert results[2].events == 2
     assert results[2].conditional_bullish_probability == 1 / 2
     assert round(results[2].average_return, 4) == 0.0141
+
+
+def test_validated_event_study_report_is_seeded_and_warns_on_low_samples():
+    labels = add_forward_returns([100, 110, 99, 120, 126], [1])
+
+    report = summarize_validated_event_study(
+        labels,
+        [0, 1, 2],
+        1,
+        bootstrap_samples=100,
+        bootstrap_seed=17,
+        minimum_events=5,
+    )
+    duplicate = summarize_validated_event_study(
+        labels,
+        [0, 1, 2],
+        1,
+        bootstrap_samples=100,
+        bootstrap_seed=17,
+        minimum_events=5,
+    )
+
+    assert isinstance(report, ValidatedEventStudyReport)
+    assert report == duplicate
+    assert report.summary.events == 3
+    assert report.summary.conditional_bullish_probability == 2 / 3
+    assert report.low_sample_warning == (
+        "Low sample size: 3 observations; treat results as exploratory until at least 5 are available."
+    )
+    assert tuple(round(value, 4) for value in report.return_confidence_interval or ()) == (-0.1, 0.1747)
+
+
+def test_validated_event_study_report_skips_interval_when_returns_are_missing():
+    labels = add_forward_returns([100, 110], [1])
+
+    report = summarize_validated_event_study(labels, [1], 1, bootstrap_samples=10, minimum_events=1)
+
+    assert report.summary.events == 0
+    assert report.summary.average_return is None
+    assert report.return_confidence_interval is None
+
+
+def test_validated_event_study_report_serializes_summary_and_metadata():
+    labels = add_forward_returns([100, 110, 121], [1])
+
+    report = summarize_validated_event_study(labels, [0, 1], 1, bootstrap_samples=20, bootstrap_seed=3)
+    data = report.to_dict()
+
+    assert data["summary"]["events"] == 2
+    assert data["bootstrap_samples"] == 20
+    assert data["bootstrap_seed"] == 3
+    assert isinstance(data["return_confidence_interval"], list)
 
 
 def test_join_aspect_events_to_market_labels_orders_matches_by_event_timestamp():

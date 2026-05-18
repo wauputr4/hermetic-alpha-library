@@ -2,10 +2,12 @@ from .event_study import (
     AspectMarketJoin,
     EventStudyResult,
     TimestampJoinResult,
+    ValidatedEventStudyReport,
     aspect_event_study,
     join_aspect_events_to_market_labels,
     summarize_event_study,
     summarize_multi_horizon_event_study,
+    summarize_validated_event_study,
 )
 from .validation import (
     PermutationTestResult,
@@ -22,6 +24,7 @@ __all__ = [
     "PermutationTestResult",
     "AspectMarketJoin",
     "TimestampJoinResult",
+    "ValidatedEventStudyReport",
     "WalkForwardSplit",
     "aspect_event_study",
     "bootstrap_percentile_interval",
@@ -31,5 +34,6 @@ __all__ = [
     "random_baseline_distribution",
     "summarize_event_study",
     "summarize_multi_horizon_event_study",
+    "summarize_validated_event_study",
     "walk_forward_splits",
 ]

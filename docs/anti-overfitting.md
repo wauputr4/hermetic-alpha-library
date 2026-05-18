@@ -21,6 +21,11 @@ Every reported signal should include:
 - Confidence interval or another uncertainty estimate.
 - A warning when sample size is too small for a stable interpretation.
 
+`summarize_validated_event_study()` is the preferred lightweight report helper
+when notebooks or future CLI workflows need one inspectable event-study payload.
+It includes the standard summary, low-sample warning metadata, and a seeded
+bootstrap return interval when the selected events have valid forward returns.
+
 ## Baseline Comparison
 
 A signal is not meaningful just because its conditional probability is above

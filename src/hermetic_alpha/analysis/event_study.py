@@ -8,6 +8,7 @@ from collections.abc import Sequence
 from statistics import mean, median
 from typing import Mapping
 
+from .validation import bootstrap_percentile_interval, low_sample_warning
 from hermetic_alpha.models import AspectEvent, EventStudyResult, MarketLabel
 
 EventStudyLabelRow = dict[str, object]
@@ -54,6 +55,32 @@ class TimestampJoinResult:
             "matched_events": self.matched_events,
             "unmatched_events": self.unmatched_events,
             "unmatched_event_indexes": self.unmatched_event_indexes,
+        }
+
+
+@dataclass(frozen=True)
+class ValidatedEventStudyReport:
+    """Event-study summary plus validation metadata for cautious reporting."""
+
+    summary: EventStudyResult
+    low_sample_warning: str | None
+    return_confidence_interval: tuple[float, float] | None
+    bootstrap_samples: int
+    bootstrap_confidence: float
+    bootstrap_seed: int | None
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "summary": self.summary.to_dict(),
+            "low_sample_warning": self.low_sample_warning,
+            "return_confidence_interval": (
+                list(self.return_confidence_interval)
+                if self.return_confidence_interval is not None
+                else None
+            ),
+            "bootstrap_samples": self.bootstrap_samples,
+            "bootstrap_confidence": self.bootstrap_confidence,
+            "bootstrap_seed": self.bootstrap_seed,
         }
 
 
@@ -136,6 +163,55 @@ def summarize_event_study(
         average_return=mean(event_returns) if event_returns else None,
         median_return=median(event_returns) if event_returns else None,
     )
+
+
+def summarize_validated_event_study(
+    all_labels: Sequence[dict[str, float | bool | None]],
+    event_indexes: Sequence[int],
+    horizon: int,
+    *,
+    bootstrap_samples: int = 1000,
+    bootstrap_confidence: float = 0.95,
+    bootstrap_seed: int | None = None,
+    minimum_events: int = 30,
+) -> ValidatedEventStudyReport:
+    """Summarize an event study with bootstrap and sample-size metadata."""
+    summary = summarize_event_study(all_labels, event_indexes, horizon)
+    event_returns = _event_return_values(all_labels, event_indexes, horizon)
+    confidence_interval = (
+        bootstrap_percentile_interval(
+            event_returns,
+            samples=bootstrap_samples,
+            confidence=bootstrap_confidence,
+            seed=bootstrap_seed,
+        )
+        if event_returns
+        else None
+    )
+    return ValidatedEventStudyReport(
+        summary=summary,
+        low_sample_warning=low_sample_warning(summary.events, minimum=minimum_events),
+        return_confidence_interval=confidence_interval,
+        bootstrap_samples=bootstrap_samples,
+        bootstrap_confidence=bootstrap_confidence,
+        bootstrap_seed=bootstrap_seed,
+    )
+
+
+def _event_return_values(
+    all_labels: Sequence[dict[str, float | bool | None]],
+    event_indexes: Sequence[int],
+    horizon: int,
+) -> list[float]:
+    return_key = f"return_{horizon}d"
+    values: list[float] = []
+    for index in event_indexes:
+        if index < 0 or index >= len(all_labels):
+            continue
+        value = all_labels[index].get(return_key)
+        if value is not None:
+            values.append(float(value))
+    return values
 
 
 def _event_sort_key(indexed_event: tuple[int, AspectEvent]) -> tuple[datetime, int]:

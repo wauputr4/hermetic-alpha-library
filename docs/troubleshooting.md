@@ -92,6 +92,10 @@ Mitigation:
 - Seed bootstrap and random-baseline helpers when results need to be reproducible in docs, tests, or PR reviews.
 - Seed `permutation_test()` and report its `alternative`, `permutations`, and
   p-value correction behavior when using permutation p-values in research notes.
+- Use `summarize_validated_event_study()` when a report should carry the core
+  event-study summary, low-sample warning, bootstrap settings, and optional
+  return confidence interval together. If selected event rows have no valid
+  forward returns, the helper leaves the interval as `None` instead of failing.
 
 ### Permutation Test Interpretation
 

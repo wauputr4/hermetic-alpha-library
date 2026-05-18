@@ -29,6 +29,12 @@ event indexes for audit notes.
 
 Multi-horizon event studies should reuse the same selected event indexes across all configured horizons so 1D, 7D, and 30D summaries are comparable and auditable.
 
+Use `summarize_validated_event_study()` when a report should bundle the core
+event-study summary with validation metadata. The helper delegates core
+statistics to `summarize_event_study()`, adds `low_sample_warning()` output for
+the matched event count, and optionally computes a seeded bootstrap percentile
+interval for event forward returns when valid returns exist.
+
 Example output:
 
 ```text
