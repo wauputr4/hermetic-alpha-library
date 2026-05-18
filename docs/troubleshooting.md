@@ -145,6 +145,19 @@ speed values are handled through their sign, but downstream research reports
 should still record the ephemeris engine and speed convention used to generate
 the positions.
 
+### Exact Timestamp Event Joins
+
+`join_aspect_events_to_market_labels()` performs exact timestamp joins between
+timestamped `AspectEvent` values and market label rows. It does not resample,
+round, or fuzzy-match timestamps. Duplicate market-label timestamps raise
+`ValueError`, because the event-study label index would be ambiguous. Aspect
+events without timestamps also raise `ValueError`.
+
+Unmatched events are skipped from `event_indexes` and reported through
+`unmatched_event_indexes` and `unmatched_events`. Review those counts before
+interpreting event-study summaries; a high unmatched count usually means the
+ephemeris sampling cadence and candle/label timestamps are misaligned.
+
 ### Data Leakage
 
 Top/bottom labels require future data, so they must not be used as predictive features.
