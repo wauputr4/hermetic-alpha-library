@@ -168,6 +168,11 @@ timestamps and asset names for exact joins while reusing the same forward-return
 math. Mixed-asset candle inputs raise `ValueError`; split or normalize assets
 before building one label table.
 
+Use `add_candle_local_extrema_labels()` when local top/bottom outcomes need the
+same timestamp and asset metadata. It wraps the bare close-list extrema helper,
+so centered-window edge rows still emit `None` values and mixed-asset candle
+inputs still raise `ValueError`.
+
 ### Data Leakage
 
 Top/bottom labels require future data, so they must not be used as predictive features.
