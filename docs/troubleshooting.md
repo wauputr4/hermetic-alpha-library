@@ -158,6 +158,12 @@ Unmatched events are skipped from `event_indexes` and reported through
 interpreting event-study summaries; a high unmatched count usually means the
 ephemeris sampling cadence and candle/label timestamps are misaligned.
 
+Use `add_candle_forward_returns()` instead of the bare close-list helper when an
+event-study workflow starts from `MarketCandle` rows. It preserves candle
+timestamps and asset names for exact joins while reusing the same forward-return
+math. Mixed-asset candle inputs raise `ValueError`; split or normalize assets
+before building one label table.
+
 ### Data Leakage
 
 Top/bottom labels require future data, so they must not be used as predictive features.

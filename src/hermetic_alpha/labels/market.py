@@ -4,6 +4,11 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
+from hermetic_alpha.models import MarketCandle
+
+
+TimestampedForwardReturnRow = dict[str, object]
+
 
 def add_forward_returns(closes: Sequence[float], horizons: Sequence[int]) -> list[dict[str, float | bool | None]]:
     """Create forward return and bullish labels for a sequence of close prices.
@@ -33,6 +38,25 @@ def add_forward_returns(closes: Sequence[float], horizons: Sequence[int]) -> lis
             row[bullish_key] = forward_return > 0
         rows.append(row)
     return rows
+
+
+def add_candle_forward_returns(
+    candles: Sequence[MarketCandle],
+    horizons: Sequence[int],
+) -> list[TimestampedForwardReturnRow]:
+    """Create timestamped forward-return labels from ordered market candles."""
+    _validate_single_asset(candles)
+    labels = add_forward_returns([candle.close for candle in candles], horizons)
+    rows: list[TimestampedForwardReturnRow] = []
+    for candle, label in zip(candles, labels, strict=True):
+        rows.append({"timestamp": candle.timestamp, "asset": candle.asset, **label})
+    return rows
+
+
+def _validate_single_asset(candles: Sequence[MarketCandle]) -> None:
+    assets = {candle.asset for candle in candles}
+    if len(assets) > 1:
+        raise ValueError("candle forward-return labels require a single asset")
 
 
 def _normalize_windows(windows: int | Sequence[int]) -> list[int]:

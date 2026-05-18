@@ -6,8 +6,13 @@ from hermetic_alpha.analysis import (
     summarize_event_study,
     summarize_multi_horizon_event_study,
 )
-from hermetic_alpha.labels import add_forward_returns, add_local_extrema_labels, bullish_probability
-from hermetic_alpha.models import AspectEvent, MarketLabel
+from hermetic_alpha.labels import (
+    add_candle_forward_returns,
+    add_forward_returns,
+    add_local_extrema_labels,
+    bullish_probability,
+)
+from hermetic_alpha.models import AspectEvent, MarketCandle, MarketLabel
 
 
 def test_forward_returns_and_bullish_probability():
@@ -24,6 +29,63 @@ def test_forward_returns_with_zero_close_is_safe():
     assert labels[0]["bullish_1d"] is False
     assert labels[1]["return_1d"] is None
     assert labels[1]["bullish_1d"] is None
+
+
+def test_candle_forward_returns_preserve_timestamp_and_asset():
+    ts1 = datetime(2026, 5, 6, tzinfo=timezone.utc)
+    ts2 = datetime(2026, 5, 7, tzinfo=timezone.utc)
+    labels = add_candle_forward_returns(
+        [
+            MarketCandle(ts1, "BTC-USD", 100, 110, 90, 100),
+            MarketCandle(ts2, "BTC-USD", 105, 115, 95, 110),
+        ],
+        [1],
+    )
+
+    assert labels[0]["timestamp"] == ts1
+    assert labels[0]["asset"] == "BTC-USD"
+    assert labels[0]["return_1d"] == pytest.approx(0.1)
+    assert labels[0]["bullish_1d"] is True
+    assert labels[1] == {"timestamp": ts2, "asset": "BTC-USD", "return_1d": None, "bullish_1d": None}
+
+
+def test_candle_forward_returns_match_multi_horizon_close_labels():
+    candles = [
+        MarketCandle(datetime(2026, 5, day, tzinfo=timezone.utc), "BTC-USD", close, close, close, close)
+        for day, close in [(6, 100), (7, 110), (8, 121), (9, 90)]
+    ]
+
+    labels = add_candle_forward_returns(candles, [1, 2])
+
+    expected = add_forward_returns([100, 110, 121, 90], [1, 2])
+    for index, expected_row in enumerate(expected):
+        assert labels[index]["timestamp"] == candles[index].timestamp
+        assert labels[index]["asset"] == "BTC-USD"
+        assert {key: labels[index][key] for key in expected_row} == expected_row
+
+
+def test_candle_forward_returns_with_zero_close_is_safe():
+    candles = [
+        MarketCandle(datetime(2026, 5, day, tzinfo=timezone.utc), "BTC-USD", close, close, close, close)
+        for day, close in [(6, 100), (7, 0), (8, 110)]
+    ]
+
+    labels = add_candle_forward_returns(candles, [1])
+
+    assert labels[0]["return_1d"] == -1.0
+    assert labels[0]["bullish_1d"] is False
+    assert labels[1]["return_1d"] is None
+    assert labels[1]["bullish_1d"] is None
+
+
+def test_candle_forward_returns_reject_mixed_assets():
+    candles = [
+        MarketCandle(datetime(2026, 5, 6, tzinfo=timezone.utc), "BTC-USD", 100, 100, 100, 100),
+        MarketCandle(datetime(2026, 5, 7, tzinfo=timezone.utc), "ETH-USD", 110, 110, 110, 110),
+    ]
+
+    with pytest.raises(ValueError, match="single asset"):
+        add_candle_forward_returns(candles, [1])
 
 
 def test_local_extrema_labels_mark_top_bottom_and_neutral_cases():
