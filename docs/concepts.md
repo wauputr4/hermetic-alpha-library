@@ -71,12 +71,18 @@ An exact aspect has strength close to 1. An aspect at the edge of the allowed or
 
 ## Applying vs Separating
 
-If supported by the ephemeris engine, aspects should eventually distinguish between:
+When both positions include longitude speeds, aspects distinguish between:
 
 - **Applying**: bodies are moving toward exact aspect.
 - **Separating**: bodies are moving away from exact aspect.
+- **Exact**: the current orb is within the library's exact-angle tolerance.
+- **Unknown**: speed data is missing or the simplified longitude-speed check is ambiguous.
 
 This may matter because market behavior could differ before and after exactitude.
+The current implementation uses a dependency-free longitude projection from the
+two body speeds. It is useful for research features, but it is still a simplified
+classification and should be documented with the ephemeris source and retrograde
+handling used to generate the positions.
 
 ## Market Labels
 

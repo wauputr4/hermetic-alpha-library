@@ -64,6 +64,68 @@ def test_find_aspects_propagates_planet_position_timestamp():
     assert events[0].timestamp == ts
 
 
+def test_raw_float_aspects_keep_unknown_phase():
+    event = detect_aspect("sun", 10, "jupiter", 12, "conjunction", 3)
+
+    assert event is not None
+    assert event.phase == "unknown"
+
+
+def test_exact_aspect_returns_exact_phase_without_speed_data():
+    event = detect_aspect("sun", 10.1, "jupiter", 70.1, "sextile", 0)
+
+    assert event is not None
+    assert event.phase == "exact"
+
+
+def test_find_aspects_classifies_applying_conjunction_from_position_speeds():
+    ts = datetime(2026, 5, 6, tzinfo=timezone.utc)
+
+    events = find_aspects({
+        "sun": PlanetPosition(ts, "sun", 10, speed=1.0),
+        "jupiter": PlanetPosition(ts, "jupiter", 12, speed=-0.5),
+    }, {"conjunction": 3})
+
+    assert len(events) == 1
+    assert events[0].phase == "applying"
+
+
+def test_find_aspects_classifies_separating_conjunction_from_position_speeds():
+    ts = datetime(2026, 5, 6, tzinfo=timezone.utc)
+
+    events = find_aspects({
+        "sun": PlanetPosition(ts, "sun", 10, speed=-1.0),
+        "jupiter": PlanetPosition(ts, "jupiter", 12, speed=0.5),
+    }, {"conjunction": 3})
+
+    assert len(events) == 1
+    assert events[0].phase == "separating"
+
+
+def test_find_aspects_classifies_non_zero_target_with_negative_speed():
+    ts = datetime(2026, 5, 6, tzinfo=timezone.utc)
+
+    events = find_aspects({
+        "sun": PlanetPosition(ts, "sun", 10, speed=-1.0),
+        "mars": PlanetPosition(ts, "mars", 98, speed=0.0),
+    }, {"square": 3})
+
+    assert len(events) == 1
+    assert events[0].phase == "applying"
+
+
+def test_find_aspects_preserves_unknown_phase_when_position_speed_is_missing():
+    ts = datetime(2026, 5, 6, tzinfo=timezone.utc)
+
+    events = find_aspects({
+        "sun": PlanetPosition(ts, "sun", 10, speed=1.0),
+        "jupiter": PlanetPosition(ts, "jupiter", 12),
+    }, {"conjunction": 3})
+
+    assert len(events) == 1
+    assert events[0].phase == "unknown"
+
+
 def test_scan_aspect_series_groups_by_timestamp_without_mixing_positions():
     ts1 = datetime(2026, 5, 6, tzinfo=timezone.utc)
     ts2 = datetime(2026, 5, 7, tzinfo=timezone.utc)

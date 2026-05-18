@@ -36,7 +36,8 @@ Planned responsibilities:
 - Planetary longitude calculation.
 - Aspect detection.
 - Orb calculation.
-- Applying/separating status.
+- Applying/separating/exact phase classification when position speeds are
+  available.
 - Retrograde status when supported by the selected engine.
 - Optional support for signs, houses, and zodiac systems.
 
@@ -61,6 +62,10 @@ the existing aspect detector independently for each timestamp. The scanner
 orders results by timestamp, then sorted body pair and configured aspect order;
 if a timestamp is missing a body, it scans only the bodies present at that
 timestamp instead of inventing positions.
+When both positions in a detected aspect include `speed`, the returned
+`AspectEvent.phase` is classified as `applying`, `separating`, or `exact`.
+Missing speed data preserves `phase="unknown"` so raw longitude workflows remain
+compatible.
 
 ### `hermetic_alpha.market`
 

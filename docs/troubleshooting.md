@@ -130,6 +130,21 @@ scanned. Position timestamps must be timezone-aware, body names must be
 non-empty, and duplicate body rows for the same timestamp are rejected so a scan
 cannot silently choose between conflicting longitudes.
 
+### Aspect Phase Classification
+
+`find_aspects()` and `scan_aspect_series()` classify `AspectEvent.phase` only
+when both paired `PlanetPosition` values include longitude `speed`. Exact
+aspects within the shared angle tolerance return `phase="exact"`; otherwise the
+classifier projects each longitude by a tiny step in the supplied speed
+direction and marks the orb as `applying` when it is shrinking or `separating`
+when it is widening. Raw float longitude inputs and pairs with missing speed
+data continue to return `phase="unknown"`.
+
+This is a simplified longitude-speed classification. Retrograde and negative
+speed values are handled through their sign, but downstream research reports
+should still record the ephemeris engine and speed convention used to generate
+the positions.
+
 ### Data Leakage
 
 Top/bottom labels require future data, so they must not be used as predictive features.
