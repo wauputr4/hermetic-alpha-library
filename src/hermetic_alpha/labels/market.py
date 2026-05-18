@@ -8,6 +8,7 @@ from hermetic_alpha.models import MarketCandle
 
 
 TimestampedForwardReturnRow = dict[str, object]
+TimestampedLocalExtremaRow = dict[str, object]
 
 
 def add_forward_returns(closes: Sequence[float], horizons: Sequence[int]) -> list[dict[str, float | bool | None]]:
@@ -53,10 +54,23 @@ def add_candle_forward_returns(
     return rows
 
 
+def add_candle_local_extrema_labels(
+    candles: Sequence[MarketCandle],
+    windows: int | Sequence[int],
+) -> list[TimestampedLocalExtremaRow]:
+    """Create timestamped local top/bottom labels from ordered market candles."""
+    _validate_single_asset(candles)
+    labels = add_local_extrema_labels([candle.close for candle in candles], windows)
+    rows: list[TimestampedLocalExtremaRow] = []
+    for candle, label in zip(candles, labels, strict=True):
+        rows.append({"timestamp": candle.timestamp, "asset": candle.asset, **label})
+    return rows
+
+
 def _validate_single_asset(candles: Sequence[MarketCandle]) -> None:
     assets = {candle.asset for candle in candles}
     if len(assets) > 1:
-        raise ValueError("candle forward-return labels require a single asset")
+        raise ValueError("candle labels require a single asset")
 
 
 def _normalize_windows(windows: int | Sequence[int]) -> list[int]:

@@ -88,6 +88,12 @@ metadata for event joins. The helper uses the same `return_*d` and
 candle sequences so one label table cannot silently combine incompatible
 markets.
 
+Use `add_candle_local_extrema_labels()` when retrospective top/bottom labels are
+derived from ordered `MarketCandle` values. It preserves the candle `timestamp`
+and `asset` in every output row, reuses the same `local_top_*d` and
+`local_bottom_*d` semantics as `add_local_extrema_labels()`, and keeps edge rows
+as `null` where the centered window lacks enough prior or future candles.
+
 ## Event Study Result
 
 ```json

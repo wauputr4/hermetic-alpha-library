@@ -10,6 +10,7 @@ from hermetic_alpha.analysis import (
 )
 from hermetic_alpha.labels import (
     add_candle_forward_returns,
+    add_candle_local_extrema_labels,
     add_forward_returns,
     add_local_extrema_labels,
     bullish_probability,
@@ -88,6 +89,59 @@ def test_candle_forward_returns_reject_mixed_assets():
 
     with pytest.raises(ValueError, match="single asset"):
         add_candle_forward_returns(candles, [1])
+
+
+def test_candle_local_extrema_labels_preserve_timestamp_and_asset():
+    candles = [
+        MarketCandle(datetime(2026, 5, day, tzinfo=timezone.utc), "BTC-USD", close, close, close, close)
+        for day, close in [(6, 100), (7, 90), (8, 110)]
+    ]
+
+    labels = add_candle_local_extrema_labels(candles, 1)
+
+    assert labels[0] == {
+        "timestamp": candles[0].timestamp,
+        "asset": "BTC-USD",
+        "local_top_1d": None,
+        "local_bottom_1d": None,
+    }
+    assert labels[1]["timestamp"] == candles[1].timestamp
+    assert labels[1]["asset"] == "BTC-USD"
+    assert labels[1]["local_top_1d"] is False
+    assert labels[1]["local_bottom_1d"] is True
+    assert labels[2] == {
+        "timestamp": candles[2].timestamp,
+        "asset": "BTC-USD",
+        "local_top_1d": None,
+        "local_bottom_1d": None,
+    }
+
+
+def test_candle_local_extrema_labels_match_multi_window_close_labels():
+    candles = [
+        MarketCandle(datetime(2026, 5, day, tzinfo=timezone.utc), "BTC-USD", close, close, close, close)
+        for day, close in [(6, 100), (7, 90), (8, 110), (9, 105), (10, 95), (11, 115), (12, 108)]
+    ]
+
+    labels = add_candle_local_extrema_labels(candles, [1, 2, 1])
+
+    expected = add_local_extrema_labels([100, 90, 110, 105, 95, 115, 108], [1, 2, 1])
+    for index, expected_row in enumerate(expected):
+        assert labels[index]["timestamp"] == candles[index].timestamp
+        assert labels[index]["asset"] == "BTC-USD"
+        assert {key: labels[index][key] for key in expected_row} == expected_row
+    assert labels[1]["local_top_2d"] is None
+    assert labels[-2]["local_bottom_2d"] is None
+
+
+def test_candle_local_extrema_labels_reject_mixed_assets():
+    candles = [
+        MarketCandle(datetime(2026, 5, 6, tzinfo=timezone.utc), "BTC-USD", 100, 100, 100, 100),
+        MarketCandle(datetime(2026, 5, 7, tzinfo=timezone.utc), "ETH-USD", 110, 110, 110, 110),
+    ]
+
+    with pytest.raises(ValueError, match="single asset"):
+        add_candle_local_extrema_labels(candles, 1)
 
 
 def test_local_extrema_labels_mark_top_bottom_and_neutral_cases():
