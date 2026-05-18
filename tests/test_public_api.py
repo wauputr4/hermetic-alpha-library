@@ -1,12 +1,14 @@
 from datetime import datetime, timezone
 
-from hermetic_alpha import AspectDefinition, EventStudyResult, MarketCandle, PlanetPosition
+from hermetic_alpha import AspectDefinition, EventStudyResult, MarketCandle, PlanetPosition, aspect_event_feature_rows
 from hermetic_alpha.analysis import aspect_event_study
 from hermetic_alpha.astro import AspectDefinition as AstroAspectDefinition
+from hermetic_alpha.features import aspect_event_feature_rows as features_aspect_event_feature_rows
 
 
 def test_public_api_exports_match_documented_entrypoints():
     assert AspectDefinition is AstroAspectDefinition
+    assert aspect_event_feature_rows is features_aspect_event_feature_rows
     assert callable(aspect_event_study)
 
     ts = datetime(2026, 5, 6, tzinfo=timezone.utc)

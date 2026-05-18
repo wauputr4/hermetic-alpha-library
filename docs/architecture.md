@@ -33,7 +33,7 @@ hermetic_alpha/
 │  ├─ candles.py
 │  └─ storage.py
 ├─ features/
-│  └─ build.py
+│  └─ aspects.py
 ├─ labels/
 │  └─ market.py
 ├─ analysis/
@@ -59,6 +59,12 @@ persistence for non-empty `MarketCandle` datasets. It is intended as a local
 research cache for provider results and preserves timestamp timezone offsets,
 asset, OHLCV, volume, source, and interval fields without adding database or CLI
 responsibilities to the core library.
+
+The `hermetic_alpha.features` package converts library-owned domain events into
+flat, scalar research rows. `aspect_event_feature_rows()` preserves ordered
+`AspectEvent` inputs, keeps optional timestamps as explicit values, and emits
+CSV-compatible columns for body pair, aspect, active flag, angle/orb fields,
+strength, and phase without moving that responsibility into CLI or export code.
 
 ## Data Model Concepts
 
