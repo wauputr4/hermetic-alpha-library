@@ -7,6 +7,7 @@ from hermetic_alpha.analysis import (
     summarize_event_study,
     summarize_multi_horizon_event_study,
     summarize_validated_event_study,
+    validated_event_study_report_row,
 )
 from hermetic_alpha.labels import (
     add_candle_forward_returns,
@@ -245,6 +246,49 @@ def test_validated_event_study_report_serializes_summary_and_metadata():
     assert data["bootstrap_samples"] == 20
     assert data["bootstrap_seed"] == 3
     assert isinstance(data["return_confidence_interval"], list)
+
+
+def test_validated_event_study_report_row_flattens_summary_and_metadata():
+    labels = add_forward_returns([100, 110, 99, 120, 126], [1])
+
+    report = summarize_validated_event_study(
+        labels,
+        [0, 1, 2],
+        1,
+        bootstrap_samples=100,
+        bootstrap_confidence=0.95,
+        bootstrap_seed=17,
+        minimum_events=5,
+    )
+    row = validated_event_study_report_row(report)
+
+    assert row == {
+        "events": 3,
+        "horizon": 1,
+        "baseline_bullish_probability": 3 / 4,
+        "conditional_bullish_probability": 2 / 3,
+        "average_return": pytest.approx(0.07070707070707076),
+        "median_return": pytest.approx(0.1),
+        "low_sample_warning": (
+            "Low sample size: 3 observations; treat results as exploratory until at least 5 are available."
+        ),
+        "bootstrap_samples": 100,
+        "bootstrap_confidence": 0.95,
+        "bootstrap_seed": 17,
+        "return_confidence_interval_lower": pytest.approx(-0.1),
+        "return_confidence_interval_upper": pytest.approx(0.1747474747474748),
+    }
+
+
+def test_validated_event_study_report_row_uses_none_for_missing_interval_bounds():
+    labels = add_forward_returns([100, 110], [1])
+
+    report = summarize_validated_event_study(labels, [1], 1, bootstrap_samples=10, minimum_events=1)
+    row = validated_event_study_report_row(report)
+
+    assert row["return_confidence_interval_lower"] is None
+    assert row["return_confidence_interval_upper"] is None
+    assert row["average_return"] is None
 
 
 def test_join_aspect_events_to_market_labels_orders_matches_by_event_timestamp():

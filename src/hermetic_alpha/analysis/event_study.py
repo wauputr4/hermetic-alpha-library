@@ -84,6 +84,30 @@ class ValidatedEventStudyReport:
         }
 
 
+def validated_event_study_report_row(report: ValidatedEventStudyReport) -> dict[str, object]:
+    """Return a flat scalar row for CSV-friendly validated report export."""
+    interval_lower: float | None = None
+    interval_upper: float | None = None
+    if report.return_confidence_interval is not None:
+        interval_lower, interval_upper = report.return_confidence_interval
+
+    summary = report.summary
+    return {
+        "events": summary.events,
+        "horizon": summary.horizon,
+        "baseline_bullish_probability": summary.baseline_bullish_probability,
+        "conditional_bullish_probability": summary.conditional_bullish_probability,
+        "average_return": summary.average_return,
+        "median_return": summary.median_return,
+        "low_sample_warning": report.low_sample_warning,
+        "bootstrap_samples": report.bootstrap_samples,
+        "bootstrap_confidence": report.bootstrap_confidence,
+        "bootstrap_seed": report.bootstrap_seed,
+        "return_confidence_interval_lower": interval_lower,
+        "return_confidence_interval_upper": interval_upper,
+    }
+
+
 def aspect_event_study(
     all_labels: Sequence[dict[str, float | bool | None]],
     event_indexes: Sequence[int],

@@ -34,6 +34,10 @@ event-study summary with validation metadata. The helper delegates core
 statistics to `summarize_event_study()`, adds `low_sample_warning()` output for
 the matched event count, and optionally computes a seeded bootstrap percentile
 interval for event forward returns when valid returns exist.
+Use `validated_event_study_report_row()` when that validated report needs CSV
+output. It converts the nested summary and validation metadata into explicit
+flat scalar columns, including separate lower/upper return confidence interval
+fields, so the generic CSV exporter can remain limited to flat rows.
 
 Example output:
 

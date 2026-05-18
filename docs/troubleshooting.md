@@ -96,6 +96,10 @@ Mitigation:
   event-study summary, low-sample warning, bootstrap settings, and optional
   return confidence interval together. If selected event rows have no valid
   forward returns, the helper leaves the interval as `None` instead of failing.
+- Use `validated_event_study_report_row()` before CSV export. `to_csv()` is
+  intentionally generic and rejects nested values, while validated reports keep
+  their JSON representation nested; the flat row helper bridges those two
+  formats and emits `None` for missing interval bounds.
 
 ### Permutation Test Interpretation
 

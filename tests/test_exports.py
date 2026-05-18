@@ -2,7 +2,9 @@ from datetime import datetime, timezone
 
 import pytest
 
+from hermetic_alpha.analysis import summarize_validated_event_study, validated_event_study_report_row
 from hermetic_alpha.exports import to_csv, to_json, write_csv, write_json
+from hermetic_alpha.labels import add_forward_returns
 from hermetic_alpha.models import EventStudyResult, MarketCandle
 
 
@@ -73,3 +75,15 @@ def test_csv_rejects_nested_values():
 def test_csv_rejects_extra_fields_with_explicit_header():
     with pytest.raises(ValueError, match="outside the configured header: extra"):
         to_csv([{"asset": "BTC-USD", "close": 1.0, "extra": "nope"}], fieldnames=["asset", "close"])
+
+
+def test_csv_accepts_flat_validated_event_study_report_rows():
+    labels = add_forward_returns([100, 110, 99, 120], [1])
+    report = summarize_validated_event_study(labels, [0, 1], 1, bootstrap_samples=20, bootstrap_seed=3)
+
+    text = to_csv([validated_event_study_report_row(report)])
+
+    header = text.splitlines()[0]
+    assert "events,horizon,baseline_bullish_probability" in header
+    assert "return_confidence_interval_lower,return_confidence_interval_upper" in header
+    assert "Low sample size: 2 observations" in text
