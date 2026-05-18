@@ -1,7 +1,9 @@
 from datetime import datetime, timezone
 
+import pytest
+
 from hermetic_alpha.exports import to_csv
-from hermetic_alpha.features import aspect_event_feature_rows
+from hermetic_alpha.features import aspect_event_feature_matrix_rows, aspect_event_feature_rows
 from hermetic_alpha.models import AspectEvent
 
 
@@ -56,6 +58,69 @@ def test_aspect_event_feature_rows_are_csv_compatible():
         "target_angle,actual_angle,orb,max_orb,strength,phase"
     )
     assert "2026-05-18T00:00:00+00:00,sun,jupiter,sun:jupiter,conjunction" in text
+
+
+def test_aspect_event_feature_matrix_rows_group_events_by_timestamp():
+    ts1 = datetime(2026, 5, 18, tzinfo=timezone.utc)
+    ts2 = datetime(2026, 5, 19, tzinfo=timezone.utc)
+    events = [
+        _aspect_event("mars", "saturn", "square", ts2, phase="separating"),
+        _aspect_event("sun", "jupiter", "conjunction", ts1, phase="applying"),
+        _aspect_event("mars", "saturn", "square", ts1, phase="exact"),
+    ]
+
+    rows = aspect_event_feature_matrix_rows(events)
+
+    assert [row["timestamp"] for row in rows] == [ts1, ts2]
+    assert list(rows[0].keys()) == [
+        "timestamp",
+        "mars_saturn_square_active",
+        "mars_saturn_square_orb",
+        "mars_saturn_square_strength",
+        "mars_saturn_square_phase",
+        "sun_jupiter_conjunction_active",
+        "sun_jupiter_conjunction_orb",
+        "sun_jupiter_conjunction_strength",
+        "sun_jupiter_conjunction_phase",
+    ]
+    assert rows[0]["mars_saturn_square_active"] is True
+    assert rows[0]["mars_saturn_square_phase"] == "exact"
+    assert rows[0]["sun_jupiter_conjunction_active"] is True
+    assert rows[0]["sun_jupiter_conjunction_phase"] == "applying"
+    assert rows[1]["mars_saturn_square_active"] is True
+    assert rows[1]["sun_jupiter_conjunction_active"] is False
+    assert rows[1]["sun_jupiter_conjunction_orb"] is None
+    assert rows[1]["sun_jupiter_conjunction_phase"] is None
+
+
+def test_aspect_event_feature_matrix_rows_are_csv_compatible():
+    ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
+    rows = aspect_event_feature_matrix_rows([_aspect_event("sun", "jupiter", "conjunction", ts)])
+
+    text = to_csv(rows)
+
+    assert text.splitlines()[0] == (
+        "timestamp,sun_jupiter_conjunction_active,sun_jupiter_conjunction_orb,"
+        "sun_jupiter_conjunction_strength,sun_jupiter_conjunction_phase"
+    )
+    assert "2026-05-18T00:00:00+00:00,True,1.25" in text
+
+
+def test_aspect_event_feature_matrix_rows_reject_missing_timestamps():
+    with pytest.raises(ValueError, match="missing a timestamp"):
+        aspect_event_feature_matrix_rows([_aspect_event("moon", "venus", "trine", None)])
+
+
+def test_aspect_event_feature_matrix_rows_reject_duplicate_features_at_same_timestamp():
+    ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
+
+    with pytest.raises(ValueError, match="duplicate aspect feature"):
+        aspect_event_feature_matrix_rows(
+            [
+                _aspect_event("sun", "jupiter", "conjunction", ts),
+                _aspect_event("sun", "jupiter", "conjunction", ts),
+            ]
+        )
 
 
 def _aspect_event(

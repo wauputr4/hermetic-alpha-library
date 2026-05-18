@@ -292,6 +292,14 @@ them to CSV so column names remain auditable.
 `to_csv()` without nested-value errors. The helper records the row as an active
 aspect event; it does not pivot absent aspects into false indicator columns.
 
+Use `aspect_event_feature_matrix_rows()` when downstream code needs one row per
+timestamp with deterministic aspect indicator columns. It rejects untimestamped
+events because they cannot be placed in the matrix and rejects duplicate
+feature keys at the same timestamp because the orb/strength/phase value would
+be ambiguous. Feature columns are derived only from aspects present in the
+supplied events; missing columns mean the dataset did not contain that aspect,
+not that a complete ephemeris scan proved it absent.
+
 `event_study_baseline_comparison_row()` is the preferred flat row helper when
 reports need probability deltas and relative lift. It leaves derived fields as
 `None` if either probability is missing, and leaves `relative_lift` as `None`
