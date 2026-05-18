@@ -282,6 +282,12 @@ and it raises `TypeError` for nested dictionaries, lists, tuples, or other
 structured values. Flatten nested research outputs explicitly before exporting
 them to CSV so column names remain auditable.
 
+`aspect_event_feature_rows()` is the preferred flattening helper for
+`AspectEvent` rows. It preserves input ordering, leaves missing timestamps as
+`None`, and emits only scalar values, so its output can be exported through
+`to_csv()` without nested-value errors. The helper records the row as an active
+aspect event; it does not pivot absent aspects into false indicator columns.
+
 ## Reliable test verification (local + CI)
 
 Recommended one-command local verification after checkout:

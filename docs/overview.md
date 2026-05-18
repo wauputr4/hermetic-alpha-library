@@ -87,6 +87,11 @@ need a small dependency-free local cache of those normalized candles.
 ### `hermetic_alpha.features`
 
 Responsible for transforming raw astro data into quantitative features.
+The initial helper is `aspect_event_feature_rows()`, which turns ordered
+`AspectEvent` values into flat scalar rows with timestamp, body pair, aspect,
+active flag, angle/orb fields, strength, and phase columns. The output can be
+passed directly to `hermetic_alpha.exports.to_csv()` or simple model-building
+code without adding CLI-specific formatting.
 
 Examples:
 
