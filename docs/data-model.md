@@ -81,6 +81,13 @@ and emits matching `local_top_*d` and `local_bottom_*d` fields. The first and
 last `window` rows cannot be labeled without incomplete context and should be
 represented as `null` for each affected window.
 
+Use `add_candle_forward_returns()` when labels are derived from ordered
+`MarketCandle` values and need to preserve exact `timestamp` and `asset`
+metadata for event joins. The helper uses the same `return_*d` and
+`bullish_*d` semantics as `add_forward_returns()`, but rejects mixed-asset
+candle sequences so one label table cannot silently combine incompatible
+markets.
+
 ## Event Study Result
 
 ```json
