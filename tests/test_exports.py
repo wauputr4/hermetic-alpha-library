@@ -4,6 +4,8 @@ import pytest
 
 from hermetic_alpha.analysis import (
     event_study_baseline_comparison_row,
+    permutation_test,
+    permutation_test_result_row,
     summarize_event_study,
     summarize_validated_event_study,
     summarize_validated_multi_horizon_event_study,
@@ -128,3 +130,21 @@ def test_csv_accepts_flat_baseline_comparison_rows():
         "events,horizon,baseline_bullish_probability,conditional_bullish_probability,"
         "probability_delta,relative_lift"
     )
+
+
+def test_csv_accepts_flat_permutation_test_result_rows():
+    result = permutation_test(
+        [1.0, 1.0, 0.0],
+        [0.0, 0.0, 0.0],
+        permutations=20,
+        seed=19,
+        alternative="greater",
+    )
+
+    text = to_csv([permutation_test_result_row(result)])
+
+    assert text.splitlines()[0] == (
+        "observed_statistic,p_value,alternative,permutations,seed,null_mean,"
+        "null_distribution_count,null_distribution_min,null_distribution_max"
+    )
+    assert "greater,20,19" in text

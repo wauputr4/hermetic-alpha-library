@@ -145,6 +145,10 @@ report must be reproducible. The helper returns a `PermutationTestResult` with
 the observed statistic, null distribution, null mean, p-value, alternative,
 permutation count, and seed metadata. P-values use plus-one correction and can
 be calculated as `greater`, `less`, or `two-sided`.
+Use `permutation_test_result_row()` before CSV export when reports need a compact
+flat summary. It preserves the key statistic, p-value, alternative, permutation
+count, seed, and null mean fields, while replacing the full null distribution
+list with count, minimum, and maximum metadata.
 
 Permutation tests do not remove overfitting by themselves. They only compare one
 declared statistic against a random relabeling baseline for the supplied sample.

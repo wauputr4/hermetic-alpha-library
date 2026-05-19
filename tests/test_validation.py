@@ -6,6 +6,7 @@ from hermetic_alpha.analysis import (
     bootstrap_percentile_interval,
     low_sample_warning,
     permutation_test,
+    permutation_test_result_row,
     random_baseline_distribution,
     walk_forward_splits,
 )
@@ -85,6 +86,49 @@ def test_permutation_test_supports_event_study_style_probability_statistic():
 
     assert result.observed_statistic == pytest.approx(2 / 3)
     assert 0 < result.p_value <= 1
+
+
+def test_permutation_test_result_row_flattens_distribution_metadata():
+    result = permutation_test(
+        [1.0, 1.0, 0.0],
+        [0.0, 0.0, 0.0],
+        permutations=20,
+        seed=19,
+        alternative="greater",
+    )
+
+    row = permutation_test_result_row(result)
+
+    assert row == {
+        "observed_statistic": pytest.approx(2 / 3),
+        "p_value": pytest.approx(6 / 21),
+        "alternative": "greater",
+        "permutations": 20,
+        "seed": 19,
+        "null_mean": pytest.approx(result.null_mean),
+        "null_distribution_count": 20,
+        "null_distribution_min": min(result.null_distribution),
+        "null_distribution_max": max(result.null_distribution),
+    }
+    assert result.to_dict()["null_distribution"] == result.null_distribution
+
+
+def test_permutation_test_result_row_handles_empty_distribution_explicitly():
+    result = PermutationTestResult(
+        observed_statistic=0.25,
+        p_value=1.0,
+        alternative="two-sided",
+        permutations=0,
+        seed=None,
+        null_distribution=[],
+        null_mean=0.0,
+    )
+
+    row = permutation_test_result_row(result)
+
+    assert row["null_distribution_count"] == 0
+    assert row["null_distribution_min"] is None
+    assert row["null_distribution_max"] is None
 
 
 def test_walk_forward_splits_generate_chronological_windows():
