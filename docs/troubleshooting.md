@@ -145,6 +145,16 @@ window-size, and endpoint fields. Endpoint values are included only when they
 are CSV-safe scalars; nested observations such as mappings or lists are emitted
 as `None` in the endpoint columns.
 
+### Nearest-Neighbor Report Rows
+
+`find_nearest()` preserves caller-owned payload values on `NearestNeighbor`
+results for in-memory inspection. Use `nearest_neighbor_rows()` before writing
+similarity rankings with `to_csv()`. The row helper emits rank, ID, score, and
+distance fields; scalar payloads are included as `payload`, while mapping
+payloads require explicit `payload_fields` so report columns stay intentional.
+Selected nested payload fields raise `TypeError` instead of letting the generic
+CSV exporter fail later with an unclear schema.
+
 ### Exact-Orb Aspect Queries
 
 Aspect detection supports `max_orb=0` for exact-match searches. Decimal

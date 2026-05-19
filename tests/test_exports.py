@@ -17,6 +17,11 @@ from hermetic_alpha.analysis import (
 from hermetic_alpha.exports import to_csv, to_json, write_csv, write_json
 from hermetic_alpha.labels import add_forward_returns
 from hermetic_alpha.models import EventStudyResult, MarketCandle
+from hermetic_alpha.similarity import (
+    SimilarityCandidate,
+    find_nearest,
+    nearest_neighbor_rows,
+)
 
 
 def test_json_exports_model_objects_and_mappings(tmp_path):
@@ -176,3 +181,19 @@ def test_csv_accepts_walk_forward_rows_with_nested_endpoints_removed():
 
     assert "train_first,train_last,test_first,test_last" in text
     assert "\n0,0,1,1,2,1,1,,,," in text
+
+
+def test_csv_accepts_flat_nearest_neighbor_rows():
+    results = find_nearest(
+        [1.0, 0.0],
+        [
+            SimilarityCandidate("distant-chart", [0.0, 1.0], payload={"asset": "ETH-USD"}),
+            SimilarityCandidate("near-chart", [1.0, 0.0], payload={"asset": "BTC-USD"}),
+        ],
+    )
+
+    text = to_csv(nearest_neighbor_rows(results, payload_fields=["asset"]))
+
+    assert text.splitlines()[0] == "rank,id,score,distance,payload_asset"
+    assert "\n1,near-chart,1.0,0.0,BTC-USD" in text
+    assert "\n2,distant-chart,0.0,1.0,ETH-USD" in text
