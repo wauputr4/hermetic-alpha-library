@@ -77,6 +77,27 @@ def permutation_test_result_row(result: PermutationTestResult) -> dict[str, floa
     }
 
 
+def random_baseline_distribution_row(
+    distribution: Sequence[float],
+    *,
+    sample_size: int | None = None,
+    samples: int | None = None,
+    seed: int | None = None,
+) -> dict[str, float | int | None]:
+    """Return a compact CSV-compatible summary row for random baselines."""
+
+    values = [_evaluate_distribution_value(value) for value in distribution]
+    return {
+        "distribution_count": len(values),
+        "distribution_min": min(values) if values else None,
+        "distribution_max": max(values) if values else None,
+        "distribution_mean": mean(values) if values else None,
+        "sample_size": sample_size,
+        "samples": samples,
+        "seed": seed,
+    }
+
+
 def walk_forward_split_rows(splits: Sequence[WalkForwardSplit]) -> list[dict[str, ReportScalar]]:
     """Return flat CSV-compatible rows for walk-forward split boundaries."""
     return [
@@ -314,6 +335,16 @@ def _evaluate_statistic(statistic: Statistic, values: Sequence[float]) -> float:
         raise ValueError("statistic must return a finite numeric value") from exc
     if not isfinite(result):
         raise ValueError("statistic must return a finite numeric value")
+    return result
+
+
+def _evaluate_distribution_value(value: float) -> float:
+    try:
+        result = float(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("distribution values must be finite numeric values") from exc
+    if not isfinite(result):
+        raise ValueError("distribution values must be finite numeric values")
     return result
 
 
