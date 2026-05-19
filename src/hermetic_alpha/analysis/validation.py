@@ -98,6 +98,27 @@ def random_baseline_distribution_row(
     }
 
 
+def bootstrap_interval_row(
+    interval: Sequence[float],
+    *,
+    samples: int | None = None,
+    confidence: float | None = None,
+    seed: int | None = None,
+    statistic_name: str | None = None,
+) -> dict[str, float | int | str | None]:
+    """Return a flat CSV-compatible summary row for a bootstrap interval."""
+
+    lower, upper = _coerce_interval_bounds(interval)
+    return {
+        "interval_lower": lower,
+        "interval_upper": upper,
+        "samples": samples,
+        "confidence": confidence,
+        "seed": seed,
+        "statistic_name": statistic_name,
+    }
+
+
 def walk_forward_split_rows(splits: Sequence[WalkForwardSplit]) -> list[dict[str, ReportScalar]]:
     """Return flat CSV-compatible rows for walk-forward split boundaries."""
     return [
@@ -346,6 +367,22 @@ def _evaluate_distribution_value(value: float) -> float:
     if not isfinite(result):
         raise ValueError("distribution values must be finite numeric values")
     return result
+
+
+def _coerce_interval_bounds(interval: Sequence[float]) -> tuple[float, float]:
+    if isinstance(interval, str | bytes):
+        raise ValueError("interval must contain exactly two finite numeric bounds")
+    if len(interval) != 2:
+        raise ValueError("interval must contain exactly two finite numeric bounds")
+
+    try:
+        lower = float(interval[0])
+        upper = float(interval[1])
+    except (TypeError, ValueError) as exc:
+        raise ValueError("interval must contain exactly two finite numeric bounds") from exc
+    if not isfinite(lower) or not isfinite(upper):
+        raise ValueError("interval must contain exactly two finite numeric bounds")
+    return lower, upper
 
 
 def _permutation_p_value(

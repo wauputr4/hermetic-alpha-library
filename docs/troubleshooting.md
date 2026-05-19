@@ -90,6 +90,11 @@ Mitigation:
 - Use bootstrap confidence intervals.
 - Compare against random baselines.
 - Seed bootstrap and random-baseline helpers when results need to be reproducible in docs, tests, or PR reviews.
+- Use `bootstrap_interval_row()` before writing standalone bootstrap interval
+  reports to CSV. It expects the two-bound tuple returned by
+  `bootstrap_percentile_interval()` and rejects malformed, missing, or non-finite
+  bounds with a clear validation error instead of letting export code infer a
+  schema.
 - Seed `permutation_test()` and report its `alternative`, `permutations`, and
   p-value correction behavior when using permutation p-values in research notes.
 - Use `summarize_validated_event_study()` when a report should carry the core

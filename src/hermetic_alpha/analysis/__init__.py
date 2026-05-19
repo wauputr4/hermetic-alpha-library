@@ -16,6 +16,7 @@ from .event_study import (
 from .validation import (
     PermutationTestResult,
     WalkForwardSplit,
+    bootstrap_interval_row,
     bootstrap_percentile_interval,
     low_sample_warning,
     permutation_test,
@@ -34,6 +35,7 @@ __all__ = [
     "ValidatedEventStudyReport",
     "WalkForwardSplit",
     "aspect_event_study",
+    "bootstrap_interval_row",
     "bootstrap_percentile_interval",
     "event_study_baseline_comparison_row",
     "join_aspect_events_to_market_labels",

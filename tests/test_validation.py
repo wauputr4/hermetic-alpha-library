@@ -3,6 +3,7 @@ import pytest
 from hermetic_alpha.analysis import (
     PermutationTestResult,
     WalkForwardSplit,
+    bootstrap_interval_row,
     bootstrap_percentile_interval,
     low_sample_warning,
     permutation_test,
@@ -29,6 +30,41 @@ def test_bootstrap_percentile_interval_supports_custom_statistic():
     )
 
     assert tuple(round(value, 4) for value in interval) == (0.25, 1.0)
+
+
+def test_bootstrap_interval_row_flattens_seeded_interval_metadata():
+    interval = bootstrap_percentile_interval([0.01, 0.02, 0.05, -0.01], samples=200, seed=7)
+
+    row = bootstrap_interval_row(
+        interval,
+        samples=200,
+        confidence=0.95,
+        seed=7,
+        statistic_name="mean_return",
+    )
+
+    assert row == {
+        "interval_lower": pytest.approx(-0.0025),
+        "interval_upper": pytest.approx(0.035),
+        "samples": 200,
+        "confidence": 0.95,
+        "seed": 7,
+        "statistic_name": "mean_return",
+    }
+    assert tuple(round(value, 4) for value in interval) == (-0.0025, 0.035)
+
+
+def test_bootstrap_interval_row_allows_omitted_metadata():
+    row = bootstrap_interval_row((0.1, 0.2))
+
+    assert row == {
+        "interval_lower": 0.1,
+        "interval_upper": 0.2,
+        "samples": None,
+        "confidence": None,
+        "seed": None,
+        "statistic_name": None,
+    }
 
 
 def test_random_baseline_distribution_is_deterministic_with_seed():
@@ -331,6 +367,15 @@ def test_validation_helpers_validate_inputs():
 
     with pytest.raises(ValueError, match="distribution values must be finite numeric values"):
         random_baseline_distribution_row([float("nan")])
+
+    with pytest.raises(ValueError, match="interval must contain exactly two finite numeric bounds"):
+        bootstrap_interval_row((0.1,))
+
+    with pytest.raises(ValueError, match="interval must contain exactly two finite numeric bounds"):
+        bootstrap_interval_row(("low", 0.2))
+
+    with pytest.raises(ValueError, match="interval must contain exactly two finite numeric bounds"):
+        bootstrap_interval_row((0.1, float("nan")))
 
 
 def test_low_sample_warning_returns_message_only_below_threshold():

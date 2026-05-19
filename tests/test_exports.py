@@ -3,6 +3,8 @@ from datetime import datetime, timezone
 import pytest
 
 from hermetic_alpha.analysis import (
+    bootstrap_interval_row,
+    bootstrap_percentile_interval,
     event_study_baseline_comparison_row,
     permutation_test,
     permutation_test_result_row,
@@ -181,6 +183,23 @@ def test_csv_accepts_flat_random_baseline_distribution_rows():
         "sample_size,samples,seed"
     )
     assert "\n5,1.5,3.5,2.6,2,5,11" in text
+
+
+def test_csv_accepts_flat_bootstrap_interval_rows():
+    interval = bootstrap_percentile_interval([0.01, 0.02, 0.05, -0.01], samples=200, seed=7)
+
+    text = to_csv([
+        bootstrap_interval_row(
+            interval,
+            samples=200,
+            confidence=0.95,
+            seed=7,
+            statistic_name="mean_return",
+        )
+    ])
+
+    assert text.splitlines()[0] == "interval_lower,interval_upper,samples,confidence,seed,statistic_name"
+    assert "\n-0.0025,0.035,200,0.95,7,mean_return" in text
 
 
 def test_csv_accepts_flat_walk_forward_split_rows():
