@@ -104,6 +104,11 @@ Mitigation:
   intentionally generic and rejects nested values, while validated reports keep
   their JSON representation nested; the flat row helper bridges those two
   formats and emits `None` for missing interval bounds.
+- Use `validated_multi_horizon_event_study_report_rows()` before CSV export
+  when `summarize_validated_multi_horizon_event_study()` produced several
+  reports. The helper preserves mapping or sequence order and reuses the
+  single-report row flattener, so missing confidence intervals still emit
+  `None` lower/upper bounds.
 
 ### Permutation Test Interpretation
 

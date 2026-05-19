@@ -11,6 +11,7 @@ from .event_study import (
     summarize_validated_event_study,
     summarize_validated_multi_horizon_event_study,
     validated_event_study_report_row,
+    validated_multi_horizon_event_study_report_rows,
 )
 from .validation import (
     PermutationTestResult,
@@ -41,5 +42,6 @@ __all__ = [
     "summarize_validated_event_study",
     "summarize_validated_multi_horizon_event_study",
     "validated_event_study_report_row",
+    "validated_multi_horizon_event_study_report_rows",
     "walk_forward_splits",
 ]

@@ -42,6 +42,10 @@ Use `validated_event_study_report_row()` when that validated report needs CSV
 output. It converts the nested summary and validation metadata into explicit
 flat scalar columns, including separate lower/upper return confidence interval
 fields, so the generic CSV exporter can remain limited to flat rows.
+Use `validated_multi_horizon_event_study_report_rows()` when the ordered
+mapping from `summarize_validated_multi_horizon_event_study()` needs CSV output.
+It preserves report order and delegates each row to the single-report flattener;
+it is an export convenience, not a separate statistical method.
 Use `event_study_baseline_comparison_row()` when a report needs explicit
 baseline comparison fields. It preserves the core event count and probabilities,
 then adds absolute `probability_delta` and relative `relative_lift` values while
