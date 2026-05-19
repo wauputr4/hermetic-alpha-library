@@ -219,6 +219,10 @@ train/test window definitions from ordered observations or positional indexes.
 The helper uses fixed `train_size`, `test_size`, and optional `step_size`
 values. Every test window begins immediately after its train window, and
 `step_size` must be at least `test_size` so reported test windows do not overlap.
+Use `walk_forward_split_rows()` before CSV export when reports need compact
+split boundaries instead of the full nested train/test windows. It preserves
+split order, includes boundary and size fields, and emits scalar endpoint
+values when they are CSV-safe.
 Walk-forward validation reduces leakage risk, but it does not prove predictive
 value by itself.
 
