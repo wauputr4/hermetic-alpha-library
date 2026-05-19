@@ -121,6 +121,11 @@ The library exposes `bootstrap_percentile_interval()` for dependency-free
 percentile intervals. It resamples the observed values with replacement,
 supports a deterministic random seed, and accepts a custom statistic function
 for probabilities or other summary metrics.
+Use `bootstrap_interval_row()` when a standalone bootstrap interval needs a
+compact CSV-safe report. The raw tuple remains the right output for Python
+workflows that immediately feed the interval into another calculation; the row
+helper adds explicit lower/upper bound columns plus optional sample count,
+confidence, seed, and statistic-name metadata for notebooks and audit exports.
 
 ## 5. Permutation Test
 
