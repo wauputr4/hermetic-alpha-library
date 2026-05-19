@@ -138,6 +138,13 @@ test windows in reports. Train windows are rolling fixed-size slices and each
 test window starts immediately after its matching train window, so future test
 observations are not included in that train slice.
 
+Use `walk_forward_split_rows()` before writing split reports with the flat CSV
+exporter. `WalkForwardSplit.to_dict()` intentionally keeps the full train/test
+windows for JSON inspection, while the row helper emits compact boundary,
+window-size, and endpoint fields. Endpoint values are included only when they
+are CSV-safe scalars; nested observations such as mappings or lists are emitted
+as `None` in the endpoint columns.
+
 ### Exact-Orb Aspect Queries
 
 Aspect detection supports `max_orb=0` for exact-match searches. Decimal

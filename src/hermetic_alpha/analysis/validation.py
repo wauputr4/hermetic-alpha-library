@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
+from datetime import date, datetime
 from math import isfinite
 from random import Random
 from statistics import mean
@@ -11,6 +12,7 @@ from typing import Any, Literal
 
 Statistic = Callable[[Sequence[float]], float]
 Alternative = Literal["greater", "less", "two-sided"]
+ReportScalar = str | int | float | bool | date | datetime | None
 
 
 @dataclass(frozen=True)
@@ -73,6 +75,26 @@ def permutation_test_result_row(result: PermutationTestResult) -> dict[str, floa
         "null_distribution_min": min(null_distribution) if null_distribution else None,
         "null_distribution_max": max(null_distribution) if null_distribution else None,
     }
+
+
+def walk_forward_split_rows(splits: Sequence[WalkForwardSplit]) -> list[dict[str, ReportScalar]]:
+    """Return flat CSV-compatible rows for walk-forward split boundaries."""
+    return [
+        {
+            "split_index": split_index,
+            "train_start_index": split.train_start_index,
+            "train_end_index": split.train_end_index,
+            "test_start_index": split.test_start_index,
+            "test_end_index": split.test_end_index,
+            "train_size": len(split.train),
+            "test_size": len(split.test),
+            "train_first": _csv_safe_endpoint(split.train[0]) if split.train else None,
+            "train_last": _csv_safe_endpoint(split.train[-1]) if split.train else None,
+            "test_first": _csv_safe_endpoint(split.test[0]) if split.test else None,
+            "test_last": _csv_safe_endpoint(split.test[-1]) if split.test else None,
+        }
+        for split_index, split in enumerate(splits)
+    ]
 
 
 def _default_statistic(values: Sequence[float]) -> float:
@@ -275,6 +297,14 @@ def _coerce_ordered_observations(observations: Sequence[Any] | int) -> tuple[Any
     if not observations:
         raise ValueError("observations must be a positive integer or a non-empty sequence")
     return tuple(observations)
+
+
+def _csv_safe_endpoint(value: Any) -> ReportScalar:
+    if isinstance(value, str | int | float | bool | date | datetime) or value is None:
+        return value
+    if isinstance(value, Mapping | Sequence):
+        return None
+    return None
 
 
 def _evaluate_statistic(statistic: Statistic, values: Sequence[float]) -> float:

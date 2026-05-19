@@ -11,6 +11,8 @@ from hermetic_alpha.analysis import (
     summarize_validated_multi_horizon_event_study,
     validated_event_study_report_row,
     validated_multi_horizon_event_study_report_rows,
+    walk_forward_split_rows,
+    walk_forward_splits,
 )
 from hermetic_alpha.exports import to_csv, to_json, write_csv, write_json
 from hermetic_alpha.labels import add_forward_returns
@@ -148,3 +150,29 @@ def test_csv_accepts_flat_permutation_test_result_rows():
         "null_distribution_count,null_distribution_min,null_distribution_max"
     )
     assert "greater,20,19" in text
+
+
+def test_csv_accepts_flat_walk_forward_split_rows():
+    splits = walk_forward_splits(6, train_size=3, test_size=1)
+
+    text = to_csv(walk_forward_split_rows(splits))
+
+    assert text.splitlines()[0] == (
+        "split_index,train_start_index,train_end_index,test_start_index,test_end_index,"
+        "train_size,test_size,train_first,train_last,test_first,test_last"
+    )
+    assert "\n0,0,3,3,4,3,1,0,2,3,3" in text
+    assert "\n2,2,5,5,6,3,1,2,4,5,5" in text
+
+
+def test_csv_accepts_walk_forward_rows_with_nested_endpoints_removed():
+    splits = walk_forward_splits(
+        [{"close": 100.0}, {"close": 101.0}, {"close": 102.0}],
+        train_size=1,
+        test_size=1,
+    )
+
+    text = to_csv(walk_forward_split_rows(splits))
+
+    assert "train_first,train_last,test_first,test_last" in text
+    assert "\n0,0,1,1,2,1,1,,,," in text

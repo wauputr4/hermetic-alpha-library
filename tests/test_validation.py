@@ -8,6 +8,7 @@ from hermetic_alpha.analysis import (
     permutation_test,
     permutation_test_result_row,
     random_baseline_distribution,
+    walk_forward_split_rows,
     walk_forward_splits,
 )
 
@@ -165,6 +166,80 @@ def test_walk_forward_splits_prevent_train_test_leakage():
     for split in splits:
         assert split.train_end_index == split.test_start_index
         assert max(split.train) < min(split.test)
+
+
+def test_walk_forward_split_rows_flatten_boundaries_and_endpoints():
+    splits = walk_forward_splits(["d1", "d2", "d3", "d4", "d5", "d6"], train_size=3, test_size=1)
+
+    rows = walk_forward_split_rows(splits)
+
+    assert rows == [
+        {
+            "split_index": 0,
+            "train_start_index": 0,
+            "train_end_index": 3,
+            "test_start_index": 3,
+            "test_end_index": 4,
+            "train_size": 3,
+            "test_size": 1,
+            "train_first": "d1",
+            "train_last": "d3",
+            "test_first": "d4",
+            "test_last": "d4",
+        },
+        {
+            "split_index": 1,
+            "train_start_index": 1,
+            "train_end_index": 4,
+            "test_start_index": 4,
+            "test_end_index": 5,
+            "train_size": 3,
+            "test_size": 1,
+            "train_first": "d2",
+            "train_last": "d4",
+            "test_first": "d5",
+            "test_last": "d5",
+        },
+        {
+            "split_index": 2,
+            "train_start_index": 2,
+            "train_end_index": 5,
+            "test_start_index": 5,
+            "test_end_index": 6,
+            "train_size": 3,
+            "test_size": 1,
+            "train_first": "d3",
+            "train_last": "d5",
+            "test_first": "d6",
+            "test_last": "d6",
+        },
+    ]
+    assert splits[0].to_dict() == {
+        "train": ["d1", "d2", "d3"],
+        "test": ["d4"],
+        "train_start_index": 0,
+        "train_end_index": 3,
+        "test_start_index": 3,
+        "test_end_index": 4,
+    }
+
+
+def test_walk_forward_split_rows_replace_nested_endpoints_with_none():
+    split = WalkForwardSplit(
+        train=({"close": 100.0}, {"close": 101.0}),
+        test=([102.0], [103.0]),
+        train_start_index=0,
+        train_end_index=2,
+        test_start_index=2,
+        test_end_index=4,
+    )
+
+    rows = walk_forward_split_rows([split])
+
+    assert rows[0]["train_first"] is None
+    assert rows[0]["train_last"] is None
+    assert rows[0]["test_first"] is None
+    assert rows[0]["test_last"] is None
 
 
 def test_walk_forward_splits_validate_inputs():
