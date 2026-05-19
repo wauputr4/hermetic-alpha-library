@@ -300,6 +300,16 @@ be ambiguous. Feature columns are derived only from aspects present in the
 supplied events; missing columns mean the dataset did not contain that aspect,
 not that a complete ephemeris scan proved it absent.
 
+Use `aspect_event_feature_matrix_rows_with_schema()` when downstream train/test
+or walk-forward splits need stable columns across datasets. Configured features
+that are absent at a timestamp emit `False` for `_active` and `None` for
+`_orb`, `_strength`, and `_phase`; this only means the configured feature was
+not observed in the supplied events. It does not prove the feature was absent
+from a complete ephemeris scan unless the caller supplied a complete scan and
+schema. Unknown observed features are included by default and appended after
+configured columns; pass `include_unknown_features=False` to reject them during
+strict production exports.
+
 `event_study_baseline_comparison_row()` is the preferred flat row helper when
 reports need probability deltas and relative lift. It leaves derived fields as
 `None` if either probability is missing, and leaves `relative_lift` as `None`
