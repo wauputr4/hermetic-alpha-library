@@ -12,6 +12,7 @@ from hermetic_alpha.similarity import (
     euclidean_distance,
     find_nearest,
     nearest_neighbor_rows,
+    planet_position_encoding_rows,
 )
 
 
@@ -65,6 +66,48 @@ def test_encode_planet_positions_compares_aware_timestamps_chronologically():
         *encode_longitude(0),
         *encode_longitude(90),
     ]
+
+
+def test_planet_position_encoding_rows_match_vector_component_order():
+    early = datetime(2026, 5, 17, 0, 0, tzinfo=timezone.utc)
+    later = datetime(2026, 5, 18, 0, 0, tzinfo=timezone.utc)
+    positions = [
+        PlanetPosition(later, "moon", 180),
+        PlanetPosition(early, "sun", 90, zodiac="sidereal"),
+        PlanetPosition(early, "sun", 45, zodiac="tropical"),
+        PlanetPosition(early, "jupiter", 0),
+    ]
+
+    rows = planet_position_encoding_rows(positions)
+    vector = encode_planet_positions(positions)
+
+    assert [row["position_index"] for row in rows] == [0, 1, 2, 3]
+    assert [(row["timestamp"], row["body"], row["zodiac"]) for row in rows] == [
+        (early, "jupiter", "tropical"),
+        (early, "sun", "sidereal"),
+        (early, "sun", "tropical"),
+        (later, "moon", "tropical"),
+    ]
+    assert [
+        component
+        for row in rows
+        for component in (row["longitude_sin"], row["longitude_cos"])
+    ] == vector
+
+
+def test_planet_position_encoding_rows_keep_circular_components_inspectable():
+    timestamp = datetime(2026, 5, 17, tzinfo=timezone.utc)
+    rows = planet_position_encoding_rows([
+        PlanetPosition(timestamp, "sun", 359),
+        PlanetPosition(timestamp, "moon", -1),
+    ])
+
+    moon_row, sun_row = rows
+
+    assert moon_row["longitude"] == -1
+    assert sun_row["longitude"] == 359
+    assert moon_row["longitude_sin"] == pytest.approx(sun_row["longitude_sin"])
+    assert moon_row["longitude_cos"] == pytest.approx(sun_row["longitude_cos"])
 
 
 def test_find_nearest_ranks_similar_vectors_first_with_cosine_metric():

@@ -183,6 +183,15 @@ scanned. Position timestamps must be timezone-aware, body names must be
 non-empty, and duplicate body rows for the same timestamp are rejected so a scan
 cannot silently choose between conflicting longitudes.
 
+### Planet-Position Encoding Reports
+
+`encode_planet_positions()` intentionally returns only the numeric sine/cosine
+vector needed for similarity ranking. Use `planet_position_encoding_rows()` when
+reports need to show how that vector was built. The row helper sorts positions
+with the same timestamp/body/zodiac key, keeps the original longitude visible,
+and emits `longitude_sin` and `longitude_cos` columns that can be written with
+the flat CSV exporter.
+
 ### Aspect Phase Classification
 
 `find_aspects()` and `scan_aspect_series()` classify `AspectEvent.phase` only

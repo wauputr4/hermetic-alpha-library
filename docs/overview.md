@@ -159,6 +159,11 @@ body name, then zodiac, and each position contributes `longitude_sin` followed
 by `longitude_cos`. Aware timestamps are compared as datetimes, so equivalent
 instants in different timezone offsets keep chronological ordering before the
 body and zodiac tie-breakers are applied.
+Use `planet_position_encoding_rows()` when the encoded chart state needs an
+inspectable CSV or notebook report before similarity search. It uses the same
+ordering as `encode_planet_positions()` and emits one row per position with
+timestamp, body, zodiac, raw longitude, and the sine/cosine components; it is
+for audit/reporting and does not replace numeric vectors for `find_nearest()`.
 
 The search layer exposes `SimilarityCandidate`, `find_nearest()`,
 `cosine_similarity()`, and `euclidean_distance()` for small in-memory

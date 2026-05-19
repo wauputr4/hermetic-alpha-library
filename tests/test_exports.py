@@ -20,11 +20,12 @@ from hermetic_alpha.analysis import (
 )
 from hermetic_alpha.exports import to_csv, to_json, write_csv, write_json
 from hermetic_alpha.labels import add_forward_returns
-from hermetic_alpha.models import EventStudyResult, MarketCandle
+from hermetic_alpha.models import EventStudyResult, MarketCandle, PlanetPosition
 from hermetic_alpha.similarity import (
     SimilarityCandidate,
     find_nearest,
     nearest_neighbor_rows,
+    planet_position_encoding_rows,
 )
 
 
@@ -226,6 +227,19 @@ def test_csv_accepts_walk_forward_rows_with_nested_endpoints_removed():
 
     assert "train_first,train_last,test_first,test_last" in text
     assert "\n0,0,1,1,2,1,1,,,," in text
+
+
+def test_csv_accepts_flat_planet_position_encoding_rows():
+    timestamp = datetime(2026, 5, 17, tzinfo=timezone.utc)
+
+    text = to_csv(planet_position_encoding_rows([
+        PlanetPosition(timestamp, "sun", 90),
+    ]))
+
+    assert text.splitlines()[0] == (
+        "position_index,timestamp,body,zodiac,longitude,longitude_sin,longitude_cos"
+    )
+    assert "0,2026-05-17T00:00:00+00:00,sun,tropical,90," in text
 
 
 def test_csv_accepts_flat_nearest_neighbor_rows():
