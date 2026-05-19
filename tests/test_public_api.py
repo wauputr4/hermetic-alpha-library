@@ -9,7 +9,11 @@ from hermetic_alpha import (
     aspect_event_feature_matrix_rows_with_schema,
     aspect_event_feature_rows,
 )
-from hermetic_alpha.analysis import aspect_event_study, summarize_validated_multi_horizon_event_study
+from hermetic_alpha.analysis import (
+    aspect_event_study,
+    summarize_validated_multi_horizon_event_study,
+    validated_multi_horizon_event_study_report_rows,
+)
 from hermetic_alpha.astro import AspectDefinition as AstroAspectDefinition
 from hermetic_alpha.features import (
     aspect_event_feature_matrix_rows as features_aspect_event_feature_matrix_rows,
@@ -25,6 +29,7 @@ def test_public_api_exports_match_documented_entrypoints():
     assert aspect_event_feature_matrix_rows_with_schema is features_aspect_event_feature_matrix_rows_with_schema
     assert callable(aspect_event_study)
     assert callable(summarize_validated_multi_horizon_event_study)
+    assert callable(validated_multi_horizon_event_study_report_rows)
 
     ts = datetime(2026, 5, 6, tzinfo=timezone.utc)
     labels = [{"return_1d": 0.1, "bullish_1d": True}, {"return_1d": -0.05, "bullish_1d": False}]

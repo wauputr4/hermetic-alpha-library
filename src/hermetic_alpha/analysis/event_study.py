@@ -108,6 +108,20 @@ def validated_event_study_report_row(report: ValidatedEventStudyReport) -> dict[
     }
 
 
+def validated_multi_horizon_event_study_report_rows(
+    reports: Mapping[int, ValidatedEventStudyReport] | Sequence[ValidatedEventStudyReport],
+) -> list[dict[str, object]]:
+    """Return flat scalar rows for ordered validated multi-horizon reports.
+
+    Accepts the mapping returned by
+    ``summarize_validated_multi_horizon_event_study()`` or an already ordered
+    sequence of reports. Single-report flattening remains centralized in
+    ``validated_event_study_report_row()``.
+    """
+    ordered_reports = reports.values() if isinstance(reports, Mapping) else reports
+    return [validated_event_study_report_row(report) for report in ordered_reports]
+
+
 def event_study_baseline_comparison_row(result: EventStudyResult) -> dict[str, object]:
     """Return flat baseline comparison fields for an event-study result."""
 

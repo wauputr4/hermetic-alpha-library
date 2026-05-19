@@ -10,6 +10,7 @@ from hermetic_alpha.analysis import (
     summarize_validated_event_study,
     summarize_validated_multi_horizon_event_study,
     validated_event_study_report_row,
+    validated_multi_horizon_event_study_report_rows,
 )
 from hermetic_alpha.labels import (
     add_candle_forward_returns,
@@ -347,6 +348,44 @@ def test_validated_event_study_report_row_uses_none_for_missing_interval_bounds(
     assert row["return_confidence_interval_lower"] is None
     assert row["return_confidence_interval_upper"] is None
     assert row["average_return"] is None
+
+
+def test_validated_multi_horizon_event_study_report_rows_flatten_mapping_in_order():
+    labels = add_forward_returns([100, 110, 99, 120, 126], [1, 2])
+    reports = summarize_validated_multi_horizon_event_study(
+        labels,
+        [0, 1, 2],
+        [2, 1],
+        bootstrap_samples=50,
+        bootstrap_seed=7,
+        minimum_events=5,
+    )
+
+    rows = validated_multi_horizon_event_study_report_rows(reports)
+
+    assert [row["horizon"] for row in rows] == [2, 1]
+    assert rows[0]["events"] == 3
+    assert rows[0]["bootstrap_seed"] == 7
+    assert rows[1]["low_sample_warning"] == (
+        "Low sample size: 3 observations; treat results as exploratory until at least 5 are available."
+    )
+
+
+def test_validated_multi_horizon_event_study_report_rows_flatten_sequence_in_order():
+    labels = add_forward_returns([100, 110, 99], [1, 2])
+    reports = summarize_validated_multi_horizon_event_study(
+        labels,
+        [1],
+        [1, 2],
+        bootstrap_samples=10,
+        minimum_events=1,
+    )
+
+    rows = validated_multi_horizon_event_study_report_rows([reports[2], reports[1]])
+
+    assert [row["horizon"] for row in rows] == [2, 1]
+    assert rows[0]["return_confidence_interval_lower"] is None
+    assert rows[0]["return_confidence_interval_upper"] is None
 
 
 def test_event_study_baseline_comparison_row_calculates_delta_and_lift():
