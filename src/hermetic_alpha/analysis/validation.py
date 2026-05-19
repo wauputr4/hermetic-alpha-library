@@ -59,6 +59,22 @@ class PermutationTestResult:
         }
 
 
+def permutation_test_result_row(result: PermutationTestResult) -> dict[str, float | int | str | None]:
+    """Return a flat CSV-compatible summary row for a permutation test result."""
+    null_distribution = list(result.null_distribution)
+    return {
+        "observed_statistic": result.observed_statistic,
+        "p_value": result.p_value,
+        "alternative": result.alternative,
+        "permutations": result.permutations,
+        "seed": result.seed,
+        "null_mean": result.null_mean,
+        "null_distribution_count": len(null_distribution),
+        "null_distribution_min": min(null_distribution) if null_distribution else None,
+        "null_distribution_max": max(null_distribution) if null_distribution else None,
+    }
+
+
 def _default_statistic(values: Sequence[float]) -> float:
     return mean(values)
 

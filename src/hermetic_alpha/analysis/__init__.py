@@ -19,6 +19,7 @@ from .validation import (
     bootstrap_percentile_interval,
     low_sample_warning,
     permutation_test,
+    permutation_test_result_row,
     random_baseline_distribution,
     walk_forward_splits,
 )
@@ -36,6 +37,7 @@ __all__ = [
     "join_aspect_events_to_market_labels",
     "low_sample_warning",
     "permutation_test",
+    "permutation_test_result_row",
     "random_baseline_distribution",
     "summarize_event_study",
     "summarize_multi_horizon_event_study",

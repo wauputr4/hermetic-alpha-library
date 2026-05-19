@@ -122,6 +122,13 @@ The helper raises `ValueError` for empty samples, non-positive permutation
 counts, unsupported alternatives, or statistics that do not return finite
 numeric values.
 
+Use `permutation_test_result_row()` before writing permutation reports with the
+flat CSV exporter. `PermutationTestResult.to_dict()` intentionally keeps the full
+`null_distribution` list for JSON inspection, while the row helper emits compact
+distribution metadata (`count`, `min`, and `max`) that is CSV-safe. If a manually
+constructed result has an empty distribution, the count is `0` and the min/max
+fields are `None`.
+
 ### Walk-Forward Split Boundaries
 
 `walk_forward_splits()` expects ordered observations or a positive observation
