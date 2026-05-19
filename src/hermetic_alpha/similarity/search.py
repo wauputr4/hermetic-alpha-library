@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from datetime import date, datetime
 from math import sqrt
 from typing import Any, Literal
 
 SimilarityMetric = Literal["cosine", "euclidean"]
+ReportScalar = str | int | float | bool | date | datetime | None
 
 
 @dataclass(frozen=True)
@@ -78,6 +80,31 @@ def find_nearest(
     return neighbors[:limit]
 
 
+def nearest_neighbor_rows(
+    results: Sequence[NearestNeighbor],
+    *,
+    payload_fields: Sequence[str] | None = None,
+) -> list[dict[str, ReportScalar]]:
+    """Return flat CSV-compatible rows for ranked nearest-neighbor results.
+
+    Scalar payloads are emitted in a ``payload`` column. Mapping payloads are
+    included only through explicitly requested ``payload_fields`` and nested
+    selected values are rejected so report schemas stay inspectable.
+    """
+
+    rows: list[dict[str, ReportScalar]] = []
+    for rank, result in enumerate(results, start=1):
+        row: dict[str, ReportScalar] = {
+            "rank": rank,
+            "id": result.id,
+            "score": result.score,
+            "distance": result.distance,
+        }
+        _add_payload_fields(row, result.payload, payload_fields)
+        rows.append(row)
+    return rows
+
+
 def _rank_candidate(
     query_vector: Sequence[float],
     candidate: SimilarityCandidate,
@@ -95,6 +122,34 @@ def _rank_candidate(
         distance=distance,
         payload=candidate.payload,
     )
+
+
+def _add_payload_fields(
+    row: dict[str, ReportScalar],
+    payload: Any,
+    payload_fields: Sequence[str] | None,
+) -> None:
+    if _is_report_scalar(payload):
+        row["payload"] = payload
+        return
+
+    if payload_fields is None:
+        return
+
+    if not isinstance(payload, Mapping):
+        raise TypeError("payload_fields requires mapping payload values")
+
+    for field in payload_fields:
+        value = payload.get(field)
+        if not _is_report_scalar(value):
+            raise TypeError(
+                f"payload field {field!r} contains unsupported nested value {type(value).__name__}"
+            )
+        row[f"payload_{field}"] = value
+
+
+def _is_report_scalar(value: Any) -> bool:
+    return isinstance(value, str | int | float | bool | date | datetime) or value is None
 
 
 def _validate_pair(left: Sequence[float], right: Sequence[float]) -> None:

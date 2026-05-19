@@ -165,6 +165,11 @@ The search layer exposes `SimilarityCandidate`, `find_nearest()`,
 nearest-neighbor workflows. It is intentionally dependency-free and returns
 ranked neighbors with caller-provided IDs and optional payloads. Exact score
 ties are ordered by candidate ID for reproducible reports.
+Use `nearest_neighbor_rows()` when ranked similarity results need flat CSV
+output. The helper preserves rank order, emits `id`, `score`, and `distance`,
+and includes only scalar payload data or explicitly selected scalar fields from
+mapping payloads so nested caller-owned payloads do not leak into generic CSV
+export.
 
 Recommended methods:
 

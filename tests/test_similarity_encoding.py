@@ -11,6 +11,7 @@ from hermetic_alpha.similarity import (
     encode_planet_positions,
     euclidean_distance,
     find_nearest,
+    nearest_neighbor_rows,
 )
 
 
@@ -138,6 +139,81 @@ def test_find_nearest_accepts_encoded_planet_position_vectors():
     )
 
     assert [result.id for result in results] == ["near-chart", "distant-chart"]
+
+
+def test_nearest_neighbor_rows_preserves_ranked_order_and_scalar_payloads():
+    results = find_nearest(
+        [1.0, 0.0],
+        [
+            SimilarityCandidate("far", [0.0, 1.0], payload="old-chart"),
+            SimilarityCandidate("near", [1.0, 0.0], payload="current-chart"),
+        ],
+    )
+
+    rows = nearest_neighbor_rows(results)
+
+    assert [row["id"] for row in rows] == ["near", "far"]
+    assert rows[0] == {
+        "rank": 1,
+        "id": "near",
+        "score": 1.0,
+        "distance": 0.0,
+        "payload": "current-chart",
+    }
+    assert rows[1]["rank"] == 2
+    assert rows[1]["payload"] == "old-chart"
+
+
+def test_nearest_neighbor_rows_supports_explicit_mapping_payload_fields():
+    results = find_nearest(
+        [1.0, 1.0],
+        [
+            SimilarityCandidate(
+                "nearest",
+                [1.1, 1.1],
+                payload={"timestamp": "2026-05-19", "asset": "BTC-USD", "nested": {"ignored": True}},
+            ),
+        ],
+        metric="euclidean",
+    )
+
+    rows = nearest_neighbor_rows(results, payload_fields=["asset", "timestamp", "missing"])
+
+    assert rows == [
+        {
+            "rank": 1,
+            "id": "nearest",
+            "score": -0.14142135623730964,
+            "distance": 0.14142135623730964,
+            "payload_asset": "BTC-USD",
+            "payload_timestamp": "2026-05-19",
+            "payload_missing": None,
+        }
+    ]
+
+
+def test_nearest_neighbor_rows_rejects_selected_nested_payload_fields():
+    results = find_nearest(
+        [1.0],
+        [
+            SimilarityCandidate("nested", [1.0], payload={"metadata": {"asset": "BTC-USD"}}),
+        ],
+    )
+
+    with pytest.raises(TypeError, match="payload field 'metadata' contains unsupported nested value dict"):
+        nearest_neighbor_rows(results, payload_fields=["metadata"])
+
+
+def test_nearest_neighbor_rows_requires_mapping_payload_for_payload_fields():
+    results = find_nearest(
+        [1.0],
+        [
+            SimilarityCandidate("list-payload", [1.0], payload=["BTC-USD"]),
+        ],
+    )
+
+    with pytest.raises(TypeError, match="payload_fields requires mapping payload values"):
+        nearest_neighbor_rows(results, payload_fields=["asset"])
 
 
 def test_similarity_search_validates_inputs():

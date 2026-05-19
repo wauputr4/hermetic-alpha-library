@@ -7,6 +7,7 @@ from .search import (
     cosine_similarity,
     euclidean_distance,
     find_nearest,
+    nearest_neighbor_rows,
 )
 
 __all__ = [
@@ -17,4 +18,5 @@ __all__ = [
     "encode_planet_positions",
     "euclidean_distance",
     "find_nearest",
+    "nearest_neighbor_rows",
 ]
