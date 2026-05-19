@@ -96,6 +96,12 @@ Use `aspect_event_feature_matrix_rows()` when model-building code needs one row
 per timestamp. It groups exact timestamp matches and emits deterministic
 `<body_a>_<body_b>_<aspect>_active`, `_orb`, `_strength`, and `_phase` columns
 for aspect features observed in the supplied events.
+Use `aspect_event_feature_matrix_rows_with_schema()` when train/test,
+walk-forward, or batch exports need the same feature columns even when a
+configured aspect is absent from one dataset. Missing configured features emit
+inactive `False` flags and `None` numeric/phase values. Unknown observed
+features are included by default for exploratory exports, or rejected with
+`include_unknown_features=False` for strict schema validation.
 
 Examples:
 

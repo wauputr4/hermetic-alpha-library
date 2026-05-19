@@ -3,7 +3,11 @@ from datetime import datetime, timezone
 import pytest
 
 from hermetic_alpha.exports import to_csv
-from hermetic_alpha.features import aspect_event_feature_matrix_rows, aspect_event_feature_rows
+from hermetic_alpha.features import (
+    aspect_event_feature_matrix_rows,
+    aspect_event_feature_matrix_rows_with_schema,
+    aspect_event_feature_rows,
+)
 from hermetic_alpha.models import AspectEvent
 
 
@@ -121,6 +125,107 @@ def test_aspect_event_feature_matrix_rows_reject_duplicate_features_at_same_time
                 _aspect_event("sun", "jupiter", "conjunction", ts),
             ]
         )
+
+
+def test_aspect_event_feature_matrix_rows_with_schema_keeps_train_test_columns_stable():
+    ts_train = datetime(2026, 5, 18, tzinfo=timezone.utc)
+    ts_test = datetime(2026, 5, 19, tzinfo=timezone.utc)
+    schema = ["sun_jupiter_conjunction", "mars_saturn_square"]
+
+    train_rows = aspect_event_feature_matrix_rows_with_schema(
+        [_aspect_event("sun", "jupiter", "conjunction", ts_train, phase="applying")],
+        schema,
+        include_unknown_features=False,
+    )
+    test_rows = aspect_event_feature_matrix_rows_with_schema(
+        [_aspect_event("mars", "saturn", "square", ts_test, phase="separating")],
+        schema,
+        include_unknown_features=False,
+    )
+
+    assert list(train_rows[0].keys()) == list(test_rows[0].keys())
+    assert train_rows[0]["sun_jupiter_conjunction_active"] is True
+    assert train_rows[0]["mars_saturn_square_active"] is False
+    assert train_rows[0]["mars_saturn_square_orb"] is None
+    assert train_rows[0]["mars_saturn_square_strength"] is None
+    assert train_rows[0]["mars_saturn_square_phase"] is None
+    assert test_rows[0]["sun_jupiter_conjunction_active"] is False
+    assert test_rows[0]["mars_saturn_square_active"] is True
+
+
+def test_aspect_event_feature_matrix_rows_with_schema_includes_unknown_observed_features_by_default():
+    ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
+
+    rows = aspect_event_feature_matrix_rows_with_schema(
+        [
+            _aspect_event("sun", "jupiter", "conjunction", ts),
+            _aspect_event("moon", "venus", "trine", ts),
+        ],
+        ["sun_jupiter_conjunction"],
+    )
+
+    assert list(rows[0].keys()) == [
+        "timestamp",
+        "sun_jupiter_conjunction_active",
+        "sun_jupiter_conjunction_orb",
+        "sun_jupiter_conjunction_strength",
+        "sun_jupiter_conjunction_phase",
+        "moon_venus_trine_active",
+        "moon_venus_trine_orb",
+        "moon_venus_trine_strength",
+        "moon_venus_trine_phase",
+    ]
+    assert rows[0]["moon_venus_trine_active"] is True
+
+
+def test_aspect_event_feature_matrix_rows_with_schema_can_reject_unknown_observed_features():
+    ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
+
+    with pytest.raises(ValueError, match="unknown observed aspect feature"):
+        aspect_event_feature_matrix_rows_with_schema(
+            [_aspect_event("moon", "venus", "trine", ts)],
+            ["sun_jupiter_conjunction"],
+            include_unknown_features=False,
+        )
+
+
+def test_aspect_event_feature_matrix_rows_with_schema_rejects_duplicate_configured_features():
+    with pytest.raises(ValueError, match="duplicate configured aspect feature"):
+        aspect_event_feature_matrix_rows_with_schema(
+            [],
+            ["sun_jupiter_conjunction", " Sun_Jupiter_Conjunction "],
+        )
+
+
+def test_aspect_event_feature_matrix_rows_with_schema_rejects_duplicate_observed_features():
+    ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
+
+    with pytest.raises(ValueError, match="duplicate aspect feature"):
+        aspect_event_feature_matrix_rows_with_schema(
+            [
+                _aspect_event("sun", "jupiter", "conjunction", ts),
+                _aspect_event("sun", "jupiter", "conjunction", ts),
+            ],
+            ["sun_jupiter_conjunction"],
+        )
+
+
+def test_aspect_event_feature_matrix_rows_with_schema_are_csv_compatible():
+    ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
+    rows = aspect_event_feature_matrix_rows_with_schema(
+        [_aspect_event("sun", "jupiter", "conjunction", ts)],
+        ["sun_jupiter_conjunction", "mars_saturn_square"],
+        include_unknown_features=False,
+    )
+
+    text = to_csv(rows)
+
+    assert text.splitlines()[0] == (
+        "timestamp,sun_jupiter_conjunction_active,sun_jupiter_conjunction_orb,"
+        "sun_jupiter_conjunction_strength,sun_jupiter_conjunction_phase,"
+        "mars_saturn_square_active,mars_saturn_square_orb,mars_saturn_square_strength,"
+        "mars_saturn_square_phase"
+    )
 
 
 def _aspect_event(
