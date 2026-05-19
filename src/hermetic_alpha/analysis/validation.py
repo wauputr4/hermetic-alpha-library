@@ -61,7 +61,7 @@ class PermutationTestResult:
 
 def permutation_test_result_row(result: PermutationTestResult) -> dict[str, float | int | str | None]:
     """Return a flat CSV-compatible summary row for a permutation test result."""
-    null_distribution = list(result.null_distribution)
+    null_distribution = result.null_distribution
     return {
         "observed_statistic": result.observed_statistic,
         "p_value": result.p_value,
