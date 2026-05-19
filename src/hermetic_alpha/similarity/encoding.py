@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from math import cos, radians, sin
 from typing import Sequence
 
 from hermetic_alpha.astro.math import normalize_degrees
 from hermetic_alpha.models import PlanetPosition
+
+EncodingScalar = str | int | float | bool | date | datetime | None
 
 
 def encode_longitude(longitude: float) -> tuple[float, float]:
@@ -28,6 +30,26 @@ def encode_planet_positions(positions: Sequence[PlanetPosition]) -> list[float]:
     for position in sorted(positions, key=_position_sort_key):
         vector.extend(encode_longitude(position.longitude))
     return vector
+
+
+def planet_position_encoding_rows(positions: Sequence[PlanetPosition]) -> list[dict[str, EncodingScalar]]:
+    """Return flat inspectable rows for encoded planet-position components."""
+
+    rows: list[dict[str, EncodingScalar]] = []
+    for position_index, position in enumerate(sorted(positions, key=_position_sort_key)):
+        longitude_sin, longitude_cos = encode_longitude(position.longitude)
+        rows.append(
+            {
+                "position_index": position_index,
+                "timestamp": position.timestamp,
+                "body": position.body,
+                "zodiac": position.zodiac,
+                "longitude": position.longitude,
+                "longitude_sin": longitude_sin,
+                "longitude_cos": longitude_cos,
+            }
+        )
+    return rows
 
 
 def _position_sort_key(position: PlanetPosition) -> tuple[datetime, str, str]:

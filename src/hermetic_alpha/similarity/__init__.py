@@ -1,6 +1,6 @@
 """Similarity helpers for chart-state vector encoding and search."""
 
-from .encoding import encode_longitude, encode_planet_positions
+from .encoding import encode_longitude, encode_planet_positions, planet_position_encoding_rows
 from .search import (
     NearestNeighbor,
     SimilarityCandidate,
@@ -19,4 +19,5 @@ __all__ = [
     "euclidean_distance",
     "find_nearest",
     "nearest_neighbor_rows",
+    "planet_position_encoding_rows",
 ]
