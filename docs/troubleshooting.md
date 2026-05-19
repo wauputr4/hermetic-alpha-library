@@ -129,6 +129,13 @@ distribution metadata (`count`, `min`, and `max`) that is CSV-safe. If a manuall
 constructed result has an empty distribution, the count is `0` and the min/max
 fields are `None`.
 
+Use `random_baseline_distribution_row()` when random-baseline results need the
+same compact CSV treatment. `random_baseline_distribution()` intentionally
+returns the full statistic list for plots and JSON inspection; the row helper
+summarizes that list as count, min, max, and mean, plus optional sample-size,
+sample-count, and seed metadata. Empty distributions emit `0` count and `None`
+summary values instead of raising from `min()` or `max()`.
+
 ### Walk-Forward Split Boundaries
 
 `walk_forward_splits()` expects ordered observations or a positive observation

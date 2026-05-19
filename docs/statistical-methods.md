@@ -137,6 +137,9 @@ The initial validation helper is `random_baseline_distribution()`. It samples
 random baseline subsets without replacement, supports a deterministic seed, and
 returns the selected statistic for each sample. This is a simple baseline
 distribution, not proof of causality.
+Use `random_baseline_distribution_row()` when a compact flat report is needed
+for CSV output. It keeps the full distribution list out of the row and emits
+count, minimum, maximum, mean, and optional sample metadata instead.
 
 The library also exposes `permutation_test()` for dependency-free two-sample
 random relabeling. Pass observed event outcomes and baseline outcomes, choose a

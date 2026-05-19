@@ -21,6 +21,7 @@ from .validation import (
     permutation_test,
     permutation_test_result_row,
     random_baseline_distribution,
+    random_baseline_distribution_row,
     walk_forward_split_rows,
     walk_forward_splits,
 )
@@ -40,6 +41,7 @@ __all__ = [
     "permutation_test",
     "permutation_test_result_row",
     "random_baseline_distribution",
+    "random_baseline_distribution_row",
     "summarize_event_study",
     "summarize_multi_horizon_event_study",
     "summarize_validated_event_study",

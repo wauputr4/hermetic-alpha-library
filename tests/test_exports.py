@@ -6,6 +6,8 @@ from hermetic_alpha.analysis import (
     event_study_baseline_comparison_row,
     permutation_test,
     permutation_test_result_row,
+    random_baseline_distribution,
+    random_baseline_distribution_row,
     summarize_event_study,
     summarize_validated_event_study,
     summarize_validated_multi_horizon_event_study,
@@ -155,6 +157,30 @@ def test_csv_accepts_flat_permutation_test_result_rows():
         "null_distribution_count,null_distribution_min,null_distribution_max"
     )
     assert "greater,20,19" in text
+
+
+def test_csv_accepts_flat_random_baseline_distribution_rows():
+    distribution = random_baseline_distribution(
+        [1.0, 2.0, 3.0, 4.0],
+        2,
+        samples=5,
+        seed=11,
+    )
+
+    text = to_csv([
+        random_baseline_distribution_row(
+            distribution,
+            sample_size=2,
+            samples=5,
+            seed=11,
+        )
+    ])
+
+    assert text.splitlines()[0] == (
+        "distribution_count,distribution_min,distribution_max,distribution_mean,"
+        "sample_size,samples,seed"
+    )
+    assert "\n5,1.5,3.5,2.6,2,5,11" in text
 
 
 def test_csv_accepts_flat_walk_forward_split_rows():

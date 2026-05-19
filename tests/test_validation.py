@@ -8,6 +8,7 @@ from hermetic_alpha.analysis import (
     permutation_test,
     permutation_test_result_row,
     random_baseline_distribution,
+    random_baseline_distribution_row,
     walk_forward_split_rows,
     walk_forward_splits,
 )
@@ -36,6 +37,47 @@ def test_random_baseline_distribution_is_deterministic_with_seed():
 
     assert first == second
     assert first == [3.5, 3.0, 1.5, 3.5, 1.5]
+
+
+def test_random_baseline_distribution_row_summarizes_seeded_distribution():
+    distribution = random_baseline_distribution(
+        [1.0, 2.0, 3.0, 4.0],
+        2,
+        samples=5,
+        seed=11,
+    )
+
+    row = random_baseline_distribution_row(
+        distribution,
+        sample_size=2,
+        samples=5,
+        seed=11,
+    )
+
+    assert row == {
+        "distribution_count": 5,
+        "distribution_min": 1.5,
+        "distribution_max": 3.5,
+        "distribution_mean": 2.6,
+        "sample_size": 2,
+        "samples": 5,
+        "seed": 11,
+    }
+    assert distribution == [3.5, 3.0, 1.5, 3.5, 1.5]
+
+
+def test_random_baseline_distribution_row_handles_empty_distribution():
+    row = random_baseline_distribution_row([], sample_size=2, samples=0, seed=None)
+
+    assert row == {
+        "distribution_count": 0,
+        "distribution_min": None,
+        "distribution_max": None,
+        "distribution_mean": None,
+        "sample_size": 2,
+        "samples": 0,
+        "seed": None,
+    }
 
 
 def test_permutation_test_is_seeded_and_inspectable():
@@ -286,6 +328,9 @@ def test_validation_helpers_validate_inputs():
 
     with pytest.raises(ValueError, match="statistic must return a finite numeric value"):
         permutation_test([1.0], [0.0], statistic=lambda values: "not numeric")
+
+    with pytest.raises(ValueError, match="distribution values must be finite numeric values"):
+        random_baseline_distribution_row([float("nan")])
 
 
 def test_low_sample_warning_returns_message_only_below_threshold():
