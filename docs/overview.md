@@ -164,6 +164,11 @@ inspectable CSV or notebook report before similarity search. It uses the same
 ordering as `encode_planet_positions()` and emits one row per position with
 timestamp, body, zodiac, raw longitude, and the sine/cosine components; it is
 for audit/reporting and does not replace numeric vectors for `find_nearest()`.
+Use `planet_position_vector_summary_row()` when an audit table needs compact
+chart-state metadata without embedding the full numeric vector. It uses the same
+ordering and reports position count, vector length, and first/last
+timestamp/body/zodiac boundaries; it does not replace the vector or per-position
+encoding rows.
 
 The search layer exposes `SimilarityCandidate`, `find_nearest()`,
 `cosine_similarity()`, and `euclidean_distance()` for small in-memory
