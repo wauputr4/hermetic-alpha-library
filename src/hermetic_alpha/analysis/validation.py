@@ -119,6 +119,33 @@ def bootstrap_interval_row(
     }
 
 
+def bootstrap_interval_rows(
+    intervals: Mapping[str, Sequence[float]] | Sequence[tuple[str, Sequence[float]]],
+    *,
+    samples: int | None = None,
+    confidence: float | None = None,
+    seed: int | None = None,
+) -> list[dict[str, float | int | str | None]]:
+    """Return ordered flat rows for several bootstrap intervals."""
+
+    rows: list[dict[str, float | int | str | None]] = []
+    seen_statistic_names: set[str] = set()
+    for statistic_name, interval in _iter_named_intervals(intervals):
+        if statistic_name in seen_statistic_names:
+            raise ValueError("statistic names must be unique")
+        seen_statistic_names.add(statistic_name)
+        rows.append(
+            bootstrap_interval_row(
+                interval,
+                samples=samples,
+                confidence=confidence,
+                seed=seed,
+                statistic_name=statistic_name,
+            )
+        )
+    return rows
+
+
 def walk_forward_split_rows(splits: Sequence[WalkForwardSplit]) -> list[dict[str, ReportScalar]]:
     """Return flat CSV-compatible rows for walk-forward split boundaries."""
     return [
@@ -383,6 +410,25 @@ def _coerce_interval_bounds(interval: Sequence[float]) -> tuple[float, float]:
     if not isfinite(lower) or not isfinite(upper):
         raise ValueError("interval must contain exactly two finite numeric bounds")
     return lower, upper
+
+
+def _iter_named_intervals(
+    intervals: Mapping[str, Sequence[float]] | Sequence[tuple[str, Sequence[float]]],
+) -> tuple[tuple[str, Sequence[float]], ...]:
+    if isinstance(intervals, Mapping):
+        return tuple(intervals.items())
+    if isinstance(intervals, str | bytes):
+        raise ValueError("intervals must be an ordered mapping or sequence of name and interval pairs")
+
+    named_intervals: list[tuple[str, Sequence[float]]] = []
+    for item in intervals:
+        if not isinstance(item, Sequence) or isinstance(item, str | bytes) or len(item) != 2:
+            raise ValueError("intervals must be an ordered mapping or sequence of name and interval pairs")
+        statistic_name, interval = item
+        if not isinstance(statistic_name, str):
+            raise ValueError("statistic names must be strings")
+        named_intervals.append((statistic_name, interval))
+    return tuple(named_intervals)
 
 
 def _permutation_p_value(

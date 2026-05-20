@@ -120,6 +120,11 @@ Mitigation:
   `bootstrap_percentile_interval()` and rejects malformed, missing, or non-finite
   bounds with a clear validation error instead of letting export code infer a
   schema.
+- Use `bootstrap_interval_rows()` before writing a compact table of several
+  predeclared bootstrap intervals. It accepts an ordered mapping or ordered
+  `(statistic_name, interval)` pairs, rejects duplicate statistic names, and
+  reuses `bootstrap_interval_row()` for each interval; it does not replace the
+  raw bootstrap distribution or the single-interval helper.
 - Seed `permutation_test()` and report its `alternative`, `permutations`, and
   p-value correction behavior when using permutation p-values in research notes.
 - Use `summarize_validated_event_study()` when a report should carry the core

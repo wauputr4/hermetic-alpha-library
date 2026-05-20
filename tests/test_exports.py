@@ -4,6 +4,7 @@ import pytest
 
 from hermetic_alpha.analysis import (
     bootstrap_interval_row,
+    bootstrap_interval_rows,
     bootstrap_percentile_interval,
     event_study_baseline_comparison_row,
     multi_horizon_baseline_comparison_rows,
@@ -313,6 +314,22 @@ def test_csv_accepts_flat_bootstrap_interval_rows():
 
     assert text.splitlines()[0] == "interval_lower,interval_upper,samples,confidence,seed,statistic_name"
     assert "\n-0.0025,0.035,200,0.95,7,mean_return" in text
+
+
+def test_csv_accepts_ordered_bootstrap_interval_rows():
+    text = to_csv(bootstrap_interval_rows(
+        [
+            ("median_return", (-0.02, 0.03)),
+            ("mean_return", (0.01, 0.05)),
+        ],
+        samples=200,
+        confidence=0.95,
+        seed=7,
+    ))
+
+    assert text.splitlines()[0] == "interval_lower,interval_upper,samples,confidence,seed,statistic_name"
+    assert "\n-0.02,0.03,200,0.95,7,median_return" in text
+    assert "\n0.01,0.05,200,0.95,7,mean_return" in text
 
 
 def test_csv_accepts_flat_walk_forward_split_rows():
