@@ -73,6 +73,11 @@ Mitigation:
   `add_candle_forward_returns()` produced usable horizon labels. Missing horizon
   fields count as missing labels, single-asset candle labels report that asset,
   and plain close-list labels leave asset and timestamp boundaries empty.
+- Use `local_extrema_label_coverage_row()` before exporting retrospective
+  top/bottom labels when the edge-row footprint needs to be visible. Centered
+  local-extrema windows intentionally leave rows near the start and end
+  unlabeled; the coverage row reports those missing labels but does not make
+  local top/bottom values valid future-looking prediction targets.
 
 ### Local Candle Cache Files
 

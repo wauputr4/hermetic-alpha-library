@@ -10,6 +10,7 @@ from hermetic_alpha.models import MarketCandle
 TimestampedForwardReturnRow = dict[str, object]
 TimestampedLocalExtremaRow = dict[str, object]
 ForwardReturnCoverageRow = dict[str, object]
+LocalExtremaCoverageRow = dict[str, object]
 
 
 def add_forward_returns(closes: Sequence[float], horizons: Sequence[int]) -> list[dict[str, float | bool | None]]:
@@ -144,6 +145,40 @@ def forward_return_label_coverage_row(
         "bullish_count": bullish_count,
         "bearish_count": bearish_count,
         "missing_label_count": row_count - bullish_count - bearish_count,
+        "asset": next(iter(assets)) if len(assets) == 1 else None,
+        "first_timestamp": labels[0].get("timestamp") if labels else None,
+        "last_timestamp": labels[-1].get("timestamp") if labels else None,
+    }
+
+
+def local_extrema_label_coverage_row(
+    labels: Sequence[dict[str, object]],
+    window: int,
+    *,
+    dataset_id: str | None = None,
+) -> LocalExtremaCoverageRow:
+    """Return compact CSV-compatible coverage metadata for local-extrema labels."""
+    if window <= 0:
+        raise ValueError("window must be a positive integer")
+
+    top_key = f"local_top_{window}d"
+    bottom_key = f"local_bottom_{window}d"
+    row_count = len(labels)
+    labeled_count = sum(
+        1 for row in labels if row.get(top_key) is not None and row.get(bottom_key) is not None
+    )
+    local_top_count = sum(1 for row in labels if row.get(top_key) is True)
+    local_bottom_count = sum(1 for row in labels if row.get(bottom_key) is True)
+    assets = {row.get("asset") for row in labels if row.get("asset") is not None}
+
+    return {
+        "dataset_id": dataset_id,
+        "window": window,
+        "row_count": row_count,
+        "labeled_count": labeled_count,
+        "missing_label_count": row_count - labeled_count,
+        "local_top_count": local_top_count,
+        "local_bottom_count": local_bottom_count,
         "asset": next(iter(assets)) if len(assets) == 1 else None,
         "first_timestamp": labels[0].get("timestamp") if labels else None,
         "last_timestamp": labels[-1].get("timestamp") if labels else None,

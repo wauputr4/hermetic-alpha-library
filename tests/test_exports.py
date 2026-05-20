@@ -23,7 +23,12 @@ from hermetic_alpha.analysis import (
     walk_forward_splits,
 )
 from hermetic_alpha.exports import to_csv, to_json, write_csv, write_json
-from hermetic_alpha.labels import add_forward_returns, forward_return_label_coverage_row
+from hermetic_alpha.labels import (
+    add_forward_returns,
+    add_local_extrema_labels,
+    forward_return_label_coverage_row,
+    local_extrema_label_coverage_row,
+)
 from hermetic_alpha.market import candle_dataset_summary_row
 from hermetic_alpha.models import AspectEvent, EventStudyResult, MarketCandle, PlanetPosition
 from hermetic_alpha.similarity import (
@@ -148,6 +153,18 @@ def test_csv_accepts_forward_return_label_coverage_rows():
         "bearish_count,missing_label_count,asset,first_timestamp,last_timestamp"
     )
     assert "close-list,1,3,2,1,1,1,,,\n" in text
+
+
+def test_csv_accepts_local_extrema_label_coverage_rows():
+    labels = add_local_extrema_labels([100, 90, 110, 105], 1)
+
+    text = to_csv([local_extrema_label_coverage_row(labels, 1, dataset_id="extrema")])
+
+    assert text.splitlines()[0] == (
+        "dataset_id,window,row_count,labeled_count,missing_label_count,"
+        "local_top_count,local_bottom_count,asset,first_timestamp,last_timestamp"
+    )
+    assert "extrema,1,4,2,2,1,1,,,\n" in text
 
 
 def test_csv_accepts_flat_baseline_comparison_rows():
