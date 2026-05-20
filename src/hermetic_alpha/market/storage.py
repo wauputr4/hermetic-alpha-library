@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -45,6 +45,37 @@ def read_candles_json(path: str | Path) -> list[MarketCandle]:
         raise CandleStorageError("candle JSON must contain at least one row")
 
     return [_candle_from_row(row, index) for index, row in enumerate(payload)]
+
+
+def candle_dataset_summary_row(
+    candles: Sequence[MarketCandle],
+    *,
+    dataset_id: str | None = None,
+) -> dict[str, object]:
+    """Return compact flat metadata for a non-empty candle dataset."""
+
+    if not candles:
+        raise CandleStorageError("cannot summarize an empty candle dataset")
+
+    assets = {candle.asset for candle in candles}
+    if len(assets) != 1:
+        raise CandleStorageError("candle dataset summary requires a single asset")
+
+    intervals = {candle.interval for candle in candles}
+    if len(intervals) != 1:
+        raise CandleStorageError("candle dataset summary requires a single interval")
+
+    sources = {candle.source for candle in candles}
+    ordered = sorted(candles, key=lambda candle: candle.timestamp)
+    return {
+        "dataset_id": dataset_id,
+        "candle_count": len(candles),
+        "asset": ordered[0].asset,
+        "interval": ordered[0].interval,
+        "source": ordered[0].source if len(sources) == 1 else None,
+        "first_timestamp": ordered[0].timestamp,
+        "last_timestamp": ordered[-1].timestamp,
+    }
 
 
 def _candle_from_row(row: Any, index: int) -> MarketCandle:

@@ -78,6 +78,11 @@ must include `timestamp`, `asset`, `open`, `high`, `low`, `close`, and
 convenience caches for repeatable local research runs, not audit-grade market
 data stores; keep upstream source metadata and regenerate them when provider
 normalization rules change.
+Use `candle_dataset_summary_row()` for compact cache audit tables before joins
+or label generation. It requires a non-empty single-asset, single-interval
+dataset, reports chronological first/last timestamp boundaries even if input
+rows are unsorted, and leaves `source` as `None` when rows come from mixed or
+unknown sources.
 
 ### Small Sample Size
 
