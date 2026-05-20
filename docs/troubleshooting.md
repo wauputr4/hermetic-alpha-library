@@ -83,6 +83,11 @@ Mitigation:
   local-extrema windows intentionally leave rows near the start and end
   unlabeled; the coverage row reports those missing labels but does not make
   local top/bottom values valid future-looking prediction targets.
+- Use `multi_window_local_extrema_label_coverage_rows()` when a single
+  retrospective label table carries several centered windows. The helper keeps
+  requested window order, removes duplicate windows, and returns flat coverage
+  rows for CSV or notebook audits while preserving the same retrospective-label
+  caveat as `local_extrema_label_coverage_row()`.
 
 ### Local Candle Cache Files
 

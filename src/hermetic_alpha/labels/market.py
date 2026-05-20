@@ -12,6 +12,7 @@ TimestampedLocalExtremaRow = dict[str, object]
 ForwardReturnCoverageRow = dict[str, object]
 LocalExtremaCoverageRow = dict[str, object]
 MultiHorizonForwardReturnCoverageRows = list[ForwardReturnCoverageRow]
+MultiWindowLocalExtremaCoverageRows = list[LocalExtremaCoverageRow]
 
 
 def add_forward_returns(closes: Sequence[float], horizons: Sequence[int]) -> list[dict[str, float | bool | None]]:
@@ -204,3 +205,16 @@ def local_extrema_label_coverage_row(
         "first_timestamp": labels[0].get("timestamp") if labels else None,
         "last_timestamp": labels[-1].get("timestamp") if labels else None,
     }
+
+
+def multi_window_local_extrema_label_coverage_rows(
+    labels: Sequence[dict[str, object]],
+    windows: int | Sequence[int],
+    *,
+    dataset_id: str | None = None,
+) -> MultiWindowLocalExtremaCoverageRows:
+    """Return ordered CSV-compatible coverage metadata for several windows."""
+    return [
+        local_extrema_label_coverage_row(labels, window, dataset_id=dataset_id)
+        for window in _normalize_windows(windows)
+    ]
