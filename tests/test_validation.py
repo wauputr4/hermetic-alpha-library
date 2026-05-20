@@ -11,6 +11,7 @@ from hermetic_alpha.analysis import (
     permutation_test_result_row,
     random_baseline_distribution,
     random_baseline_distribution_row,
+    random_baseline_distribution_rows,
     walk_forward_split_rows,
     walk_forward_splits,
 )
@@ -157,6 +158,53 @@ def test_random_baseline_distribution_row_handles_empty_distribution():
         "samples": 0,
         "seed": None,
     }
+
+
+def test_random_baseline_distribution_rows_preserve_mapping_order_and_shared_metadata():
+    rows = random_baseline_distribution_rows(
+        {
+            "all_windows": [0.1, 0.2, 0.3],
+            "same_regime": [-0.1, 0.0, 0.1],
+        },
+        sample_size=2,
+        samples=100,
+        seed=11,
+    )
+
+    assert rows == [
+        {
+            "baseline_id": "all_windows",
+            "distribution_count": 3,
+            "distribution_min": 0.1,
+            "distribution_max": 0.3,
+            "distribution_mean": pytest.approx(0.2),
+            "sample_size": 2,
+            "samples": 100,
+            "seed": 11,
+        },
+        {
+            "baseline_id": "same_regime",
+            "distribution_count": 3,
+            "distribution_min": -0.1,
+            "distribution_max": 0.1,
+            "distribution_mean": 0.0,
+            "sample_size": 2,
+            "samples": 100,
+            "seed": 11,
+        },
+    ]
+
+
+def test_random_baseline_distribution_rows_preserve_sequence_order_and_empty_distributions():
+    rows = random_baseline_distribution_rows([
+        ("same_month", []),
+        ("all_windows", [1.0, 3.0]),
+    ])
+
+    assert [row["baseline_id"] for row in rows] == ["same_month", "all_windows"]
+    assert rows[0]["distribution_count"] == 0
+    assert rows[0]["distribution_min"] is None
+    assert rows[1]["distribution_mean"] == 2.0
 
 
 def test_permutation_test_is_seeded_and_inspectable():
@@ -410,6 +458,15 @@ def test_validation_helpers_validate_inputs():
 
     with pytest.raises(ValueError, match="distribution values must be finite numeric values"):
         random_baseline_distribution_row([float("nan")])
+
+    with pytest.raises(ValueError, match="baseline IDs must be unique"):
+        random_baseline_distribution_rows([
+            ("all_windows", [0.1]),
+            ("all_windows", [0.2]),
+        ])
+
+    with pytest.raises(ValueError, match="distribution values must be finite numeric values"):
+        random_baseline_distribution_rows({"all_windows": [float("nan")]})
 
     with pytest.raises(ValueError, match="interval must contain exactly two finite numeric bounds"):
         bootstrap_interval_row((0.1,))

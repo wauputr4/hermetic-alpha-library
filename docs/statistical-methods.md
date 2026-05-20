@@ -159,6 +159,11 @@ distribution, not proof of causality.
 Use `random_baseline_distribution_row()` when a compact flat report is needed
 for CSV output. It keeps the full distribution list out of the row and emits
 count, minimum, maximum, mean, and optional sample metadata instead.
+Use `random_baseline_distribution_rows()` when several declared baseline
+scenarios need one compact CSV-safe table. It preserves ordered baseline IDs,
+applies shared sample metadata to every row, and delegates distribution
+summaries to the single-row helper; keep the full distributions for plots or
+deeper inspection.
 
 The library also exposes `permutation_test()` for dependency-free two-sample
 random relabeling. Pass observed event outcomes and baseline outcomes, choose a

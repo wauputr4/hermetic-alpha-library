@@ -98,6 +98,33 @@ def random_baseline_distribution_row(
     }
 
 
+def random_baseline_distribution_rows(
+    distributions: Mapping[str, Sequence[float]] | Sequence[tuple[str, Sequence[float]]],
+    *,
+    sample_size: int | None = None,
+    samples: int | None = None,
+    seed: int | None = None,
+) -> list[dict[str, float | int | str | None]]:
+    """Return ordered flat rows for several random-baseline distributions."""
+
+    rows: list[dict[str, float | int | str | None]] = []
+    seen_baseline_ids: set[str] = set()
+    for baseline_id, distribution in _iter_named_distributions(distributions):
+        if baseline_id in seen_baseline_ids:
+            raise ValueError("baseline IDs must be unique")
+        seen_baseline_ids.add(baseline_id)
+        rows.append({
+            "baseline_id": baseline_id,
+            **random_baseline_distribution_row(
+                distribution,
+                sample_size=sample_size,
+                samples=samples,
+                seed=seed,
+            ),
+        })
+    return rows
+
+
 def bootstrap_interval_row(
     interval: Sequence[float],
     *,
@@ -394,6 +421,25 @@ def _evaluate_distribution_value(value: float) -> float:
     if not isfinite(result):
         raise ValueError("distribution values must be finite numeric values")
     return result
+
+
+def _iter_named_distributions(
+    distributions: Mapping[str, Sequence[float]] | Sequence[tuple[str, Sequence[float]]],
+) -> tuple[tuple[str, Sequence[float]], ...]:
+    if isinstance(distributions, Mapping):
+        return tuple(distributions.items())
+    if isinstance(distributions, str | bytes):
+        raise ValueError("distributions must be an ordered mapping or sequence of baseline ID and distribution pairs")
+
+    named_distributions: list[tuple[str, Sequence[float]]] = []
+    for item in distributions:
+        if not isinstance(item, Sequence) or isinstance(item, str | bytes) or len(item) != 2:
+            raise ValueError("distributions must be an ordered mapping or sequence of baseline ID and distribution pairs")
+        baseline_id, distribution = item
+        if not isinstance(baseline_id, str):
+            raise ValueError("baseline IDs must be strings")
+        named_distributions.append((baseline_id, distribution))
+    return tuple(named_distributions)
 
 
 def _coerce_interval_bounds(interval: Sequence[float]) -> tuple[float, float]:

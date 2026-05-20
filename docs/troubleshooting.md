@@ -171,6 +171,12 @@ summarizes that list as count, min, max, and mean, plus optional sample-size,
 sample-count, and seed metadata. Empty distributions emit `0` count and `None`
 summary values instead of raising from `min()` or `max()`.
 
+Use `random_baseline_distribution_rows()` for compact multi-scenario baseline
+tables. It accepts an ordered mapping or ordered `(baseline_id, distribution)`
+pairs, rejects duplicate baseline IDs, prepends `baseline_id`, and reuses the
+single-distribution row helper for summary fields. It is for audit metadata, not
+a replacement for inspecting or plotting full distributions.
+
 ### Walk-Forward Split Boundaries
 
 `walk_forward_splits()` expects ordered observations or a positive observation

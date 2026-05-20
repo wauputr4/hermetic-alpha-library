@@ -12,6 +12,7 @@ from hermetic_alpha.analysis import (
     permutation_test_result_row,
     random_baseline_distribution,
     random_baseline_distribution_row,
+    random_baseline_distribution_rows,
     join_aspect_events_to_market_labels,
     summarize_event_study,
     summarize_multi_horizon_event_study,
@@ -297,6 +298,25 @@ def test_csv_accepts_flat_random_baseline_distribution_rows():
         "sample_size,samples,seed"
     )
     assert "\n5,1.5,3.5,2.6,2,5,11" in text
+
+
+def test_csv_accepts_ordered_random_baseline_distribution_rows():
+    text = to_csv(random_baseline_distribution_rows(
+        [
+            ("same_month", []),
+            ("all_windows", [1.0, 2.0, 3.0]),
+        ],
+        sample_size=2,
+        samples=5,
+        seed=11,
+    ))
+
+    assert text.splitlines()[0] == (
+        "baseline_id,distribution_count,distribution_min,distribution_max,"
+        "distribution_mean,sample_size,samples,seed"
+    )
+    assert "\nsame_month,0,,,,2,5,11" in text
+    assert "\nall_windows,3,1.0,3.0,2.0,2,5,11" in text
 
 
 def test_csv_accepts_flat_bootstrap_interval_rows():
