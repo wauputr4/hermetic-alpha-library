@@ -103,6 +103,11 @@ Baseline comparison deltas are reporting conveniences, not predictive claims.
 `relative_lift` is calculated as `(conditional - baseline) / baseline`, so a
 zero baseline is intentionally left as `None` instead of inventing an infinite
 or undefined value.
+Use `multi_horizon_baseline_comparison_rows()` when ordered
+`summarize_multi_horizon_event_study()` results need the same flat baseline
+comparison fields for CSV or notebook tables. It is an export convenience, not a
+new statistical method, and each row still delegates to the single-horizon
+baseline comparison helper.
 
 ## 4. Bootstrap Confidence Interval
 

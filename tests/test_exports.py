@@ -6,12 +6,14 @@ from hermetic_alpha.analysis import (
     bootstrap_interval_row,
     bootstrap_percentile_interval,
     event_study_baseline_comparison_row,
+    multi_horizon_baseline_comparison_rows,
     permutation_test,
     permutation_test_result_row,
     random_baseline_distribution,
     random_baseline_distribution_row,
     join_aspect_events_to_market_labels,
     summarize_event_study,
+    summarize_multi_horizon_event_study,
     summarize_validated_event_study,
     summarize_validated_multi_horizon_event_study,
     timestamp_join_summary_row,
@@ -145,6 +147,20 @@ def test_csv_accepts_flat_baseline_comparison_rows():
         "events,horizon,baseline_bullish_probability,conditional_bullish_probability,"
         "probability_delta,relative_lift"
     )
+
+
+def test_csv_accepts_flat_multi_horizon_baseline_comparison_rows():
+    labels = add_forward_returns([100, 110, 99, 120], [2, 1])
+    results = summarize_multi_horizon_event_study(labels, [0, 1], [2, 1])
+
+    text = to_csv(multi_horizon_baseline_comparison_rows(results))
+
+    assert text.splitlines()[0] == (
+        "events,horizon,baseline_bullish_probability,conditional_bullish_probability,"
+        "probability_delta,relative_lift"
+    )
+    assert "\n2,2," in text
+    assert "\n2,1," in text
 
 
 def test_csv_accepts_flat_timestamp_join_summary_rows():

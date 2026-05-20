@@ -377,6 +377,11 @@ strict production exports.
 reports need probability deltas and relative lift. It leaves derived fields as
 `None` if either probability is missing, and leaves `relative_lift` as `None`
 when baseline probability is zero to avoid division-by-zero ambiguity.
+Use `multi_horizon_baseline_comparison_rows()` when the same baseline comparison
+columns are needed for ordered multi-horizon summaries. It accepts the mapping
+returned by `summarize_multi_horizon_event_study()` or an already ordered
+sequence of `EventStudyResult` values, preserves caller order, and returns an
+empty list for empty input.
 
 ## Reliable test verification (local + CI)
 

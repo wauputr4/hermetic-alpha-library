@@ -144,6 +144,19 @@ def event_study_baseline_comparison_row(result: EventStudyResult) -> dict[str, o
     }
 
 
+def multi_horizon_baseline_comparison_rows(
+    results: Mapping[int, EventStudyResult] | Sequence[EventStudyResult],
+) -> list[dict[str, object]]:
+    """Return flat baseline comparison rows for ordered multi-horizon results.
+
+    Accepts the mapping returned by ``summarize_multi_horizon_event_study()`` or
+    an already ordered sequence of event-study results. Single-result baseline
+    flattening remains centralized in ``event_study_baseline_comparison_row()``.
+    """
+    ordered_results = results.values() if isinstance(results, Mapping) else results
+    return [event_study_baseline_comparison_row(result) for result in ordered_results]
+
+
 def timestamp_join_summary_row(result: TimestampJoinResult) -> dict[str, object]:
     """Return flat exact-join audit fields for CSV-friendly export."""
 
