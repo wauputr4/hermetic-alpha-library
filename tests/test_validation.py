@@ -4,6 +4,7 @@ from hermetic_alpha.analysis import (
     PermutationTestResult,
     WalkForwardSplit,
     bootstrap_interval_row,
+    bootstrap_interval_rows,
     bootstrap_percentile_interval,
     low_sample_warning,
     permutation_test,
@@ -65,6 +66,48 @@ def test_bootstrap_interval_row_allows_omitted_metadata():
         "seed": None,
         "statistic_name": None,
     }
+
+
+def test_bootstrap_interval_rows_preserve_mapping_order_and_shared_metadata():
+    rows = bootstrap_interval_rows(
+        {
+            "mean_return": (0.01, 0.05),
+            "bullish_probability": (0.4, 0.7),
+        },
+        samples=500,
+        confidence=0.9,
+        seed=17,
+    )
+
+    assert rows == [
+        {
+            "interval_lower": 0.01,
+            "interval_upper": 0.05,
+            "samples": 500,
+            "confidence": 0.9,
+            "seed": 17,
+            "statistic_name": "mean_return",
+        },
+        {
+            "interval_lower": 0.4,
+            "interval_upper": 0.7,
+            "samples": 500,
+            "confidence": 0.9,
+            "seed": 17,
+            "statistic_name": "bullish_probability",
+        },
+    ]
+
+
+def test_bootstrap_interval_rows_preserve_sequence_order():
+    rows = bootstrap_interval_rows([
+        ("median_return", (-0.02, 0.03)),
+        ("mean_return", (0.01, 0.05)),
+    ])
+
+    assert [row["statistic_name"] for row in rows] == ["median_return", "mean_return"]
+    assert rows[0]["interval_lower"] == -0.02
+    assert rows[1]["interval_upper"] == 0.05
 
 
 def test_random_baseline_distribution_is_deterministic_with_seed():
@@ -376,6 +419,15 @@ def test_validation_helpers_validate_inputs():
 
     with pytest.raises(ValueError, match="interval must contain exactly two finite numeric bounds"):
         bootstrap_interval_row((0.1, float("nan")))
+
+    with pytest.raises(ValueError, match="statistic names must be unique"):
+        bootstrap_interval_rows([
+            ("mean_return", (0.1, 0.2)),
+            ("mean_return", (0.2, 0.3)),
+        ])
+
+    with pytest.raises(ValueError, match="interval must contain exactly two finite numeric bounds"):
+        bootstrap_interval_rows({"mean_return": (0.1,)})
 
 
 def test_low_sample_warning_returns_message_only_below_threshold():

@@ -135,6 +135,11 @@ compact CSV-safe report. The raw tuple remains the right output for Python
 workflows that immediately feed the interval into another calculation; the row
 helper adds explicit lower/upper bound columns plus optional sample count,
 confidence, seed, and statistic-name metadata for notebooks and audit exports.
+Use `bootstrap_interval_rows()` when a notebook or audit compares several
+predeclared bootstrap intervals in one table. It preserves ordered statistic
+names, applies the same optional sample, confidence, and seed metadata to every
+row, and delegates each interval to the single-row helper so validation and
+column names remain centralized.
 
 ## 5. Permutation Test
 
