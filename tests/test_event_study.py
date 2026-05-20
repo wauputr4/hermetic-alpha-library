@@ -23,6 +23,7 @@ from hermetic_alpha.labels import (
     forward_return_label_coverage_row,
     local_extrema_label_coverage_row,
     multi_horizon_forward_return_label_coverage_rows,
+    multi_window_local_extrema_label_coverage_rows,
 )
 from hermetic_alpha.models import AspectEvent, MarketCandle, MarketLabel
 
@@ -304,6 +305,43 @@ def test_local_extrema_label_coverage_row_handles_empty_input_and_missing_window
 def test_local_extrema_label_coverage_row_validates_window():
     with pytest.raises(ValueError, match="positive integer"):
         local_extrema_label_coverage_row([], 0)
+
+
+def test_multi_window_local_extrema_label_coverage_rows_preserve_order_and_deduplicate():
+    labels = add_local_extrema_labels([100, 90, 110, 105, 80], [1, 2])
+
+    rows = multi_window_local_extrema_label_coverage_rows(labels, [2, 1, 2], dataset_id="close-list")
+
+    assert [row["window"] for row in rows] == [2, 1]
+    assert [row["dataset_id"] for row in rows] == ["close-list", "close-list"]
+    assert rows[0]["labeled_count"] == 1
+    assert rows[0]["missing_label_count"] == 4
+    assert rows[1]["labeled_count"] == 3
+    assert rows[1]["missing_label_count"] == 2
+
+
+def test_multi_window_local_extrema_label_coverage_rows_summarize_timestamped_candle_labels():
+    candles = [
+        MarketCandle(datetime(2026, 5, day, tzinfo=timezone.utc), "BTC-USD", close, close, close, close)
+        for day, close in [(6, 100), (7, 90), (8, 110), (9, 105), (10, 80)]
+    ]
+    labels = add_candle_local_extrema_labels(candles, [1, 2])
+
+    rows = multi_window_local_extrema_label_coverage_rows(labels, [1, 2], dataset_id="btc-daily")
+
+    assert len(rows) == 2
+    assert rows[0]["asset"] == "BTC-USD"
+    assert rows[0]["first_timestamp"] == candles[0].timestamp
+    assert rows[0]["last_timestamp"] == candles[-1].timestamp
+    assert rows[1]["window"] == 2
+    assert rows[1]["labeled_count"] == 1
+
+
+def test_multi_window_local_extrema_label_coverage_rows_validate_windows():
+    with pytest.raises(ValueError, match="positive integers"):
+        multi_window_local_extrema_label_coverage_rows([], [])
+    with pytest.raises(ValueError, match="positive integers"):
+        multi_window_local_extrema_label_coverage_rows([], [1, 0])
 
 
 def test_candle_local_extrema_labels_reject_mixed_assets():

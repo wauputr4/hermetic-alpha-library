@@ -28,6 +28,7 @@ from hermetic_alpha.labels import (
     forward_return_label_coverage_row,
     local_extrema_label_coverage_row,
     multi_horizon_forward_return_label_coverage_rows,
+    multi_window_local_extrema_label_coverage_rows,
 )
 from hermetic_alpha.similarity import planet_position_encoding_rows, planet_position_vector_summary_row
 
@@ -49,6 +50,7 @@ def test_public_api_exports_match_documented_entrypoints():
     assert callable(forward_return_label_coverage_row)
     assert callable(local_extrema_label_coverage_row)
     assert callable(multi_horizon_forward_return_label_coverage_rows)
+    assert callable(multi_window_local_extrema_label_coverage_rows)
 
     ts = datetime(2026, 5, 6, tzinfo=timezone.utc)
     labels = [{"return_1d": 0.1, "bullish_1d": True}, {"return_1d": -0.05, "bullish_1d": False}]

@@ -110,6 +110,11 @@ reports labeled and missing row counts, local top/bottom counts, optional
 dataset ID, optional single asset, and first/last timestamps. The row is audit
 metadata only; local-extrema labels remain retrospective and should not be
 treated as predictive features.
+Use `multi_window_local_extrema_label_coverage_rows()` when one retrospective
+label table contains several centered windows and reports need one compact row
+per window. It preserves caller window order, deduplicates repeated windows,
+and delegates each row to `local_extrema_label_coverage_row()` so the
+single-window coverage schema and retrospective-label caveat remain centralized.
 
 ## Event Study Result
 

@@ -29,6 +29,7 @@ from hermetic_alpha.labels import (
     forward_return_label_coverage_row,
     local_extrema_label_coverage_row,
     multi_horizon_forward_return_label_coverage_rows,
+    multi_window_local_extrema_label_coverage_rows,
 )
 from hermetic_alpha.market import candle_dataset_summary_row
 from hermetic_alpha.models import AspectEvent, EventStudyResult, MarketCandle, PlanetPosition
@@ -179,6 +180,19 @@ def test_csv_accepts_local_extrema_label_coverage_rows():
         "local_top_count,local_bottom_count,asset,first_timestamp,last_timestamp"
     )
     assert "extrema,1,4,2,2,1,1,,,\n" in text
+
+
+def test_csv_accepts_multi_window_local_extrema_label_coverage_rows():
+    labels = add_local_extrema_labels([100, 90, 110, 105, 80], [1, 2])
+
+    text = to_csv(multi_window_local_extrema_label_coverage_rows(labels, [2, 1], dataset_id="extrema"))
+
+    assert text.splitlines()[0] == (
+        "dataset_id,window,row_count,labeled_count,missing_label_count,"
+        "local_top_count,local_bottom_count,asset,first_timestamp,last_timestamp"
+    )
+    assert "\nextrema,2,5,1,4,1,0,,," in text
+    assert "\nextrema,1,5,3,2,1,1,,," in text
 
 
 def test_csv_accepts_flat_baseline_comparison_rows():
