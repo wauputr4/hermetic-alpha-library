@@ -5,6 +5,7 @@ from hermetic_alpha.analysis import (
     ValidatedEventStudyReport,
     event_study_baseline_comparison_row,
     join_aspect_events_to_market_labels,
+    multi_horizon_baseline_comparison_rows,
     summarize_event_study,
     summarize_multi_horizon_event_study,
     summarize_validated_event_study,
@@ -424,6 +425,31 @@ def test_event_study_baseline_comparison_row_uses_none_for_zero_baseline_lift():
     assert row["conditional_bullish_probability"] == 0
     assert row["probability_delta"] == 0
     assert row["relative_lift"] is None
+
+
+def test_multi_horizon_baseline_comparison_rows_preserve_mapping_order():
+    labels = add_forward_returns([100, 110, 99, 120], [2, 1])
+    results = summarize_multi_horizon_event_study(labels, [0, 1], [2, 1])
+
+    rows = multi_horizon_baseline_comparison_rows(results)
+
+    assert [row["horizon"] for row in rows] == [2, 1]
+    assert rows[0] == event_study_baseline_comparison_row(results[2])
+    assert rows[1] == event_study_baseline_comparison_row(results[1])
+
+
+def test_multi_horizon_baseline_comparison_rows_flatten_sequence_in_order():
+    labels = add_forward_returns([100, 110, 99, 120], [1, 2])
+    results = summarize_multi_horizon_event_study(labels, [0, 1], [1, 2])
+
+    rows = multi_horizon_baseline_comparison_rows([results[2], results[1]])
+
+    assert [row["horizon"] for row in rows] == [2, 1]
+
+
+def test_multi_horizon_baseline_comparison_rows_accept_empty_input():
+    assert multi_horizon_baseline_comparison_rows({}) == []
+    assert multi_horizon_baseline_comparison_rows([]) == []
 
 
 def test_join_aspect_events_to_market_labels_orders_matches_by_event_timestamp():

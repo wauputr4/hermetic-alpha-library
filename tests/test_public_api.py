@@ -12,6 +12,7 @@ from hermetic_alpha import (
 from hermetic_alpha.analysis import (
     aspect_event_study,
     bootstrap_interval_row,
+    multi_horizon_baseline_comparison_rows,
     summarize_validated_multi_horizon_event_study,
     timestamp_join_summary_row,
     validated_multi_horizon_event_study_report_rows,
@@ -32,6 +33,7 @@ def test_public_api_exports_match_documented_entrypoints():
     assert aspect_event_feature_matrix_rows_with_schema is features_aspect_event_feature_matrix_rows_with_schema
     assert callable(aspect_event_study)
     assert callable(bootstrap_interval_row)
+    assert callable(multi_horizon_baseline_comparison_rows)
     assert callable(planet_position_encoding_rows)
     assert callable(planet_position_vector_summary_row)
     assert callable(summarize_validated_multi_horizon_event_study)
