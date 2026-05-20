@@ -24,6 +24,7 @@ from hermetic_alpha.analysis import (
 )
 from hermetic_alpha.exports import to_csv, to_json, write_csv, write_json
 from hermetic_alpha.labels import add_forward_returns
+from hermetic_alpha.market import candle_dataset_summary_row
 from hermetic_alpha.models import AspectEvent, EventStudyResult, MarketCandle, PlanetPosition
 from hermetic_alpha.similarity import (
     SimilarityCandidate,
@@ -181,6 +182,21 @@ def test_csv_accepts_flat_timestamp_join_summary_rows():
         "last_unmatched_event_index"
     )
     assert "\n1,1,1,0,0,1,1" in text
+
+
+def test_csv_accepts_flat_candle_dataset_summary_rows():
+    candles = [
+        MarketCandle(datetime(2024, 5, 8, tzinfo=timezone.utc), "BTC-USD", 100, 105, 95, 102, interval="1d"),
+        MarketCandle(datetime(2024, 5, 9, tzinfo=timezone.utc), "BTC-USD", 102, 106, 99, 104, interval="1d"),
+    ]
+
+    text = to_csv([candle_dataset_summary_row(candles, dataset_id="btc-daily")])
+
+    assert text.splitlines()[0] == (
+        "dataset_id,candle_count,asset,interval,source,first_timestamp,last_timestamp"
+    )
+    assert "\nbtc-daily,2,BTC-USD,1d," in text
+    assert "2024-05-08T00:00:00+00:00,2024-05-09T00:00:00+00:00" in text
 
 
 def test_csv_accepts_flat_permutation_test_result_rows():
