@@ -22,6 +22,7 @@ from hermetic_alpha.labels import (
     bullish_probability,
     forward_return_label_coverage_row,
     local_extrema_label_coverage_row,
+    multi_horizon_forward_return_label_coverage_rows,
 )
 from hermetic_alpha.models import AspectEvent, MarketCandle, MarketLabel
 
@@ -161,6 +162,42 @@ def test_forward_return_label_coverage_row_handles_empty_input_and_missing_horiz
 def test_forward_return_label_coverage_row_validates_horizon():
     with pytest.raises(ValueError, match="positive integer"):
         forward_return_label_coverage_row([], 0)
+
+
+def test_multi_horizon_forward_return_label_coverage_rows_preserve_order_and_deduplicate():
+    labels = add_forward_returns([100, 110, 99, 120], [1, 2])
+
+    rows = multi_horizon_forward_return_label_coverage_rows(labels, [2, 1, 2], dataset_id="close-list")
+
+    assert [row["horizon"] for row in rows] == [2, 1]
+    assert [row["dataset_id"] for row in rows] == ["close-list", "close-list"]
+    assert rows[0]["row_count"] == 4
+    assert rows[0]["labeled_return_count"] == 2
+    assert rows[1]["labeled_return_count"] == 3
+
+
+def test_multi_horizon_forward_return_label_coverage_rows_summarize_timestamped_candle_labels():
+    candles = [
+        MarketCandle(datetime(2026, 5, day, tzinfo=timezone.utc), "BTC-USD", close, close, close, close)
+        for day, close in [(6, 100), (7, 110), (8, 99), (9, 120)]
+    ]
+    labels = add_candle_forward_returns(candles, [1, 2])
+
+    rows = multi_horizon_forward_return_label_coverage_rows(labels, [1, 2], dataset_id="btc-daily")
+
+    assert len(rows) == 2
+    assert rows[0]["asset"] == "BTC-USD"
+    assert rows[0]["first_timestamp"] == candles[0].timestamp
+    assert rows[0]["last_timestamp"] == candles[-1].timestamp
+    assert rows[1]["horizon"] == 2
+    assert rows[1]["labeled_return_count"] == 2
+
+
+def test_multi_horizon_forward_return_label_coverage_rows_validate_horizons():
+    with pytest.raises(ValueError, match="positive integers"):
+        multi_horizon_forward_return_label_coverage_rows([], [])
+    with pytest.raises(ValueError, match="positive integers"):
+        multi_horizon_forward_return_label_coverage_rows([], [1, 0])
 
 
 def test_candle_local_extrema_labels_preserve_timestamp_and_asset():

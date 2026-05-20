@@ -73,6 +73,11 @@ Mitigation:
   `add_candle_forward_returns()` produced usable horizon labels. Missing horizon
   fields count as missing labels, single-asset candle labels report that asset,
   and plain close-list labels leave asset and timestamp boundaries empty.
+- Use `multi_horizon_forward_return_label_coverage_rows()` when a single label
+  table carries several forward-return horizons. The helper keeps requested
+  horizon order, removes duplicate horizons, and returns flat metadata rows for
+  CSV or notebook audit tables; it does not replace exporting the underlying
+  label rows.
 - Use `local_extrema_label_coverage_row()` before exporting retrospective
   top/bottom labels when the edge-row footprint needs to be visible. Centered
   local-extrema windows intentionally leave rows near the start and end

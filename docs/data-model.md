@@ -93,6 +93,11 @@ has enough usable rows before event-study joins. It reports row count,
 non-missing return count, bullish/bearish counts, missing label count, optional
 dataset ID, optional single asset, and first/last timestamps without replacing
 the underlying label rows.
+Use `multi_horizon_forward_return_label_coverage_rows()` when the same label
+table contains several forward-return horizons and reports need one compact row
+per horizon. It preserves caller horizon order, deduplicates repeated horizons,
+and delegates each row to `forward_return_label_coverage_row()` so the
+single-horizon coverage schema remains centralized.
 
 Use `add_candle_local_extrema_labels()` when retrospective top/bottom labels are
 derived from ordered `MarketCandle` values. It preserves the candle `timestamp`
