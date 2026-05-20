@@ -220,6 +220,12 @@ Unmatched events are skipped from `event_indexes` and reported through
 interpreting event-study summaries; a high unmatched count usually means the
 ephemeris sampling cadence and candle/label timestamps are misaligned.
 
+Use `timestamp_join_summary_row()` before CSV export when notebooks or future
+CLIs need only compact join audit metadata. The summary row intentionally keeps
+the nested joined records and full unmatched-event detail in
+`TimestampJoinResult.to_dict()` so researchers can inspect the full join when a
+count looks suspicious.
+
 Use `add_candle_forward_returns()` instead of the bare close-list helper when an
 event-study workflow starts from `MarketCandle` rows. It preserves candle
 timestamps and asset names for exact joins while reusing the same forward-return

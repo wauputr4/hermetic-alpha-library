@@ -9,6 +9,7 @@ from hermetic_alpha.analysis import (
     summarize_multi_horizon_event_study,
     summarize_validated_event_study,
     summarize_validated_multi_horizon_event_study,
+    timestamp_join_summary_row,
     validated_event_study_report_row,
     validated_multi_horizon_event_study_report_rows,
 )
@@ -445,6 +446,30 @@ def test_join_aspect_events_to_market_labels_orders_matches_by_event_timestamp()
     assert joined.unmatched_events == 0
 
 
+def test_timestamp_join_summary_row_reports_all_matched_join_counts_and_bounds():
+    ts1 = datetime(2026, 5, 6, tzinfo=timezone.utc)
+    ts2 = datetime(2026, 5, 7, tzinfo=timezone.utc)
+    joined = join_aspect_events_to_market_labels(
+        [_aspect_event("sun", "mars", ts2), _aspect_event("sun", "jupiter", ts1)],
+        [
+            {"timestamp": ts2, "return_1d": -0.05, "bullish_1d": False},
+            {"timestamp": ts1, "return_1d": 0.1, "bullish_1d": True},
+        ],
+    )
+
+    row = timestamp_join_summary_row(joined)
+
+    assert row == {
+        "matched_event_count": 2,
+        "unmatched_event_count": 0,
+        "matched_label_index_count": 2,
+        "first_matched_event_index": 1,
+        "last_matched_event_index": 0,
+        "first_unmatched_event_index": None,
+        "last_unmatched_event_index": None,
+    }
+
+
 def test_join_aspect_events_to_market_labels_reports_unmatched_events():
     ts1 = datetime(2026, 5, 6, tzinfo=timezone.utc)
     ts2 = datetime(2026, 5, 7, tzinfo=timezone.utc)
@@ -457,6 +482,58 @@ def test_join_aspect_events_to_market_labels_reports_unmatched_events():
     assert joined.event_indexes == [0]
     assert joined.unmatched_event_indexes == [1]
     assert joined.unmatched_events == 1
+
+
+def test_timestamp_join_summary_row_reports_partially_unmatched_join_bounds():
+    ts1 = datetime(2026, 5, 6, tzinfo=timezone.utc)
+    ts2 = datetime(2026, 5, 7, tzinfo=timezone.utc)
+    ts3 = datetime(2026, 5, 8, tzinfo=timezone.utc)
+    joined = join_aspect_events_to_market_labels(
+        [
+            _aspect_event("sun", "jupiter", ts1),
+            _aspect_event("sun", "mars", ts2),
+            _aspect_event("moon", "jupiter", ts3),
+        ],
+        [{"timestamp": ts2, "return_1d": 0.1, "bullish_1d": True}],
+    )
+
+    row = timestamp_join_summary_row(joined)
+
+    assert row["matched_event_count"] == 1
+    assert row["unmatched_event_count"] == 2
+    assert row["matched_label_index_count"] == 1
+    assert row["first_matched_event_index"] == 1
+    assert row["last_matched_event_index"] == 1
+    assert row["first_unmatched_event_index"] == 0
+    assert row["last_unmatched_event_index"] == 2
+
+
+def test_timestamp_join_summary_row_handles_empty_matched_and_unmatched_edges():
+    ts = datetime(2026, 5, 6, tzinfo=timezone.utc)
+    no_matches = join_aspect_events_to_market_labels(
+        [_aspect_event("sun", "jupiter", ts)],
+        [],
+    )
+    empty = join_aspect_events_to_market_labels([], [])
+
+    assert timestamp_join_summary_row(no_matches) == {
+        "matched_event_count": 0,
+        "unmatched_event_count": 1,
+        "matched_label_index_count": 0,
+        "first_matched_event_index": None,
+        "last_matched_event_index": None,
+        "first_unmatched_event_index": 0,
+        "last_unmatched_event_index": 0,
+    }
+    assert timestamp_join_summary_row(empty) == {
+        "matched_event_count": 0,
+        "unmatched_event_count": 0,
+        "matched_label_index_count": 0,
+        "first_matched_event_index": None,
+        "last_matched_event_index": None,
+        "first_unmatched_event_index": None,
+        "last_unmatched_event_index": None,
+    }
 
 
 def test_join_aspect_events_to_market_labels_rejects_duplicate_label_timestamps():

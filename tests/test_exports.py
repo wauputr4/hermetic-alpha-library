@@ -10,9 +10,11 @@ from hermetic_alpha.analysis import (
     permutation_test_result_row,
     random_baseline_distribution,
     random_baseline_distribution_row,
+    join_aspect_events_to_market_labels,
     summarize_event_study,
     summarize_validated_event_study,
     summarize_validated_multi_horizon_event_study,
+    timestamp_join_summary_row,
     validated_event_study_report_row,
     validated_multi_horizon_event_study_report_rows,
     walk_forward_split_rows,
@@ -20,7 +22,7 @@ from hermetic_alpha.analysis import (
 )
 from hermetic_alpha.exports import to_csv, to_json, write_csv, write_json
 from hermetic_alpha.labels import add_forward_returns
-from hermetic_alpha.models import EventStudyResult, MarketCandle, PlanetPosition
+from hermetic_alpha.models import AspectEvent, EventStudyResult, MarketCandle, PlanetPosition
 from hermetic_alpha.similarity import (
     SimilarityCandidate,
     find_nearest,
@@ -142,6 +144,26 @@ def test_csv_accepts_flat_baseline_comparison_rows():
         "events,horizon,baseline_bullish_probability,conditional_bullish_probability,"
         "probability_delta,relative_lift"
     )
+
+
+def test_csv_accepts_flat_timestamp_join_summary_rows():
+    ts = datetime(2026, 5, 17, tzinfo=timezone.utc)
+    joined = join_aspect_events_to_market_labels(
+        [
+            AspectEvent("sun", "jupiter", "conjunction", 0, 1, 1, 3, 2 / 3, timestamp=ts),
+            AspectEvent("sun", "mars", "square", 90, 93, 3, 5, 0.4, timestamp=ts.replace(day=18)),
+        ],
+        [{"timestamp": ts, "return_1d": 0.05, "bullish_1d": True}],
+    )
+
+    text = to_csv([timestamp_join_summary_row(joined)])
+
+    assert text.splitlines()[0] == (
+        "matched_event_count,unmatched_event_count,matched_label_index_count,"
+        "first_matched_event_index,last_matched_event_index,first_unmatched_event_index,"
+        "last_unmatched_event_index"
+    )
+    assert "\n1,1,1,0,0,1,1" in text
 
 
 def test_csv_accepts_flat_permutation_test_result_rows():

@@ -13,6 +13,7 @@ from hermetic_alpha.analysis import (
     aspect_event_study,
     bootstrap_interval_row,
     summarize_validated_multi_horizon_event_study,
+    timestamp_join_summary_row,
     validated_multi_horizon_event_study_report_rows,
 )
 from hermetic_alpha.astro import AspectDefinition as AstroAspectDefinition
@@ -33,6 +34,7 @@ def test_public_api_exports_match_documented_entrypoints():
     assert callable(bootstrap_interval_row)
     assert callable(planet_position_encoding_rows)
     assert callable(summarize_validated_multi_horizon_event_study)
+    assert callable(timestamp_join_summary_row)
     assert callable(validated_multi_horizon_event_study_report_rows)
 
     ts = datetime(2026, 5, 6, tzinfo=timezone.utc)
