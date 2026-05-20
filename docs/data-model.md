@@ -87,6 +87,12 @@ metadata for event joins. The helper uses the same `return_*d` and
 `bullish_*d` semantics as `add_forward_returns()`, but rejects mixed-asset
 candle sequences so one label table cannot silently combine incompatible
 markets.
+Use `forward_return_label_coverage_row()` when notebooks, audits, or future CLI
+commands need one compact row describing whether a forward-return label table
+has enough usable rows before event-study joins. It reports row count,
+non-missing return count, bullish/bearish counts, missing label count, optional
+dataset ID, optional single asset, and first/last timestamps without replacing
+the underlying label rows.
 
 Use `add_candle_local_extrema_labels()` when retrospective top/bottom labels are
 derived from ordered `MarketCandle` values. It preserves the candle `timestamp`

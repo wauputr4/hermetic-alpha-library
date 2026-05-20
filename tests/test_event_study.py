@@ -20,6 +20,7 @@ from hermetic_alpha.labels import (
     add_forward_returns,
     add_local_extrema_labels,
     bullish_probability,
+    forward_return_label_coverage_row,
 )
 from hermetic_alpha.models import AspectEvent, MarketCandle, MarketLabel
 
@@ -95,6 +96,70 @@ def test_candle_forward_returns_reject_mixed_assets():
 
     with pytest.raises(ValueError, match="single asset"):
         add_candle_forward_returns(candles, [1])
+
+
+def test_forward_return_label_coverage_row_summarizes_timestamped_candle_labels():
+    candles = [
+        MarketCandle(datetime(2026, 5, day, tzinfo=timezone.utc), "BTC-USD", close, close, close, close)
+        for day, close in [(6, 100), (7, 110), (8, 99), (9, 120)]
+    ]
+    labels = add_candle_forward_returns(candles, [1])
+
+    row = forward_return_label_coverage_row(labels, 1, dataset_id="btc-daily")
+
+    assert row == {
+        "dataset_id": "btc-daily",
+        "horizon": 1,
+        "row_count": 4,
+        "labeled_return_count": 3,
+        "bullish_count": 2,
+        "bearish_count": 1,
+        "missing_label_count": 1,
+        "asset": "BTC-USD",
+        "first_timestamp": candles[0].timestamp,
+        "last_timestamp": candles[-1].timestamp,
+    }
+
+
+def test_forward_return_label_coverage_row_summarizes_plain_close_labels():
+    labels = add_forward_returns([100, 90, 120], [1])
+
+    row = forward_return_label_coverage_row(labels, 1)
+
+    assert row["dataset_id"] is None
+    assert row["row_count"] == 3
+    assert row["labeled_return_count"] == 2
+    assert row["bullish_count"] == 1
+    assert row["bearish_count"] == 1
+    assert row["missing_label_count"] == 1
+    assert row["asset"] is None
+    assert row["first_timestamp"] is None
+    assert row["last_timestamp"] is None
+
+
+def test_forward_return_label_coverage_row_handles_empty_input_and_missing_horizon():
+    assert forward_return_label_coverage_row([], 1) == {
+        "dataset_id": None,
+        "horizon": 1,
+        "row_count": 0,
+        "labeled_return_count": 0,
+        "bullish_count": 0,
+        "bearish_count": 0,
+        "missing_label_count": 0,
+        "asset": None,
+        "first_timestamp": None,
+        "last_timestamp": None,
+    }
+
+    row = forward_return_label_coverage_row([{"return_2d": 0.1, "bullish_2d": True}], 1)
+    assert row["row_count"] == 1
+    assert row["labeled_return_count"] == 0
+    assert row["missing_label_count"] == 1
+
+
+def test_forward_return_label_coverage_row_validates_horizon():
+    with pytest.raises(ValueError, match="positive integer"):
+        forward_return_label_coverage_row([], 0)
 
 
 def test_candle_local_extrema_labels_preserve_timestamp_and_asset():

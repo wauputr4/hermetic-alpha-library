@@ -23,7 +23,7 @@ from hermetic_alpha.analysis import (
     walk_forward_splits,
 )
 from hermetic_alpha.exports import to_csv, to_json, write_csv, write_json
-from hermetic_alpha.labels import add_forward_returns
+from hermetic_alpha.labels import add_forward_returns, forward_return_label_coverage_row
 from hermetic_alpha.market import candle_dataset_summary_row
 from hermetic_alpha.models import AspectEvent, EventStudyResult, MarketCandle, PlanetPosition
 from hermetic_alpha.similarity import (
@@ -136,6 +136,18 @@ def test_csv_accepts_flat_validated_multi_horizon_event_study_report_rows():
     )
     assert "\n2,2," in text
     assert "\n2,1," in text
+
+
+def test_csv_accepts_forward_return_label_coverage_rows():
+    labels = add_forward_returns([100, 110, 99], [1])
+
+    text = to_csv([forward_return_label_coverage_row(labels, 1, dataset_id="close-list")])
+
+    assert text.splitlines()[0] == (
+        "dataset_id,horizon,row_count,labeled_return_count,bullish_count,"
+        "bearish_count,missing_label_count,asset,first_timestamp,last_timestamp"
+    )
+    assert "close-list,1,3,2,1,1,1,,,\n" in text
 
 
 def test_csv_accepts_flat_baseline_comparison_rows():

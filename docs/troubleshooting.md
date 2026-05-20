@@ -68,6 +68,11 @@ Mitigation:
 - Yahoo Finance is an unofficial public data source and can change response
   shape, throttle requests, or revise historical candles. Treat it as a
   convenient research input, not a canonical audit feed.
+- Use `forward_return_label_coverage_row()` before exact joins when a compact
+  audit table needs to show whether `add_forward_returns()` or
+  `add_candle_forward_returns()` produced usable horizon labels. Missing horizon
+  fields count as missing labels, single-asset candle labels report that asset,
+  and plain close-list labels leave asset and timestamp boundaries empty.
 
 ### Local Candle Cache Files
 

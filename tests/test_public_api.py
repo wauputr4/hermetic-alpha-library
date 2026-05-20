@@ -24,6 +24,7 @@ from hermetic_alpha.features import (
     aspect_event_feature_rows as features_aspect_event_feature_rows,
 )
 from hermetic_alpha.market import candle_dataset_summary_row
+from hermetic_alpha.labels import forward_return_label_coverage_row
 from hermetic_alpha.similarity import planet_position_encoding_rows, planet_position_vector_summary_row
 
 
@@ -41,6 +42,7 @@ def test_public_api_exports_match_documented_entrypoints():
     assert callable(timestamp_join_summary_row)
     assert callable(validated_multi_horizon_event_study_report_rows)
     assert callable(candle_dataset_summary_row)
+    assert callable(forward_return_label_coverage_row)
 
     ts = datetime(2026, 5, 6, tzinfo=timezone.utc)
     labels = [{"return_1d": 0.1, "bullish_1d": True}, {"return_1d": -0.05, "bullish_1d": False}]

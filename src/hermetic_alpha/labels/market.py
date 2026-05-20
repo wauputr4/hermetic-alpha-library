@@ -9,6 +9,7 @@ from hermetic_alpha.models import MarketCandle
 
 TimestampedForwardReturnRow = dict[str, object]
 TimestampedLocalExtremaRow = dict[str, object]
+ForwardReturnCoverageRow = dict[str, object]
 
 
 def add_forward_returns(closes: Sequence[float], horizons: Sequence[int]) -> list[dict[str, float | bool | None]]:
@@ -115,3 +116,35 @@ def bullish_probability(labels: Sequence[dict[str, float | bool | None]], horizo
     if not values:
         return None
     return sum(1 for value in values if value is True) / len(values)
+
+
+def forward_return_label_coverage_row(
+    labels: Sequence[dict[str, object]],
+    horizon: int,
+    *,
+    dataset_id: str | None = None,
+) -> ForwardReturnCoverageRow:
+    """Return compact CSV-compatible coverage metadata for forward-return labels."""
+    if horizon <= 0:
+        raise ValueError("horizon must be a positive integer")
+
+    return_key = f"return_{horizon}d"
+    bullish_key = f"bullish_{horizon}d"
+    row_count = len(labels)
+    labeled_return_count = sum(1 for row in labels if row.get(return_key) is not None)
+    bullish_count = sum(1 for row in labels if row.get(bullish_key) is True)
+    bearish_count = sum(1 for row in labels if row.get(bullish_key) is False)
+    assets = {row.get("asset") for row in labels if row.get("asset") is not None}
+
+    return {
+        "dataset_id": dataset_id,
+        "horizon": horizon,
+        "row_count": row_count,
+        "labeled_return_count": labeled_return_count,
+        "bullish_count": bullish_count,
+        "bearish_count": bearish_count,
+        "missing_label_count": row_count - bullish_count - bearish_count,
+        "asset": next(iter(assets)) if len(assets) == 1 else None,
+        "first_timestamp": labels[0].get("timestamp") if labels else None,
+        "last_timestamp": labels[-1].get("timestamp") if labels else None,
+    }
