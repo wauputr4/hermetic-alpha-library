@@ -26,6 +26,10 @@ need exact timestamp matching before calling `summarize_event_study()`. The
 helper rejects duplicate market-label timestamps and untimestamped aspect
 events, skips unmatched events, and reports matched label indexes plus unmatched
 event indexes for audit notes.
+Use `timestamp_join_summary_row()` when the exact-join result needs a compact
+CSV-safe audit row. It reports matched/unmatched counts and first/last matched
+or unmatched event indexes without replacing the full `TimestampJoinResult`
+object used for inspection.
 
 Multi-horizon event studies should reuse the same selected event indexes across all configured horizons so 1D, 7D, and 30D summaries are comparable and auditable.
 

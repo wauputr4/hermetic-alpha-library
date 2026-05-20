@@ -144,6 +144,22 @@ def event_study_baseline_comparison_row(result: EventStudyResult) -> dict[str, o
     }
 
 
+def timestamp_join_summary_row(result: TimestampJoinResult) -> dict[str, object]:
+    """Return flat exact-join audit fields for CSV-friendly export."""
+
+    matched_event_indexes = [record.event_index for record in result.joined]
+    unmatched_event_indexes = result.unmatched_event_indexes
+    return {
+        "matched_event_count": result.matched_events,
+        "unmatched_event_count": result.unmatched_events,
+        "matched_label_index_count": len(result.event_indexes),
+        "first_matched_event_index": matched_event_indexes[0] if matched_event_indexes else None,
+        "last_matched_event_index": matched_event_indexes[-1] if matched_event_indexes else None,
+        "first_unmatched_event_index": unmatched_event_indexes[0] if unmatched_event_indexes else None,
+        "last_unmatched_event_index": unmatched_event_indexes[-1] if unmatched_event_indexes else None,
+    }
+
+
 def aspect_event_study(
     all_labels: Sequence[dict[str, float | bool | None]],
     event_indexes: Sequence[int],
