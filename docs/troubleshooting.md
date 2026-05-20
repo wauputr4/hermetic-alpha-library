@@ -192,6 +192,13 @@ with the same timestamp/body/zodiac key, keeps the original longitude visible,
 and emits `longitude_sin` and `longitude_cos` columns that can be written with
 the flat CSV exporter.
 
+Use `planet_position_vector_summary_row()` when reports need one compact row per
+chart state. It emits optional chart ID, position count, vector length, and
+first/last timestamp/body/zodiac metadata using the same ordering as the vector
+encoder. Keep using `encode_planet_positions()` for numeric similarity search
+and `planet_position_encoding_rows()` when individual sine/cosine components
+must be inspected.
+
 ### Aspect Phase Classification
 
 `find_aspects()` and `scan_aspect_series()` classify `AspectEvent.phase` only

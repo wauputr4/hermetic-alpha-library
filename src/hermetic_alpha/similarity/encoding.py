@@ -52,5 +52,28 @@ def planet_position_encoding_rows(positions: Sequence[PlanetPosition]) -> list[d
     return rows
 
 
+def planet_position_vector_summary_row(
+    positions: Sequence[PlanetPosition],
+    *,
+    chart_id: EncodingScalar = None,
+) -> dict[str, EncodingScalar]:
+    """Return compact chart-state vector metadata for CSV-friendly audits."""
+
+    ordered_positions = sorted(positions, key=_position_sort_key)
+    first_position = ordered_positions[0] if ordered_positions else None
+    last_position = ordered_positions[-1] if ordered_positions else None
+    return {
+        "chart_id": chart_id,
+        "position_count": len(ordered_positions),
+        "vector_length": len(ordered_positions) * 2,
+        "first_timestamp": first_position.timestamp if first_position is not None else None,
+        "first_body": first_position.body if first_position is not None else None,
+        "first_zodiac": first_position.zodiac if first_position is not None else None,
+        "last_timestamp": last_position.timestamp if last_position is not None else None,
+        "last_body": last_position.body if last_position is not None else None,
+        "last_zodiac": last_position.zodiac if last_position is not None else None,
+    }
+
+
 def _position_sort_key(position: PlanetPosition) -> tuple[datetime, str, str]:
     return (position.timestamp, position.body, position.zodiac)

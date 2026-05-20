@@ -13,6 +13,7 @@ from hermetic_alpha.similarity import (
     find_nearest,
     nearest_neighbor_rows,
     planet_position_encoding_rows,
+    planet_position_vector_summary_row,
 )
 
 
@@ -108,6 +109,47 @@ def test_planet_position_encoding_rows_keep_circular_components_inspectable():
     assert sun_row["longitude"] == 359
     assert moon_row["longitude_sin"] == pytest.approx(sun_row["longitude_sin"])
     assert moon_row["longitude_cos"] == pytest.approx(sun_row["longitude_cos"])
+
+
+def test_planet_position_vector_summary_row_uses_sorted_boundary_metadata():
+    early = datetime(2026, 5, 17, 0, 0, tzinfo=timezone.utc)
+    later = datetime(2026, 5, 18, 0, 0, tzinfo=timezone.utc)
+    positions = [
+        PlanetPosition(later, "moon", 180),
+        PlanetPosition(early, "sun", 90, zodiac="sidereal"),
+        PlanetPosition(early, "sun", 45, zodiac="tropical"),
+        PlanetPosition(early, "jupiter", 0),
+    ]
+
+    row = planet_position_vector_summary_row(positions, chart_id="btc-2026-05-17")
+
+    assert row == {
+        "chart_id": "btc-2026-05-17",
+        "position_count": 4,
+        "vector_length": 8,
+        "first_timestamp": early,
+        "first_body": "jupiter",
+        "first_zodiac": "tropical",
+        "last_timestamp": later,
+        "last_body": "moon",
+        "last_zodiac": "tropical",
+    }
+
+
+def test_planet_position_vector_summary_row_handles_empty_positions():
+    row = planet_position_vector_summary_row([])
+
+    assert row == {
+        "chart_id": None,
+        "position_count": 0,
+        "vector_length": 0,
+        "first_timestamp": None,
+        "first_body": None,
+        "first_zodiac": None,
+        "last_timestamp": None,
+        "last_body": None,
+        "last_zodiac": None,
+    }
 
 
 def test_find_nearest_ranks_similar_vectors_first_with_cosine_metric():

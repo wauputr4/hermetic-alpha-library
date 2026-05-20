@@ -22,7 +22,7 @@ from hermetic_alpha.features import (
     aspect_event_feature_matrix_rows_with_schema as features_aspect_event_feature_matrix_rows_with_schema,
     aspect_event_feature_rows as features_aspect_event_feature_rows,
 )
-from hermetic_alpha.similarity import planet_position_encoding_rows
+from hermetic_alpha.similarity import planet_position_encoding_rows, planet_position_vector_summary_row
 
 
 def test_public_api_exports_match_documented_entrypoints():
@@ -33,6 +33,7 @@ def test_public_api_exports_match_documented_entrypoints():
     assert callable(aspect_event_study)
     assert callable(bootstrap_interval_row)
     assert callable(planet_position_encoding_rows)
+    assert callable(planet_position_vector_summary_row)
     assert callable(summarize_validated_multi_horizon_event_study)
     assert callable(timestamp_join_summary_row)
     assert callable(validated_multi_horizon_event_study_report_rows)
