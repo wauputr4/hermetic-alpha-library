@@ -11,6 +11,7 @@ TimestampedForwardReturnRow = dict[str, object]
 TimestampedLocalExtremaRow = dict[str, object]
 ForwardReturnCoverageRow = dict[str, object]
 LocalExtremaCoverageRow = dict[str, object]
+MultiHorizonForwardReturnCoverageRows = list[ForwardReturnCoverageRow]
 
 
 def add_forward_returns(closes: Sequence[float], horizons: Sequence[int]) -> list[dict[str, float | bool | None]]:
@@ -86,6 +87,13 @@ def _normalize_windows(windows: int | Sequence[int]) -> list[int]:
     return normalized
 
 
+def _normalize_horizons(horizons: Sequence[int]) -> list[int]:
+    normalized = list(dict.fromkeys(horizons))
+    if not normalized or any(horizon <= 0 for horizon in normalized):
+        raise ValueError("horizons must be positive integers")
+    return normalized
+
+
 def add_local_extrema_labels(closes: Sequence[float], windows: int | Sequence[int]) -> list[dict[str, bool | None]]:
     """Label closes that are local tops or bottoms within centered windows."""
     normalized_windows = _normalize_windows(windows)
@@ -149,6 +157,19 @@ def forward_return_label_coverage_row(
         "first_timestamp": labels[0].get("timestamp") if labels else None,
         "last_timestamp": labels[-1].get("timestamp") if labels else None,
     }
+
+
+def multi_horizon_forward_return_label_coverage_rows(
+    labels: Sequence[dict[str, object]],
+    horizons: Sequence[int],
+    *,
+    dataset_id: str | None = None,
+) -> MultiHorizonForwardReturnCoverageRows:
+    """Return ordered CSV-compatible coverage metadata for several horizons."""
+    return [
+        forward_return_label_coverage_row(labels, horizon, dataset_id=dataset_id)
+        for horizon in _normalize_horizons(horizons)
+    ]
 
 
 def local_extrema_label_coverage_row(
