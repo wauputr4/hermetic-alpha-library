@@ -5,6 +5,7 @@ from .market import (
     add_local_extrema_labels,
     bullish_probability,
     forward_return_label_coverage_row,
+    local_extrema_label_coverage_row,
 )
 
 __all__ = [
@@ -14,4 +15,5 @@ __all__ = [
     "add_local_extrema_labels",
     "bullish_probability",
     "forward_return_label_coverage_row",
+    "local_extrema_label_coverage_row",
 ]

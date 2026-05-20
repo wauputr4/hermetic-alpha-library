@@ -21,6 +21,7 @@ from hermetic_alpha.labels import (
     add_local_extrema_labels,
     bullish_probability,
     forward_return_label_coverage_row,
+    local_extrema_label_coverage_row,
 )
 from hermetic_alpha.models import AspectEvent, MarketCandle, MarketLabel
 
@@ -203,6 +204,69 @@ def test_candle_local_extrema_labels_match_multi_window_close_labels():
         assert {key: labels[index][key] for key in expected_row} == expected_row
     assert labels[1]["local_top_2d"] is None
     assert labels[-2]["local_bottom_2d"] is None
+
+
+def test_local_extrema_label_coverage_row_summarizes_centered_window_edges():
+    labels = add_local_extrema_labels([100, 90, 110, 105, 95], 1)
+
+    row = local_extrema_label_coverage_row(labels, 1, dataset_id="close-list")
+
+    assert row == {
+        "dataset_id": "close-list",
+        "window": 1,
+        "row_count": 5,
+        "labeled_count": 3,
+        "missing_label_count": 2,
+        "local_top_count": 1,
+        "local_bottom_count": 1,
+        "asset": None,
+        "first_timestamp": None,
+        "last_timestamp": None,
+    }
+
+
+def test_local_extrema_label_coverage_row_summarizes_timestamped_candle_labels():
+    candles = [
+        MarketCandle(datetime(2026, 5, day, tzinfo=timezone.utc), "BTC-USD", close, close, close, close)
+        for day, close in [(6, 100), (7, 90), (8, 110), (9, 105), (10, 95)]
+    ]
+    labels = add_candle_local_extrema_labels(candles, 1)
+
+    row = local_extrema_label_coverage_row(labels, 1)
+
+    assert row["row_count"] == 5
+    assert row["labeled_count"] == 3
+    assert row["missing_label_count"] == 2
+    assert row["local_top_count"] == 1
+    assert row["local_bottom_count"] == 1
+    assert row["asset"] == "BTC-USD"
+    assert row["first_timestamp"] == candles[0].timestamp
+    assert row["last_timestamp"] == candles[-1].timestamp
+
+
+def test_local_extrema_label_coverage_row_handles_empty_input_and_missing_window():
+    assert local_extrema_label_coverage_row([], 1) == {
+        "dataset_id": None,
+        "window": 1,
+        "row_count": 0,
+        "labeled_count": 0,
+        "missing_label_count": 0,
+        "local_top_count": 0,
+        "local_bottom_count": 0,
+        "asset": None,
+        "first_timestamp": None,
+        "last_timestamp": None,
+    }
+
+    row = local_extrema_label_coverage_row([{"local_top_2d": True, "local_bottom_2d": False}], 1)
+    assert row["row_count"] == 1
+    assert row["labeled_count"] == 0
+    assert row["missing_label_count"] == 1
+
+
+def test_local_extrema_label_coverage_row_validates_window():
+    with pytest.raises(ValueError, match="positive integer"):
+        local_extrema_label_coverage_row([], 0)
 
 
 def test_candle_local_extrema_labels_reject_mixed_assets():

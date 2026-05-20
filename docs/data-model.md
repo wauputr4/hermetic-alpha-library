@@ -99,6 +99,12 @@ derived from ordered `MarketCandle` values. It preserves the candle `timestamp`
 and `asset` in every output row, reuses the same `local_top_*d` and
 `local_bottom_*d` semantics as `add_local_extrema_labels()`, and keeps edge rows
 as `null` where the centered window lacks enough prior or future candles.
+Use `local_extrema_label_coverage_row()` when reports need one compact row
+describing retrospective top/bottom label coverage for a centered window. It
+reports labeled and missing row counts, local top/bottom counts, optional
+dataset ID, optional single asset, and first/last timestamps. The row is audit
+metadata only; local-extrema labels remain retrospective and should not be
+treated as predictive features.
 
 ## Event Study Result
 
