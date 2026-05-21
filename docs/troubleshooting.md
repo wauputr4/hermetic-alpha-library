@@ -419,6 +419,14 @@ schema. Unknown observed features are included by default and appended after
 configured columns; pass `include_unknown_features=False` to reject them during
 strict production exports.
 
+Use `aspect_event_feature_matrix_summary_row()` before CSV export or model
+training when an audit needs matrix shape metadata without writing the full
+wide matrix. The helper counts unique timestamp rows, observed feature keys,
+optional unique configured feature keys, duplicate configured keys after the
+same normalization used by schema helpers, and events missing timestamps.
+Missing timestamps are counted but excluded from row count and first/last
+timestamp boundaries because they cannot become matrix rows.
+
 `event_study_baseline_comparison_row()` is the preferred flat row helper when
 reports need probability deltas and relative lift. It leaves derived fields as
 `None` if either probability is missing, and leaves `relative_lift` as `None`

@@ -110,6 +110,11 @@ configured aspect is absent from one dataset. Missing configured features emit
 inactive `False` flags and `None` numeric/phase values. Unknown observed
 features are included by default for exploratory exports, or rejected with
 `include_unknown_features=False` for strict schema validation.
+Use `aspect_event_feature_matrix_summary_row()` when audits need compact matrix
+metadata before export or model training. It reports row/timestamp count,
+observed and configured feature counts, duplicate configured keys, missing
+timestamp count, and timestamp boundaries; it is metadata only, not a
+replacement for exporting the feature matrix rows.
 
 Examples:
 
