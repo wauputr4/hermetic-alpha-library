@@ -62,6 +62,11 @@ the existing aspect detector independently for each timestamp. The scanner
 orders results by timestamp, then sorted body pair and configured aspect order;
 if a timestamp is missing a body, it scans only the bodies present at that
 timestamp instead of inventing positions.
+Use `aspect_scan_summary_row()` when audits need one compact row describing a
+completed aspect scan before feature engineering or event-study joins. It
+reports event count, timestamp coverage, aspect/body-pair diversity, phase
+counts, missing timestamp count, and timestamp boundaries; it does not replace
+exporting the underlying `AspectEvent` rows or feature rows.
 When both positions in a detected aspect include `speed`, the returned
 `AspectEvent.phase` is classified as `applying`, `separating`, or `exact`.
 Missing speed data preserves `phase="unknown"` so raw longitude workflows remain

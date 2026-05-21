@@ -233,6 +233,11 @@ carried forward from nearby timestamps; only bodies present in that group are
 scanned. Position timestamps must be timezone-aware, body names must be
 non-empty, and duplicate body rows for the same timestamp are rejected so a scan
 cannot silently choose between conflicting longitudes.
+Use `aspect_scan_summary_row()` before exporting or joining scan results when a
+compact audit row is needed. Empty scans emit zero counts and `None` timestamp
+boundaries. Raw-longitude `find_aspects()` workflows may produce events without
+timestamps; those are counted in `missing_timestamp_count` and excluded from
+timestamp boundaries.
 
 ### Planet-Position Encoding Reports
 
