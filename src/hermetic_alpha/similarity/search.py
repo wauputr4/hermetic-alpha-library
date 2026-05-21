@@ -105,6 +105,34 @@ def nearest_neighbor_rows(
     return rows
 
 
+def nearest_neighbor_summary_row(
+    results: Sequence[NearestNeighbor],
+    *,
+    query_id: str | None = None,
+    metric: SimilarityMetric | None = None,
+    limit: int | None = None,
+) -> dict[str, ReportScalar]:
+    """Return compact metadata for a nearest-neighbor search run."""
+
+    scores = [result.score for result in results]
+    distances = [result.distance for result in results]
+    top = results[0] if results else None
+
+    return {
+        "query_id": query_id,
+        "metric": metric,
+        "limit": limit,
+        "result_count": len(results),
+        "top_id": top.id if top is not None else None,
+        "top_score": top.score if top is not None else None,
+        "top_distance": top.distance if top is not None else None,
+        "min_score": min(scores) if scores else None,
+        "max_score": max(scores) if scores else None,
+        "min_distance": min(distances) if distances else None,
+        "max_distance": max(distances) if distances else None,
+    }
+
+
 def _rank_candidate(
     query_vector: Sequence[float],
     candidate: SimilarityCandidate,

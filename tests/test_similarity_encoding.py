@@ -3,6 +3,7 @@ from math import isclose
 
 import pytest
 
+from hermetic_alpha.exports import to_csv
 from hermetic_alpha.models import PlanetPosition
 from hermetic_alpha.similarity import (
     SimilarityCandidate,
@@ -12,6 +13,7 @@ from hermetic_alpha.similarity import (
     euclidean_distance,
     find_nearest,
     nearest_neighbor_rows,
+    nearest_neighbor_summary_row,
     planet_position_encoding_rows,
     planet_position_vector_summary_row,
 )
@@ -299,6 +301,68 @@ def test_nearest_neighbor_rows_requires_mapping_payload_for_payload_fields():
 
     with pytest.raises(TypeError, match="payload_fields requires mapping payload values"):
         nearest_neighbor_rows(results, payload_fields=["asset"])
+
+
+def test_nearest_neighbor_summary_row_reports_ranked_result_boundaries():
+    results = find_nearest(
+        [1.0, 0.0],
+        [
+            SimilarityCandidate("far", [0.0, 1.0], payload={"ignored": True}),
+            SimilarityCandidate("near", [1.0, 0.0], payload={"ignored": False}),
+        ],
+        metric="cosine",
+        limit=2,
+    )
+
+    row = nearest_neighbor_summary_row(results, query_id="query-a", metric="cosine", limit=2)
+
+    assert row == {
+        "query_id": "query-a",
+        "metric": "cosine",
+        "limit": 2,
+        "result_count": 2,
+        "top_id": "near",
+        "top_score": 1.0,
+        "top_distance": 0.0,
+        "min_score": 0.0,
+        "max_score": 1.0,
+        "min_distance": 0.0,
+        "max_distance": 1.0,
+    }
+
+
+def test_nearest_neighbor_summary_row_handles_empty_results():
+    row = nearest_neighbor_summary_row([], query_id="query-empty", metric="euclidean", limit=5)
+
+    assert row == {
+        "query_id": "query-empty",
+        "metric": "euclidean",
+        "limit": 5,
+        "result_count": 0,
+        "top_id": None,
+        "top_score": None,
+        "top_distance": None,
+        "min_score": None,
+        "max_score": None,
+        "min_distance": None,
+        "max_distance": None,
+    }
+
+
+def test_nearest_neighbor_summary_row_is_csv_compatible():
+    results = find_nearest(
+        [1.0, 1.0],
+        [SimilarityCandidate("nearest", [1.1, 1.1])],
+        metric="euclidean",
+    )
+
+    text = to_csv([nearest_neighbor_summary_row(results, query_id="query-b", metric="euclidean")])
+
+    assert text.splitlines()[0] == (
+        "query_id,metric,limit,result_count,top_id,top_score,top_distance,"
+        "min_score,max_score,min_distance,max_distance"
+    )
+    assert "query-b,euclidean,,1,nearest,-0.14142135623730964,0.14142135623730964" in text
 
 
 def test_similarity_search_validates_inputs():

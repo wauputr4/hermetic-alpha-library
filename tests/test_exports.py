@@ -42,6 +42,7 @@ from hermetic_alpha.similarity import (
     SimilarityCandidate,
     find_nearest,
     nearest_neighbor_rows,
+    nearest_neighbor_summary_row,
     planet_position_encoding_rows,
     planet_position_vector_summary_row,
 )
@@ -505,3 +506,21 @@ def test_csv_accepts_flat_nearest_neighbor_rows():
     assert text.splitlines()[0] == "rank,id,score,distance,payload_asset"
     assert "\n1,near-chart,1.0,0.0,BTC-USD" in text
     assert "\n2,distant-chart,0.0,1.0,ETH-USD" in text
+
+
+def test_csv_accepts_flat_nearest_neighbor_summary_rows():
+    results = find_nearest(
+        [1.0, 0.0],
+        [
+            SimilarityCandidate("distant-chart", [0.0, 1.0], payload={"asset": "ETH-USD"}),
+            SimilarityCandidate("near-chart", [1.0, 0.0], payload={"asset": "BTC-USD"}),
+        ],
+    )
+
+    text = to_csv([nearest_neighbor_summary_row(results, query_id="btc-query", metric="cosine", limit=10)])
+
+    assert text.splitlines()[0] == (
+        "query_id,metric,limit,result_count,top_id,top_score,top_distance,"
+        "min_score,max_score,min_distance,max_distance"
+    )
+    assert "\nbtc-query,cosine,10,2,near-chart,1.0,0.0,0.0,1.0,0.0,1.0" in text
