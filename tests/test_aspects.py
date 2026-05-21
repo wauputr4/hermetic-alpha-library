@@ -4,7 +4,13 @@ import pytest
 
 from hermetic_alpha.models import PlanetPosition
 
-from hermetic_alpha.astro import circular_distance, detect_aspect, find_aspects, scan_aspect_series
+from hermetic_alpha.astro import (
+    aspect_scan_summary_row,
+    circular_distance,
+    detect_aspect,
+    find_aspects,
+    scan_aspect_series,
+)
 
 
 def test_circular_distance_wraps_zero_boundary():
@@ -188,3 +194,62 @@ def test_scan_aspect_series_empty_input_returns_no_events():
 def test_scan_aspect_series_rejects_invalid_position_rows(positions, message):
     with pytest.raises(ValueError, match=message):
         scan_aspect_series(positions)
+
+
+def test_aspect_scan_summary_row_reports_counts_and_boundaries():
+    ts1 = datetime(2026, 5, 6, tzinfo=timezone.utc)
+    ts2 = datetime(2026, 5, 7, tzinfo=timezone.utc)
+    events = [
+        detect_aspect("sun", 10, "jupiter", 12, "conjunction", 3, timestamp=ts2, speed_a=1, speed_b=-0.5),
+        detect_aspect("mars", 90, "saturn", 181, "square", 3, timestamp=ts1, speed_a=-1, speed_b=0.5),
+        detect_aspect("moon", 0, "venus", 0, "conjunction", 0, timestamp=ts1),
+        detect_aspect("sun", 10, "jupiter", 12, "conjunction", 3, timestamp=ts1),
+    ]
+
+    row = aspect_scan_summary_row([event for event in events if event is not None])
+
+    assert row == {
+        "event_count": 4,
+        "timestamp_count": 2,
+        "unique_aspect_count": 2,
+        "unique_body_pair_count": 3,
+        "applying_phase_count": 1,
+        "separating_phase_count": 1,
+        "exact_phase_count": 1,
+        "unknown_phase_count": 1,
+        "missing_timestamp_count": 0,
+        "first_timestamp": ts1,
+        "last_timestamp": ts2,
+    }
+
+
+def test_aspect_scan_summary_row_handles_empty_results():
+    assert aspect_scan_summary_row([]) == {
+        "event_count": 0,
+        "timestamp_count": 0,
+        "unique_aspect_count": 0,
+        "unique_body_pair_count": 0,
+        "applying_phase_count": 0,
+        "separating_phase_count": 0,
+        "exact_phase_count": 0,
+        "unknown_phase_count": 0,
+        "missing_timestamp_count": 0,
+        "first_timestamp": None,
+        "last_timestamp": None,
+    }
+
+
+def test_aspect_scan_summary_row_counts_missing_timestamps_from_raw_longitudes():
+    ts = datetime(2026, 5, 6, tzinfo=timezone.utc)
+    events = [
+        *find_aspects({"sun": 0, "jupiter": 1}, {"conjunction": 3}),
+        *find_aspects({"mars": PlanetPosition(ts, "mars", 90), "saturn": 180}, {"square": 3}),
+    ]
+
+    row = aspect_scan_summary_row(events)
+
+    assert row["event_count"] == 2
+    assert row["timestamp_count"] == 0
+    assert row["missing_timestamp_count"] == 2
+    assert row["first_timestamp"] is None
+    assert row["last_timestamp"] is None

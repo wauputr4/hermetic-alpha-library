@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from datetime import datetime
 from itertools import combinations
 from typing import Iterable, Mapping
@@ -168,3 +169,47 @@ def scan_aspect_series(
         }
         events.extend(find_aspects(timestamp_positions, aspects=aspects, timestamp=timestamp))
     return events
+
+
+def aspect_scan_summary_row(events: Sequence[AspectEvent]) -> dict[str, object]:
+    """Return compact metadata for an aspect scan.
+
+    The summary is intended for audit tables before feature engineering or
+    event-study joins. It does not replace exporting individual aspect events
+    or feature rows.
+    """
+    timestamps: list[datetime] = []
+    aspects = set[str]()
+    body_pairs = set[tuple[str, str]]()
+    phase_counts = {
+        "applying": 0,
+        "separating": 0,
+        "exact": 0,
+        "unknown": 0,
+    }
+    missing_timestamp_count = 0
+
+    for event in events:
+        aspects.add(event.aspect)
+        body_pairs.add((event.body_a, event.body_b))
+        phase_counts[event.phase] = phase_counts.get(event.phase, 0) + 1
+        if event.timestamp is None:
+            missing_timestamp_count += 1
+        else:
+            timestamps.append(event.timestamp)
+
+    timestamp_count = len(set(timestamps))
+
+    return {
+        "event_count": len(events),
+        "timestamp_count": timestamp_count,
+        "unique_aspect_count": len(aspects),
+        "unique_body_pair_count": len(body_pairs),
+        "applying_phase_count": phase_counts["applying"],
+        "separating_phase_count": phase_counts["separating"],
+        "exact_phase_count": phase_counts["exact"],
+        "unknown_phase_count": phase_counts["unknown"],
+        "missing_timestamp_count": missing_timestamp_count,
+        "first_timestamp": min(timestamps) if timestamps else None,
+        "last_timestamp": max(timestamps) if timestamps else None,
+    }

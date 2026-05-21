@@ -22,6 +22,7 @@ from hermetic_alpha.analysis import (
     validated_multi_horizon_event_study_report_rows,
 )
 from hermetic_alpha.astro import AspectDefinition as AstroAspectDefinition
+from hermetic_alpha.astro import aspect_scan_summary_row
 from hermetic_alpha.features import (
     aspect_event_feature_matrix_rows as features_aspect_event_feature_matrix_rows,
     aspect_event_feature_matrix_rows_with_schema as features_aspect_event_feature_matrix_rows_with_schema,
@@ -49,6 +50,7 @@ def test_public_api_exports_match_documented_entrypoints():
     assert aspect_event_feature_matrix_rows_with_schema is features_aspect_event_feature_matrix_rows_with_schema
     assert aspect_event_feature_matrix_summary_row is features_aspect_event_feature_matrix_summary_row
     assert callable(aspect_event_study)
+    assert callable(aspect_scan_summary_row)
     assert callable(bootstrap_interval_row)
     assert callable(bootstrap_interval_rows)
     assert callable(multi_horizon_baseline_comparison_rows)
