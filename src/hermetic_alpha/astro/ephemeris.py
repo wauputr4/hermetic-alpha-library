@@ -77,6 +77,35 @@ def generate_planet_positions(
     return positions
 
 
+def planet_position_series_summary_row(
+    positions: Sequence[PlanetPosition],
+    *,
+    series_id: str | None = None,
+) -> dict[str, object]:
+    """Return compact metadata for a generated planet-position series.
+
+    The summary is intended for ephemeris-run audit tables before aspect
+    scanning or vector encoding. It does not replace raw position rows or
+    similarity vector summaries.
+    """
+    timestamps = [position.timestamp for position in positions]
+    engines = {position.engine for position in positions if position.engine is not None}
+    zodiacs = {position.zodiac for position in positions}
+
+    return {
+        "series_id": series_id,
+        "position_count": len(positions),
+        "timestamp_count": len(set(timestamps)),
+        "unique_body_count": len({position.body for position in positions}),
+        "unique_engine_count": len(engines),
+        "unique_zodiac_count": len(zodiacs),
+        "missing_speed_count": sum(1 for position in positions if position.speed is None),
+        "missing_retrograde_count": sum(1 for position in positions if position.retrograde is None),
+        "first_timestamp": min(timestamps) if timestamps else None,
+        "last_timestamp": max(timestamps) if timestamps else None,
+    }
+
+
 def _import_swisseph() -> ModuleType:
     try:
         import swisseph  # type: ignore[import-not-found]

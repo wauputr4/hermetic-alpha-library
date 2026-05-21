@@ -8,6 +8,7 @@ from hermetic_alpha.astro.ephemeris import (
     SwissEphemerisAdapter,
     _import_swisseph,
     generate_planet_positions,
+    planet_position_series_summary_row,
 )
 from hermetic_alpha.models import PlanetPosition
 
@@ -160,6 +161,71 @@ def test_generate_planet_positions_accepts_timezone_aware_range():
 def test_generate_planet_positions_rejects_invalid_inputs(start, end, step, bodies, message):
     with pytest.raises(ValueError, match=message):
         generate_planet_positions(RecordingAdapter(), start, end, step, bodies)
+
+
+def test_planet_position_series_summary_row_reports_generated_position_metadata():
+    adapter = RecordingAdapter()
+    start = datetime(2026, 5, 8, tzinfo=timezone.utc)
+    end = datetime(2026, 5, 9, tzinfo=timezone.utc)
+    positions = generate_planet_positions(
+        adapter,
+        start=start,
+        end=end,
+        step=timedelta(days=1),
+        bodies=["mars", "sun"],
+    )
+
+    row = planet_position_series_summary_row(positions, series_id="btc-daily")
+
+    assert row == {
+        "series_id": "btc-daily",
+        "position_count": 4,
+        "timestamp_count": 2,
+        "unique_body_count": 2,
+        "unique_engine_count": 1,
+        "unique_zodiac_count": 1,
+        "missing_speed_count": 4,
+        "missing_retrograde_count": 4,
+        "first_timestamp": start,
+        "last_timestamp": end,
+    }
+
+
+def test_planet_position_series_summary_row_handles_empty_positions():
+    assert planet_position_series_summary_row([]) == {
+        "series_id": None,
+        "position_count": 0,
+        "timestamp_count": 0,
+        "unique_body_count": 0,
+        "unique_engine_count": 0,
+        "unique_zodiac_count": 0,
+        "missing_speed_count": 0,
+        "missing_retrograde_count": 0,
+        "first_timestamp": None,
+        "last_timestamp": None,
+    }
+
+
+def test_planet_position_series_summary_row_counts_mixed_metadata():
+    ts1 = datetime(2026, 5, 8, tzinfo=timezone.utc)
+    ts2 = datetime(2026, 5, 9, tzinfo=timezone.utc)
+    positions = [
+        PlanetPosition(ts2, "sun", 10, speed=1.0, retrograde=False, zodiac="tropical", engine="fake-a"),
+        PlanetPosition(ts1, "moon", 20, speed=None, retrograde=None, zodiac="sidereal", engine="fake-b"),
+        PlanetPosition(ts1, "sun", 30, speed=-0.5, retrograde=True, zodiac="sidereal", engine=None),
+    ]
+
+    row = planet_position_series_summary_row(positions)
+
+    assert row["position_count"] == 3
+    assert row["timestamp_count"] == 2
+    assert row["unique_body_count"] == 2
+    assert row["unique_engine_count"] == 2
+    assert row["unique_zodiac_count"] == 2
+    assert row["missing_speed_count"] == 1
+    assert row["missing_retrograde_count"] == 1
+    assert row["first_timestamp"] == ts1
+    assert row["last_timestamp"] == ts2
 
 
 def test_swiss_ephemeris_adapter_returns_normalized_planet_position():
