@@ -163,6 +163,10 @@ flat CSV exporter. `PermutationTestResult.to_dict()` intentionally keeps the ful
 distribution metadata (`count`, `min`, and `max`) that is CSV-safe. If a manually
 constructed result has an empty distribution, the count is `0` and the min/max
 fields are `None`.
+Use `permutation_test_result_rows()` for compact multi-scenario permutation
+metadata tables. It preserves ordered mapping or pair-sequence input, rejects
+duplicate scenario IDs, and prepends `scenario_id` while keeping full null
+distributions out of CSV output.
 
 Use `random_baseline_distribution_row()` when random-baseline results need the
 same compact CSV treatment. `random_baseline_distribution()` intentionally
