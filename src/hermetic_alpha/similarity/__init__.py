@@ -13,6 +13,7 @@ from .search import (
     euclidean_distance,
     find_nearest,
     nearest_neighbor_rows,
+    nearest_neighbor_summary_row,
 )
 
 __all__ = [
@@ -24,6 +25,7 @@ __all__ = [
     "euclidean_distance",
     "find_nearest",
     "nearest_neighbor_rows",
+    "nearest_neighbor_summary_row",
     "planet_position_encoding_rows",
     "planet_position_vector_summary_row",
 ]

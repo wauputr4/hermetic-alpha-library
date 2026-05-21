@@ -193,6 +193,10 @@ output. The helper preserves rank order, emits `id`, `score`, and `distance`,
 and includes only scalar payload data or explicitly selected scalar fields from
 mapping payloads so nested caller-owned payloads do not leak into generic CSV
 export.
+Use `nearest_neighbor_summary_row()` when an audit table needs compact metadata
+for a similarity search run before inspecting individual neighbors. It reports
+result count, top neighbor identity, score/distance boundaries, and optional
+query, metric, and limit metadata without flattening payload values.
 
 Recommended methods:
 

@@ -212,6 +212,11 @@ distance fields; scalar payloads are included as `payload`, while mapping
 payloads require explicit `payload_fields` so report columns stay intentional.
 Selected nested payload fields raise `TypeError` instead of letting the generic
 CSV exporter fail later with an unclear schema.
+Use `nearest_neighbor_summary_row()` when reports need one compact row per
+similarity search run. It keeps payload inspection out of the summary, uses the
+first ranked result as the top neighbor, reports min/max score and distance
+boundaries across the supplied results, and emits `None` boundary fields for
+empty result sets.
 
 ### Exact-Orb Aspect Queries
 
