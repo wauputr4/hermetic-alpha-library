@@ -77,6 +77,24 @@ def permutation_test_result_row(result: PermutationTestResult) -> dict[str, floa
     }
 
 
+def permutation_test_result_rows(
+    results: Mapping[str, PermutationTestResult] | Sequence[tuple[str, PermutationTestResult]],
+) -> list[dict[str, float | int | str | None]]:
+    """Return ordered flat rows for several permutation test results."""
+
+    rows: list[dict[str, float | int | str | None]] = []
+    seen_scenario_ids: set[str] = set()
+    for scenario_id, result in _iter_named_permutation_results(results):
+        if scenario_id in seen_scenario_ids:
+            raise ValueError("scenario IDs must be unique")
+        seen_scenario_ids.add(scenario_id)
+        rows.append({
+            "scenario_id": scenario_id,
+            **permutation_test_result_row(result),
+        })
+    return rows
+
+
 def random_baseline_distribution_row(
     distribution: Sequence[float],
     *,
@@ -475,6 +493,27 @@ def _iter_named_intervals(
             raise ValueError("statistic names must be strings")
         named_intervals.append((statistic_name, interval))
     return tuple(named_intervals)
+
+
+def _iter_named_permutation_results(
+    results: Mapping[str, PermutationTestResult] | Sequence[tuple[str, PermutationTestResult]],
+) -> tuple[tuple[str, PermutationTestResult], ...]:
+    if isinstance(results, Mapping):
+        return tuple(results.items())
+    if isinstance(results, str | bytes):
+        raise ValueError("results must be an ordered mapping or sequence of scenario ID and result pairs")
+
+    named_results: list[tuple[str, PermutationTestResult]] = []
+    for item in results:
+        if not isinstance(item, Sequence) or isinstance(item, str | bytes) or len(item) != 2:
+            raise ValueError("results must be an ordered mapping or sequence of scenario ID and result pairs")
+        scenario_id, result = item
+        if not isinstance(scenario_id, str):
+            raise ValueError("scenario IDs must be strings")
+        if not isinstance(result, PermutationTestResult):
+            raise ValueError("results must contain PermutationTestResult values")
+        named_results.append((scenario_id, result))
+    return tuple(named_results)
 
 
 def _permutation_p_value(

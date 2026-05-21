@@ -9,6 +9,7 @@ from hermetic_alpha.analysis import (
     low_sample_warning,
     permutation_test,
     permutation_test_result_row,
+    permutation_test_result_rows,
     random_baseline_distribution,
     random_baseline_distribution_row,
     random_baseline_distribution_rows,
@@ -301,6 +302,66 @@ def test_permutation_test_result_row_handles_empty_distribution_explicitly():
     assert row["null_distribution_max"] is None
 
 
+def test_permutation_test_result_rows_preserve_mapping_order():
+    first = permutation_test(
+        [1.0, 1.0, 0.0],
+        [0.0, 0.0, 0.0],
+        permutations=20,
+        seed=19,
+        alternative="greater",
+    )
+    second = PermutationTestResult(
+        observed_statistic=0.25,
+        p_value=1.0,
+        alternative="two-sided",
+        permutations=0,
+        seed=None,
+        null_distribution=[],
+        null_mean=0.0,
+    )
+
+    rows = permutation_test_result_rows({
+        "bullish_7d": first,
+        "mean_return_7d": second,
+    })
+
+    assert [row["scenario_id"] for row in rows] == ["bullish_7d", "mean_return_7d"]
+    assert rows[0]["null_distribution_count"] == 20
+    assert rows[1]["null_distribution_count"] == 0
+    assert rows[1]["null_distribution_min"] is None
+    assert rows[1]["null_distribution_max"] is None
+
+
+def test_permutation_test_result_rows_preserve_sequence_order():
+    first = PermutationTestResult(
+        observed_statistic=0.5,
+        p_value=0.25,
+        alternative="greater",
+        permutations=3,
+        seed=7,
+        null_distribution=[0.1, 0.2, 0.3],
+        null_mean=0.2,
+    )
+    second = PermutationTestResult(
+        observed_statistic=-0.1,
+        p_value=0.5,
+        alternative="less",
+        permutations=2,
+        seed=11,
+        null_distribution=[-0.2, 0.0],
+        null_mean=-0.1,
+    )
+
+    rows = permutation_test_result_rows([
+        ("mean_return_30d", first),
+        ("bullish_1d", second),
+    ])
+
+    assert [row["scenario_id"] for row in rows] == ["mean_return_30d", "bullish_1d"]
+    assert rows[0]["observed_statistic"] == 0.5
+    assert rows[1]["alternative"] == "less"
+
+
 def test_walk_forward_splits_generate_chronological_windows():
     splits = walk_forward_splits(["d1", "d2", "d3", "d4", "d5", "d6"], train_size=3, test_size=1)
 
@@ -485,6 +546,24 @@ def test_validation_helpers_validate_inputs():
 
     with pytest.raises(ValueError, match="interval must contain exactly two finite numeric bounds"):
         bootstrap_interval_rows({"mean_return": (0.1,)})
+
+    result = PermutationTestResult(
+        observed_statistic=0.5,
+        p_value=0.25,
+        alternative="greater",
+        permutations=3,
+        seed=7,
+        null_distribution=[0.1, 0.2, 0.3],
+        null_mean=0.2,
+    )
+    with pytest.raises(ValueError, match="scenario IDs must be unique"):
+        permutation_test_result_rows([
+            ("bullish_7d", result),
+            ("bullish_7d", result),
+        ])
+
+    with pytest.raises(ValueError, match="results must contain PermutationTestResult values"):
+        permutation_test_result_rows([("bullish_7d", object())])
 
 
 def test_low_sample_warning_returns_message_only_below_threshold():

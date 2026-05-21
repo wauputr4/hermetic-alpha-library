@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 import pytest
 
 from hermetic_alpha.analysis import (
+    PermutationTestResult,
     bootstrap_interval_row,
     bootstrap_interval_rows,
     bootstrap_percentile_interval,
@@ -10,6 +11,7 @@ from hermetic_alpha.analysis import (
     multi_horizon_baseline_comparison_rows,
     permutation_test,
     permutation_test_result_row,
+    permutation_test_result_rows,
     random_baseline_distribution,
     random_baseline_distribution_row,
     random_baseline_distribution_rows,
@@ -274,6 +276,37 @@ def test_csv_accepts_flat_permutation_test_result_rows():
         "null_distribution_count,null_distribution_min,null_distribution_max"
     )
     assert "greater,20,19" in text
+
+
+def test_csv_accepts_ordered_permutation_test_result_rows():
+    result = permutation_test(
+        [1.0, 1.0, 0.0],
+        [0.0, 0.0, 0.0],
+        permutations=20,
+        seed=19,
+        alternative="greater",
+    )
+    empty_result = PermutationTestResult(
+        observed_statistic=0.25,
+        p_value=1.0,
+        alternative="two-sided",
+        permutations=0,
+        seed=None,
+        null_distribution=[],
+        null_mean=0.0,
+    )
+
+    text = to_csv(permutation_test_result_rows([
+        ("bullish_7d", result),
+        ("mean_return_7d", empty_result),
+    ]))
+
+    assert text.splitlines()[0] == (
+        "scenario_id,observed_statistic,p_value,alternative,permutations,seed,"
+        "null_mean,null_distribution_count,null_distribution_min,null_distribution_max"
+    )
+    assert "\nbullish_7d," in text
+    assert "\nmean_return_7d,0.25,1.0,two-sided,0,,0.0,0,," in text
 
 
 def test_csv_accepts_flat_random_baseline_distribution_rows():

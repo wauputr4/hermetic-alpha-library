@@ -176,6 +176,11 @@ Use `permutation_test_result_row()` before CSV export when reports need a compac
 flat summary. It preserves the key statistic, p-value, alternative, permutation
 count, seed, and null mean fields, while replacing the full null distribution
 list with count, minimum, and maximum metadata.
+Use `permutation_test_result_rows()` when several declared permutation-test
+scenarios need one compact CSV-safe table. It preserves ordered scenario IDs,
+prepends each row with `scenario_id`, and delegates the statistical fields to
+`permutation_test_result_row()`; keep full `PermutationTestResult` values for
+inspecting or plotting null distributions.
 
 Permutation tests do not remove overfitting by themselves. They only compare one
 declared statistic against a random relabeling baseline for the supplied sample.

@@ -14,6 +14,7 @@ from hermetic_alpha.analysis import (
     bootstrap_interval_row,
     bootstrap_interval_rows,
     multi_horizon_baseline_comparison_rows,
+    permutation_test_result_rows,
     random_baseline_distribution_rows,
     summarize_validated_multi_horizon_event_study,
     timestamp_join_summary_row,
@@ -44,6 +45,7 @@ def test_public_api_exports_match_documented_entrypoints():
     assert callable(bootstrap_interval_row)
     assert callable(bootstrap_interval_rows)
     assert callable(multi_horizon_baseline_comparison_rows)
+    assert callable(permutation_test_result_rows)
     assert callable(random_baseline_distribution_rows)
     assert callable(planet_position_encoding_rows)
     assert callable(planet_position_vector_summary_row)
