@@ -57,6 +57,12 @@ Mitigation:
   counts and `None` timestamp boundaries. Positions without speed or retrograde
   values are counted explicitly so downstream aspect phase and retrograde
   analyses can see missing metadata before scanning or vector encoding.
+- Use `planet_position_series_summary_rows()` when a report compares several
+  named ephemeris runs, such as different body sets, date ranges, zodiac modes,
+  or engines. The helper keeps caller order, rejects blank or duplicate series
+  IDs, and reuses the single-series summary schema for each row; it is
+  multi-series audit metadata, not a replacement for raw `PlanetPosition` rows
+  or encoded similarity vectors.
 
 ### Timezone and Candle Alignment
 

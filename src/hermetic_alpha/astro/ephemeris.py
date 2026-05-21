@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping, Sequence
 from datetime import datetime, timedelta, timezone
 from types import ModuleType
-from typing import Any, Protocol, Sequence
+from typing import Any, Protocol
 
 from hermetic_alpha.models import PlanetPosition
 
@@ -104,6 +105,31 @@ def planet_position_series_summary_row(
         "first_timestamp": min(timestamps) if timestamps else None,
         "last_timestamp": max(timestamps) if timestamps else None,
     }
+
+
+def planet_position_series_summary_rows(
+    series: Mapping[str, Sequence[PlanetPosition]] | Sequence[tuple[str, Sequence[PlanetPosition]]],
+) -> list[dict[str, object]]:
+    """Return ordered compact metadata rows for several planet-position series."""
+    rows: list[dict[str, object]] = []
+    seen_series_ids: set[str] = set()
+    for series_id, positions in _iter_named_position_series(series):
+        if not series_id.strip():
+            raise ValueError("series ID must not be blank")
+        if series_id in seen_series_ids:
+            raise ValueError("series IDs must be unique")
+        seen_series_ids.add(series_id)
+        rows.append(planet_position_series_summary_row(positions, series_id=series_id))
+    return rows
+
+
+def _iter_named_position_series(
+    series: Mapping[str, Sequence[PlanetPosition]] | Sequence[tuple[str, Sequence[PlanetPosition]]],
+) -> Iterable[tuple[str, Sequence[PlanetPosition]]]:
+    if isinstance(series, Mapping):
+        yield from series.items()
+        return
+    yield from series
 
 
 def _import_swisseph() -> ModuleType:

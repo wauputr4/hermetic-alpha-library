@@ -26,7 +26,12 @@ from hermetic_alpha.analysis import (
     walk_forward_split_rows,
     walk_forward_splits,
 )
-from hermetic_alpha.astro import aspect_scan_summary_row, aspect_scan_summary_rows, planet_position_series_summary_row
+from hermetic_alpha.astro import (
+    aspect_scan_summary_row,
+    aspect_scan_summary_rows,
+    planet_position_series_summary_row,
+    planet_position_series_summary_rows,
+)
 from hermetic_alpha.exports import to_csv, to_json, write_csv, write_json
 from hermetic_alpha.features import aspect_event_feature_matrix_summary_row
 from hermetic_alpha.labels import (
@@ -552,6 +557,30 @@ def test_csv_accepts_flat_planet_position_series_summary_rows():
         "first_timestamp,last_timestamp"
     )
     assert "\nscan-a,1,1,1,1,1,0,0,2026-05-17T00:00:00+00:00" in text
+
+
+def test_csv_accepts_flat_multi_planet_position_series_summary_rows():
+    timestamp = datetime(2026, 5, 17, tzinfo=timezone.utc)
+    positions = [
+        PlanetPosition(
+            timestamp,
+            "sun",
+            90,
+            speed=-0.1,
+            retrograde=True,
+            engine="fake",
+        )
+    ]
+
+    text = to_csv(planet_position_series_summary_rows([("scan-a", positions), ("empty", [])]))
+
+    assert text.splitlines()[0] == (
+        "series_id,position_count,timestamp_count,unique_body_count,unique_engine_count,"
+        "unique_zodiac_count,missing_speed_count,missing_retrograde_count,"
+        "first_timestamp,last_timestamp"
+    )
+    assert "\nscan-a,1,1,1,1,1,0,0,2026-05-17T00:00:00+00:00" in text
+    assert "\nempty,0,0,0,0,0,0,0,," in text
 
 
 def test_csv_accepts_flat_planet_position_vector_summary_rows():
