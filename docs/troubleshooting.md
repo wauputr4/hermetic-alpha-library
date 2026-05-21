@@ -243,6 +243,12 @@ compact audit row is needed. Empty scans emit zero counts and `None` timestamp
 boundaries. Raw-longitude `find_aspects()` workflows may produce events without
 timestamps; those are counted in `missing_timestamp_count` and excluded from
 timestamp boundaries.
+Use `aspect_scan_summary_rows()` when a report compares several named scan
+configurations, such as different body sets, orb settings, date ranges, or
+ephemeris engines. The helper keeps caller order, prepends `scan_id`, rejects
+blank or duplicate scan IDs, and reuses the single-scan summary schema for each
+row; it is batch audit metadata, not a replacement for exporting raw aspect
+events or feature rows.
 
 ### Planet-Position Encoding Reports
 

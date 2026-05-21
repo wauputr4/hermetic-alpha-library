@@ -72,6 +72,10 @@ completed aspect scan before feature engineering or event-study joins. It
 reports event count, timestamp coverage, aspect/body-pair diversity, phase
 counts, missing timestamp count, and timestamp boundaries; it does not replace
 exporting the underlying `AspectEvent` rows or feature rows.
+Use `aspect_scan_summary_rows()` when comparing several predeclared scans in one
+audit table. It preserves ordered mapping or pair-sequence input, rejects blank
+or duplicate scan IDs, prepends `scan_id`, and delegates scan metadata to the
+single-scan helper.
 When both positions in a detected aspect include `speed`, the returned
 `AspectEvent.phase` is classified as `applying`, `separating`, or `exact`.
 Missing speed data preserves `phase="unknown"` so raw longitude workflows remain
