@@ -2,7 +2,13 @@ from datetime import datetime, timezone, timedelta
 
 import pytest
 
-from hermetic_alpha.market import CandleStorageError, candle_dataset_summary_row, read_candles_json, write_candles_json
+from hermetic_alpha.market import (
+    CandleStorageError,
+    candle_dataset_summary_row,
+    candle_dataset_summary_rows,
+    read_candles_json,
+    write_candles_json,
+)
 from hermetic_alpha.models import MarketCandle
 
 
@@ -135,3 +141,42 @@ def test_candle_dataset_summary_row_rejects_mixed_assets_and_intervals():
                 MarketCandle(ts, "BTC-USD", 100, 105, 95, 102, interval="1h"),
             ]
         )
+
+
+def test_candle_dataset_summary_rows_preserves_ordered_mapping_order():
+    btc = [MarketCandle(datetime(2024, 5, 8, tzinfo=timezone.utc), "BTC-USD", 100, 105, 95, 102)]
+    eth = [MarketCandle(datetime(2024, 5, 9, tzinfo=timezone.utc), "ETH-USD", 200, 205, 195, 202)]
+
+    rows = candle_dataset_summary_rows({"btc-daily": btc, "eth-daily": eth})
+
+    assert [row["dataset_id"] for row in rows] == ["btc-daily", "eth-daily"]
+    assert [row["asset"] for row in rows] == ["BTC-USD", "ETH-USD"]
+
+
+def test_candle_dataset_summary_rows_accepts_ordered_pairs():
+    btc = [MarketCandle(datetime(2024, 5, 8, tzinfo=timezone.utc), "BTC-USD", 100, 105, 95, 102)]
+    eth = [MarketCandle(datetime(2024, 5, 9, tzinfo=timezone.utc), "ETH-USD", 200, 205, 195, 202)]
+
+    rows = candle_dataset_summary_rows([("eth-daily", eth), ("btc-daily", btc)])
+
+    assert [row["dataset_id"] for row in rows] == ["eth-daily", "btc-daily"]
+
+
+def test_candle_dataset_summary_rows_rejects_duplicate_dataset_ids():
+    candles = [MarketCandle(datetime(2024, 5, 8, tzinfo=timezone.utc), "BTC-USD", 100, 105, 95, 102)]
+
+    with pytest.raises(CandleStorageError, match="dataset IDs must be unique"):
+        candle_dataset_summary_rows([("btc-daily", candles), ("btc-daily", candles)])
+
+
+def test_candle_dataset_summary_rows_delegates_dataset_validation():
+    candles = [
+        MarketCandle(datetime(2024, 5, 8, tzinfo=timezone.utc), "BTC-USD", 100, 105, 95, 102),
+        MarketCandle(datetime(2024, 5, 9, tzinfo=timezone.utc), "ETH-USD", 200, 205, 195, 202),
+    ]
+
+    with pytest.raises(CandleStorageError, match="single asset"):
+        candle_dataset_summary_rows([("mixed", candles)])
+
+    with pytest.raises(CandleStorageError, match="empty candle dataset"):
+        candle_dataset_summary_rows([("empty", [])])

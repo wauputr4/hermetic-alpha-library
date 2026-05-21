@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -78,6 +78,21 @@ def candle_dataset_summary_row(
     }
 
 
+def candle_dataset_summary_rows(
+    datasets: Mapping[str, Sequence[MarketCandle]] | Sequence[tuple[str, Sequence[MarketCandle]]],
+) -> list[dict[str, object]]:
+    """Return ordered flat metadata rows for several candle datasets."""
+
+    rows: list[dict[str, object]] = []
+    seen_dataset_ids: set[str] = set()
+    for dataset_id, candles in _iter_named_candle_datasets(datasets):
+        if dataset_id in seen_dataset_ids:
+            raise CandleStorageError("dataset IDs must be unique")
+        seen_dataset_ids.add(dataset_id)
+        rows.append(candle_dataset_summary_row(candles, dataset_id=dataset_id))
+    return rows
+
+
 def _candle_from_row(row: Any, index: int) -> MarketCandle:
     if not isinstance(row, dict):
         raise CandleStorageError(f"candle row {index} must be an object")
@@ -99,6 +114,15 @@ def _candle_from_row(row: Any, index: int) -> MarketCandle:
         interval=_require_string(row["interval"], "interval", index),
         source=None if row.get("source") is None else _require_string(row["source"], "source", index),
     )
+
+
+def _iter_named_candle_datasets(
+    datasets: Mapping[str, Sequence[MarketCandle]] | Sequence[tuple[str, Sequence[MarketCandle]]],
+) -> Iterable[tuple[str, Sequence[MarketCandle]]]:
+    if isinstance(datasets, Mapping):
+        yield from datasets.items()
+        return
+    yield from datasets
 
 
 def _parse_timestamp(value: Any, index: int) -> datetime:

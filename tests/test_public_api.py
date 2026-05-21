@@ -26,7 +26,7 @@ from hermetic_alpha.features import (
     aspect_event_feature_matrix_rows_with_schema as features_aspect_event_feature_matrix_rows_with_schema,
     aspect_event_feature_rows as features_aspect_event_feature_rows,
 )
-from hermetic_alpha.market import candle_dataset_summary_row
+from hermetic_alpha.market import candle_dataset_summary_row, candle_dataset_summary_rows
 from hermetic_alpha.labels import (
     forward_return_label_coverage_row,
     local_extrema_label_coverage_row,
@@ -53,6 +53,7 @@ def test_public_api_exports_match_documented_entrypoints():
     assert callable(timestamp_join_summary_row)
     assert callable(validated_multi_horizon_event_study_report_rows)
     assert callable(candle_dataset_summary_row)
+    assert callable(candle_dataset_summary_rows)
     assert callable(forward_return_label_coverage_row)
     assert callable(local_extrema_label_coverage_row)
     assert callable(multi_horizon_forward_return_label_coverage_rows)

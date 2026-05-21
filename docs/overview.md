@@ -87,6 +87,10 @@ Use `candle_dataset_summary_row()` when audit tables need compact cache metadata
 such as dataset ID, row count, asset, interval, source, and timestamp
 boundaries. It does not replace exporting the underlying candle rows or the JSON
 cache helpers.
+Use `candle_dataset_summary_rows()` when comparing several predeclared candle
+caches before label generation or event joins. It preserves ordered mapping or
+pair-sequence input, rejects duplicate dataset IDs, and delegates each dataset
+to the single-row helper so validation and column names stay centralized.
 
 ### `hermetic_alpha.features`
 
