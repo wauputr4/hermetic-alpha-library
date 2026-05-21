@@ -15,6 +15,7 @@ from .ephemeris import (
     SwissEphemerisAdapter,
     generate_planet_positions,
     planet_position_series_summary_row,
+    planet_position_series_summary_rows,
 )
 from .math import circular_distance, aspect_strength
 
@@ -28,6 +29,7 @@ __all__ = [
     "SwissEphemerisAdapter",
     "generate_planet_positions",
     "planet_position_series_summary_row",
+    "planet_position_series_summary_rows",
     "aspect_scan_summary_row",
     "aspect_scan_summary_rows",
     "detect_aspect",

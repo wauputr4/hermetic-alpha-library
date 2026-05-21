@@ -9,6 +9,7 @@ from hermetic_alpha.astro.ephemeris import (
     _import_swisseph,
     generate_planet_positions,
     planet_position_series_summary_row,
+    planet_position_series_summary_rows,
 )
 from hermetic_alpha.models import PlanetPosition
 
@@ -226,6 +227,43 @@ def test_planet_position_series_summary_row_counts_mixed_metadata():
     assert row["missing_retrograde_count"] == 1
     assert row["first_timestamp"] == ts1
     assert row["last_timestamp"] == ts2
+
+
+def test_planet_position_series_summary_rows_preserves_ordered_mapping_order():
+    ts1 = datetime(2026, 5, 8, tzinfo=timezone.utc)
+    ts2 = datetime(2026, 5, 9, tzinfo=timezone.utc)
+    first = [PlanetPosition(ts1, "sun", 10, engine="fake")]
+    second = [PlanetPosition(ts2, "moon", 20, engine="fake")]
+
+    rows = planet_position_series_summary_rows({"daily-a": first, "daily-b": second})
+
+    assert [row["series_id"] for row in rows] == ["daily-a", "daily-b"]
+    assert [row["first_timestamp"] for row in rows] == [ts1, ts2]
+
+
+def test_planet_position_series_summary_rows_accepts_ordered_pairs_and_empty_positions():
+    ts = datetime(2026, 5, 8, tzinfo=timezone.utc)
+    positions = [PlanetPosition(ts, "sun", 10, engine="fake")]
+
+    rows = planet_position_series_summary_rows([("empty-series", []), ("active-series", positions)])
+
+    assert [row["series_id"] for row in rows] == ["empty-series", "active-series"]
+    assert [row["position_count"] for row in rows] == [0, 1]
+    assert rows[0]["first_timestamp"] is None
+
+
+def test_planet_position_series_summary_rows_rejects_duplicate_series_ids():
+    positions = [PlanetPosition(datetime(2026, 5, 8, tzinfo=timezone.utc), "sun", 10)]
+
+    with pytest.raises(ValueError, match="series IDs must be unique"):
+        planet_position_series_summary_rows([("daily", positions), ("daily", positions)])
+
+
+def test_planet_position_series_summary_rows_rejects_blank_series_ids():
+    positions = [PlanetPosition(datetime(2026, 5, 8, tzinfo=timezone.utc), "sun", 10)]
+
+    with pytest.raises(ValueError, match="series ID must not be blank"):
+        planet_position_series_summary_rows([("   ", positions)])
 
 
 def test_swiss_ephemeris_adapter_returns_normalized_planet_position():
