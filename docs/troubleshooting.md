@@ -52,6 +52,11 @@ Mitigation:
 - `pyswisseph`/Swiss Ephemeris licensing remains a release policy concern. Keep
   the dependency optional and document downstream obligations before any
   packaged release depends on it by default.
+- Use `planet_position_series_summary_row()` after ephemeris generation when an
+  audit table needs compact coverage metadata. Empty position series emit zero
+  counts and `None` timestamp boundaries. Positions without speed or retrograde
+  values are counted explicitly so downstream aspect phase and retrograde
+  analyses can see missing metadata before scanning or vector encoding.
 
 ### Timezone and Candle Alignment
 
