@@ -55,6 +55,52 @@ def aspect_event_feature_matrix_rows(events: Sequence[AspectEvent]) -> list[dict
     return rows
 
 
+def aspect_event_feature_matrix_summary_row(
+    events: Sequence[AspectEvent],
+    feature_keys: Sequence[str] | None = None,
+    *,
+    matrix_id: str | None = None,
+) -> dict[str, object]:
+    """Return compact metadata for an aspect-event feature matrix.
+
+    The summary is intended for audit tables before CSV export or model
+    training. It reports matrix shape and timestamp boundaries without
+    replacing the timestamp-level rows produced by the matrix helpers.
+    """
+    timestamps: list[datetime] = []
+    observed_keys = set[str]()
+    missing_timestamp_count = 0
+
+    for event in events:
+        observed_keys.add(_feature_key(event))
+        if event.timestamp is None:
+            missing_timestamp_count += 1
+        else:
+            timestamps.append(event.timestamp)
+
+    configured_count: int | None = None
+    duplicate_configured_count: int | None = None
+    if feature_keys is not None:
+        normalized_configured_keys = [_normalize_feature_key(feature_key) for feature_key in feature_keys]
+        configured_count = len(set(normalized_configured_keys))
+        duplicate_configured_count = len(normalized_configured_keys) - configured_count
+
+    timestamp_count = len(set(timestamps))
+
+    return {
+        "matrix_id": matrix_id,
+        "row_count": timestamp_count,
+        "timestamp_count": timestamp_count,
+        "observed_feature_count": len(observed_keys),
+        "configured_feature_count": configured_count,
+        "duplicate_configured_feature_count": duplicate_configured_count,
+        "missing_timestamp_count": missing_timestamp_count,
+        "event_count": len(events),
+        "first_timestamp": min(timestamps) if timestamps else None,
+        "last_timestamp": max(timestamps) if timestamps else None,
+    }
+
+
 def aspect_event_feature_matrix_rows_with_schema(
     events: Sequence[AspectEvent],
     feature_keys: Sequence[str],

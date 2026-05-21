@@ -6,6 +6,7 @@ from hermetic_alpha.exports import to_csv
 from hermetic_alpha.features import (
     aspect_event_feature_matrix_rows,
     aspect_event_feature_matrix_rows_with_schema,
+    aspect_event_feature_matrix_summary_row,
     aspect_event_feature_rows,
 )
 from hermetic_alpha.models import AspectEvent
@@ -226,6 +227,92 @@ def test_aspect_event_feature_matrix_rows_with_schema_are_csv_compatible():
         "mars_saturn_square_active,mars_saturn_square_orb,mars_saturn_square_strength,"
         "mars_saturn_square_phase"
     )
+
+
+def test_aspect_event_feature_matrix_summary_row_reports_shape_and_boundaries():
+    ts1 = datetime(2026, 5, 18, tzinfo=timezone.utc)
+    ts2 = datetime(2026, 5, 19, tzinfo=timezone.utc)
+    events = [
+        _aspect_event("sun", "jupiter", "conjunction", ts2),
+        _aspect_event("sun", "jupiter", "conjunction", ts1),
+        _aspect_event("mars", "saturn", "square", ts1),
+    ]
+
+    row = aspect_event_feature_matrix_summary_row(
+        events,
+        ["sun_jupiter_conjunction", "mars_saturn_square"],
+        matrix_id="train",
+    )
+
+    assert row == {
+        "matrix_id": "train",
+        "row_count": 2,
+        "timestamp_count": 2,
+        "observed_feature_count": 2,
+        "configured_feature_count": 2,
+        "duplicate_configured_feature_count": 0,
+        "missing_timestamp_count": 0,
+        "event_count": 3,
+        "first_timestamp": ts1,
+        "last_timestamp": ts2,
+    }
+
+
+def test_aspect_event_feature_matrix_summary_row_counts_missing_timestamps():
+    ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
+
+    row = aspect_event_feature_matrix_summary_row(
+        [
+            _aspect_event("moon", "venus", "trine", None),
+            _aspect_event("sun", "jupiter", "conjunction", ts),
+        ]
+    )
+
+    assert row["row_count"] == 1
+    assert row["timestamp_count"] == 1
+    assert row["observed_feature_count"] == 2
+    assert row["configured_feature_count"] is None
+    assert row["duplicate_configured_feature_count"] is None
+    assert row["missing_timestamp_count"] == 1
+    assert row["first_timestamp"] == ts
+    assert row["last_timestamp"] == ts
+
+
+def test_aspect_event_feature_matrix_summary_row_normalizes_duplicate_configured_keys():
+    row = aspect_event_feature_matrix_summary_row(
+        [],
+        [" Sun_Jupiter_Conjunction ", "sun_jupiter_conjunction", "mars_saturn_square"],
+    )
+
+    assert row["configured_feature_count"] == 2
+    assert row["duplicate_configured_feature_count"] == 1
+    assert row["row_count"] == 0
+    assert row["event_count"] == 0
+    assert row["first_timestamp"] is None
+    assert row["last_timestamp"] is None
+
+
+def test_aspect_event_feature_matrix_summary_row_rejects_empty_configured_keys():
+    with pytest.raises(ValueError, match="configured aspect feature keys must be non-empty"):
+        aspect_event_feature_matrix_summary_row([], [" "])
+
+
+def test_aspect_event_feature_matrix_summary_row_is_csv_compatible():
+    ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
+    row = aspect_event_feature_matrix_summary_row(
+        [_aspect_event("sun", "jupiter", "conjunction", ts)],
+        ["sun_jupiter_conjunction"],
+        matrix_id="train",
+    )
+
+    text = to_csv([row])
+
+    assert text.splitlines()[0] == (
+        "matrix_id,row_count,timestamp_count,observed_feature_count,configured_feature_count,"
+        "duplicate_configured_feature_count,missing_timestamp_count,event_count,"
+        "first_timestamp,last_timestamp"
+    )
+    assert "train,1,1,1,1,0,0,1,2026-05-18T00:00:00+00:00" in text
 
 
 def _aspect_event(
