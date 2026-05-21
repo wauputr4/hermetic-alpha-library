@@ -213,3 +213,30 @@ def aspect_scan_summary_row(events: Sequence[AspectEvent]) -> dict[str, object]:
         "first_timestamp": min(timestamps) if timestamps else None,
         "last_timestamp": max(timestamps) if timestamps else None,
     }
+
+
+def aspect_scan_summary_rows(
+    scans: Mapping[str, Sequence[AspectEvent]] | Sequence[tuple[str, Sequence[AspectEvent]]],
+) -> list[dict[str, object]]:
+    """Return ordered compact metadata rows for several aspect scans."""
+    rows: list[dict[str, object]] = []
+    seen_scan_ids: set[str] = set()
+    for scan_id, events in _iter_named_aspect_scans(scans):
+        if not scan_id.strip():
+            raise ValueError("scan ID must not be blank")
+        if scan_id in seen_scan_ids:
+            raise ValueError("scan IDs must be unique")
+        seen_scan_ids.add(scan_id)
+
+        row = aspect_scan_summary_row(events)
+        rows.append({"scan_id": scan_id, **row})
+    return rows
+
+
+def _iter_named_aspect_scans(
+    scans: Mapping[str, Sequence[AspectEvent]] | Sequence[tuple[str, Sequence[AspectEvent]]],
+) -> Iterable[tuple[str, Sequence[AspectEvent]]]:
+    if isinstance(scans, Mapping):
+        yield from scans.items()
+        return
+    yield from scans
