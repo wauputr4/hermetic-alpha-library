@@ -6,6 +6,8 @@ from .market import (
     bullish_probability,
     forward_return_label_coverage_row,
     local_extrema_label_coverage_row,
+    multi_dataset_forward_return_label_coverage_rows,
+    multi_dataset_local_extrema_label_coverage_rows,
     multi_horizon_forward_return_label_coverage_rows,
     multi_window_local_extrema_label_coverage_rows,
 )
@@ -18,6 +20,8 @@ __all__ = [
     "bullish_probability",
     "forward_return_label_coverage_row",
     "local_extrema_label_coverage_row",
+    "multi_dataset_forward_return_label_coverage_rows",
+    "multi_dataset_local_extrema_label_coverage_rows",
     "multi_horizon_forward_return_label_coverage_rows",
     "multi_window_local_extrema_label_coverage_rows",
 ]

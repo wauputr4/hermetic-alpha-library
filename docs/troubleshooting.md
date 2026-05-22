@@ -89,6 +89,12 @@ Mitigation:
   horizon order, removes duplicate horizons, and returns flat metadata rows for
   CSV or notebook audit tables; it does not replace exporting the underlying
   label rows.
+- Use `multi_dataset_forward_return_label_coverage_rows()` when forward-return
+  coverage needs one audit table across several named label datasets. The helper
+  preserves dataset and horizon order, rejects blank or duplicate dataset IDs,
+  and delegates row fields to the single-dataset coverage helpers; it is
+  multi-dataset audit metadata, not a replacement for inspecting the underlying
+  label rows.
 - Supplied label coverage `dataset_id` values must not be blank. Pass `None`
   when a forward-return or local-extrema coverage row should remain unnamed.
 - Use `local_extrema_label_coverage_row()` before exporting retrospective
@@ -101,6 +107,12 @@ Mitigation:
   requested window order, removes duplicate windows, and returns flat coverage
   rows for CSV or notebook audits while preserving the same retrospective-label
   caveat as `local_extrema_label_coverage_row()`.
+- Use `multi_dataset_local_extrema_label_coverage_rows()` when retrospective
+  label coverage needs one audit table across several named datasets. The
+  helper preserves dataset and window order, rejects blank or duplicate dataset
+  IDs, and delegates row fields to the existing local-extrema coverage helpers;
+  it is multi-dataset audit metadata, not a replacement for inspecting the
+  underlying label rows.
 
 ### Local Candle Cache Files
 

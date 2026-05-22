@@ -24,6 +24,8 @@ from hermetic_alpha.labels import (
     bullish_probability,
     forward_return_label_coverage_row,
     local_extrema_label_coverage_row,
+    multi_dataset_forward_return_label_coverage_rows,
+    multi_dataset_local_extrema_label_coverage_rows,
     multi_horizon_forward_return_label_coverage_rows,
     multi_window_local_extrema_label_coverage_rows,
 )
@@ -210,6 +212,59 @@ def test_multi_horizon_forward_return_label_coverage_rows_validate_horizons():
         multi_horizon_forward_return_label_coverage_rows([], [1], dataset_id=" ")
 
 
+def test_multi_dataset_forward_return_label_coverage_rows_preserve_ordered_mapping_order():
+    train = add_forward_returns([100, 110, 99, 120], [1, 2])
+    test = add_forward_returns([200, 190, 210], [1, 2])
+
+    rows = multi_dataset_forward_return_label_coverage_rows({"train": train, "test": test}, [2, 1, 2])
+
+    assert [(row["dataset_id"], row["horizon"]) for row in rows] == [
+        ("train", 2),
+        ("train", 1),
+        ("test", 2),
+        ("test", 1),
+    ]
+    assert rows[0]["row_count"] == 4
+    assert rows[2]["row_count"] == 3
+
+
+def test_multi_dataset_forward_return_label_coverage_rows_accepts_ordered_pairs():
+    train = add_forward_returns([100, 110, 99], [1])
+    test = add_forward_returns([200, 210, 220], [1])
+
+    rows = multi_dataset_forward_return_label_coverage_rows([("test", test), ("train", train)], [1])
+
+    assert [row["dataset_id"] for row in rows] == ["test", "train"]
+
+
+def test_multi_dataset_forward_return_label_coverage_rows_validates_dataset_ids():
+    labels = add_forward_returns([100, 110], [1])
+
+    with pytest.raises(ValueError, match="dataset IDs must be unique"):
+        multi_dataset_forward_return_label_coverage_rows([("train", labels), ("train", labels)], [1])
+    with pytest.raises(ValueError, match="dataset ID must not be blank"):
+        multi_dataset_forward_return_label_coverage_rows([(" ", labels)], [1])
+
+
+def test_multi_dataset_forward_return_label_coverage_rows_accepts_empty_label_datasets():
+    rows = multi_dataset_forward_return_label_coverage_rows({"empty": []}, [1])
+
+    assert rows == [
+        {
+            "dataset_id": "empty",
+            "horizon": 1,
+            "row_count": 0,
+            "labeled_return_count": 0,
+            "bullish_count": 0,
+            "bearish_count": 0,
+            "missing_label_count": 0,
+            "asset": None,
+            "first_timestamp": None,
+            "last_timestamp": None,
+        }
+    ]
+
+
 def test_candle_local_extrema_labels_preserve_timestamp_and_asset():
     candles = [
         MarketCandle(datetime(2026, 5, day, tzinfo=timezone.utc), "BTC-USD", close, close, close, close)
@@ -358,6 +413,59 @@ def test_multi_window_local_extrema_label_coverage_rows_validate_windows():
         multi_window_local_extrema_label_coverage_rows([], [1, 0])
     with pytest.raises(ValueError, match="dataset ID must not be blank"):
         multi_window_local_extrema_label_coverage_rows([], [1], dataset_id=" ")
+
+
+def test_multi_dataset_local_extrema_label_coverage_rows_preserve_ordered_mapping_order():
+    train = add_local_extrema_labels([100, 90, 110, 105, 80], [1, 2])
+    test = add_local_extrema_labels([200, 210, 190, 220], [1, 2])
+
+    rows = multi_dataset_local_extrema_label_coverage_rows({"train": train, "test": test}, [2, 1, 2])
+
+    assert [(row["dataset_id"], row["window"]) for row in rows] == [
+        ("train", 2),
+        ("train", 1),
+        ("test", 2),
+        ("test", 1),
+    ]
+    assert rows[0]["row_count"] == 5
+    assert rows[2]["row_count"] == 4
+
+
+def test_multi_dataset_local_extrema_label_coverage_rows_accepts_ordered_pairs():
+    train = add_local_extrema_labels([100, 90, 110], 1)
+    test = add_local_extrema_labels([200, 210, 190], 1)
+
+    rows = multi_dataset_local_extrema_label_coverage_rows([("test", test), ("train", train)], 1)
+
+    assert [row["dataset_id"] for row in rows] == ["test", "train"]
+
+
+def test_multi_dataset_local_extrema_label_coverage_rows_validates_dataset_ids():
+    labels = add_local_extrema_labels([100, 90, 110], 1)
+
+    with pytest.raises(ValueError, match="dataset IDs must be unique"):
+        multi_dataset_local_extrema_label_coverage_rows([("train", labels), ("train", labels)], 1)
+    with pytest.raises(ValueError, match="dataset ID must not be blank"):
+        multi_dataset_local_extrema_label_coverage_rows([(" ", labels)], 1)
+
+
+def test_multi_dataset_local_extrema_label_coverage_rows_accepts_empty_label_datasets():
+    rows = multi_dataset_local_extrema_label_coverage_rows({"empty": []}, 1)
+
+    assert rows == [
+        {
+            "dataset_id": "empty",
+            "window": 1,
+            "row_count": 0,
+            "labeled_count": 0,
+            "missing_label_count": 0,
+            "local_top_count": 0,
+            "local_bottom_count": 0,
+            "asset": None,
+            "first_timestamp": None,
+            "last_timestamp": None,
+        }
+    ]
 
 
 def test_candle_local_extrema_labels_reject_mixed_assets():
