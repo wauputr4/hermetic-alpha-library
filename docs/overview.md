@@ -133,6 +133,11 @@ metadata before export or model training. It reports row/timestamp count,
 observed and configured feature counts, duplicate configured keys, missing
 timestamp count, and timestamp boundaries; it is metadata only, not a
 replacement for exporting the feature matrix rows.
+Use `aspect_event_feature_matrix_summary_rows()` when comparing several
+predeclared feature matrices in one audit table, such as train/test slices,
+walk-forward folds, aspect schemas, or orb configurations. It preserves ordered
+mapping or pair-sequence input, rejects blank or duplicate matrix IDs, prepends
+`matrix_id`, and delegates each row to the single-matrix helper.
 
 Examples:
 

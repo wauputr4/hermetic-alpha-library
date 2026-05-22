@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from datetime import datetime
 
 from hermetic_alpha.models import AspectEvent
@@ -101,6 +101,35 @@ def aspect_event_feature_matrix_summary_row(
     }
 
 
+def aspect_event_feature_matrix_summary_rows(
+    matrices: Mapping[str, Sequence[AspectEvent]] | Sequence[tuple[str, Sequence[AspectEvent]]],
+    feature_keys: (
+        Sequence[str]
+        | Mapping[str, Sequence[str]]
+        | Sequence[tuple[str, Sequence[str]]]
+        | None
+    ) = None,
+) -> list[dict[str, object]]:
+    """Return ordered compact metadata rows for several feature matrices."""
+    configured_by_matrix = _configured_feature_keys_by_matrix(feature_keys)
+    rows: list[dict[str, object]] = []
+    seen_matrix_ids: set[str] = set()
+
+    for matrix_id, events in _iter_named_feature_matrices(matrices):
+        if not matrix_id.strip():
+            raise ValueError("matrix ID must not be blank")
+        if matrix_id in seen_matrix_ids:
+            raise ValueError("matrix IDs must be unique")
+        seen_matrix_ids.add(matrix_id)
+
+        row = aspect_event_feature_matrix_summary_row(
+            events,
+            _feature_keys_for_matrix(feature_keys, configured_by_matrix, matrix_id),
+        )
+        rows.append({**row, "matrix_id": matrix_id})
+    return rows
+
+
 def aspect_event_feature_matrix_rows_with_schema(
     events: Sequence[AspectEvent],
     feature_keys: Sequence[str],
@@ -179,6 +208,64 @@ def _feature_key(event: AspectEvent) -> str:
     body_b = _normalize_feature_key_part(event.body_b)
     aspect = _normalize_feature_key_part(event.aspect)
     return f"{body_a}_{body_b}_{aspect}"
+
+
+def _iter_named_feature_matrices(
+    matrices: Mapping[str, Sequence[AspectEvent]] | Sequence[tuple[str, Sequence[AspectEvent]]],
+) -> Iterable[tuple[str, Sequence[AspectEvent]]]:
+    if isinstance(matrices, Mapping):
+        yield from matrices.items()
+        return
+    yield from matrices
+
+
+def _configured_feature_keys_by_matrix(
+    feature_keys: (
+        Sequence[str]
+        | Mapping[str, Sequence[str]]
+        | Sequence[tuple[str, Sequence[str]]]
+        | None
+    ),
+) -> dict[str, Sequence[str]] | None:
+    if feature_keys is None:
+        return None
+    if isinstance(feature_keys, Mapping):
+        return dict(feature_keys.items())
+    if _is_ordered_feature_key_pairs(feature_keys):
+        configured: dict[str, Sequence[str]] = {}
+        for matrix_id, matrix_feature_keys in feature_keys:
+            if matrix_id in configured:
+                raise ValueError("configured matrix IDs must be unique")
+            configured[matrix_id] = matrix_feature_keys
+        return configured
+    return None
+
+
+def _feature_keys_for_matrix(
+    feature_keys: (
+        Sequence[str]
+        | Mapping[str, Sequence[str]]
+        | Sequence[tuple[str, Sequence[str]]]
+        | None
+    ),
+    configured_by_matrix: dict[str, Sequence[str]] | None,
+    matrix_id: str,
+) -> Sequence[str] | None:
+    if feature_keys is None:
+        return None
+    if configured_by_matrix is None:
+        return feature_keys  # type: ignore[return-value]
+    if matrix_id not in configured_by_matrix:
+        raise ValueError(f"configured feature keys are missing matrix ID {matrix_id!r}")
+    return configured_by_matrix[matrix_id]
+
+
+def _is_ordered_feature_key_pairs(
+    feature_keys: Sequence[str] | Sequence[tuple[str, Sequence[str]]],
+) -> bool:
+    return bool(feature_keys) and all(
+        isinstance(item, tuple) and len(item) == 2 for item in feature_keys
+    )
 
 
 def _normalize_feature_key(feature_key: str) -> str:
