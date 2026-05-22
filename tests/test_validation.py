@@ -526,6 +526,9 @@ def test_validation_helpers_validate_inputs():
             ("all_windows", [0.2]),
         ])
 
+    with pytest.raises(ValueError, match="baseline ID must not be blank"):
+        random_baseline_distribution_rows([("   ", [0.1])])
+
     with pytest.raises(ValueError, match="distribution values must be finite numeric values"):
         random_baseline_distribution_rows({"all_windows": [float("nan")]})
 
@@ -544,6 +547,9 @@ def test_validation_helpers_validate_inputs():
             ("mean_return", (0.2, 0.3)),
         ])
 
+    with pytest.raises(ValueError, match="statistic name must not be blank"):
+        bootstrap_interval_rows([("   ", (0.1, 0.2))])
+
     with pytest.raises(ValueError, match="interval must contain exactly two finite numeric bounds"):
         bootstrap_interval_rows({"mean_return": (0.1,)})
 
@@ -561,6 +567,9 @@ def test_validation_helpers_validate_inputs():
             ("bullish_7d", result),
             ("bullish_7d", result),
         ])
+
+    with pytest.raises(ValueError, match="scenario ID must not be blank"):
+        permutation_test_result_rows([("   ", result)])
 
     with pytest.raises(ValueError, match="results must contain PermutationTestResult values"):
         permutation_test_result_rows([("bullish_7d", object())])

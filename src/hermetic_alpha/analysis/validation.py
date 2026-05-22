@@ -85,6 +85,8 @@ def permutation_test_result_rows(
     rows: list[dict[str, float | int | str | None]] = []
     seen_scenario_ids: set[str] = set()
     for scenario_id, result in _iter_named_permutation_results(results):
+        if not scenario_id.strip():
+            raise ValueError("scenario ID must not be blank")
         if scenario_id in seen_scenario_ids:
             raise ValueError("scenario IDs must be unique")
         seen_scenario_ids.add(scenario_id)
@@ -128,6 +130,8 @@ def random_baseline_distribution_rows(
     rows: list[dict[str, float | int | str | None]] = []
     seen_baseline_ids: set[str] = set()
     for baseline_id, distribution in _iter_named_distributions(distributions):
+        if not baseline_id.strip():
+            raise ValueError("baseline ID must not be blank")
         if baseline_id in seen_baseline_ids:
             raise ValueError("baseline IDs must be unique")
         seen_baseline_ids.add(baseline_id)
@@ -176,6 +180,8 @@ def bootstrap_interval_rows(
     rows: list[dict[str, float | int | str | None]] = []
     seen_statistic_names: set[str] = set()
     for statistic_name, interval in _iter_named_intervals(intervals):
+        if not statistic_name.strip():
+            raise ValueError("statistic name must not be blank")
         if statistic_name in seen_statistic_names:
             raise ValueError("statistic names must be unique")
         seen_statistic_names.add(statistic_name)
