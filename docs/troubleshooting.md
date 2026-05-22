@@ -453,6 +453,11 @@ optional unique configured feature keys, duplicate configured keys after the
 same normalization used by schema helpers, and events missing timestamps.
 Missing timestamps are counted but excluded from row count and first/last
 timestamp boundaries because they cannot become matrix rows.
+Use `aspect_event_feature_matrix_summary_rows()` when batch feature-matrix
+audits need one flat table across named matrices. It preserves caller order from
+ordered mappings or `(matrix_id, events)` pairs, rejects blank or duplicate
+matrix IDs, supports shared or per-matrix configured feature keys, and keeps the
+same metadata-only role as the single-row helper.
 
 `event_study_baseline_comparison_row()` is the preferred flat row helper when
 reports need probability deltas and relative lift. It leaves derived fields as

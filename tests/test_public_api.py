@@ -8,6 +8,7 @@ from hermetic_alpha import (
     aspect_event_feature_matrix_rows,
     aspect_event_feature_matrix_rows_with_schema,
     aspect_event_feature_matrix_summary_row,
+    aspect_event_feature_matrix_summary_rows,
     aspect_event_feature_rows,
 )
 from hermetic_alpha.analysis import (
@@ -32,6 +33,7 @@ from hermetic_alpha.features import (
     aspect_event_feature_matrix_rows as features_aspect_event_feature_matrix_rows,
     aspect_event_feature_matrix_rows_with_schema as features_aspect_event_feature_matrix_rows_with_schema,
     aspect_event_feature_matrix_summary_row as features_aspect_event_feature_matrix_summary_row,
+    aspect_event_feature_matrix_summary_rows as features_aspect_event_feature_matrix_summary_rows,
     aspect_event_feature_rows as features_aspect_event_feature_rows,
 )
 from hermetic_alpha.market import candle_dataset_summary_row, candle_dataset_summary_rows
@@ -54,6 +56,7 @@ def test_public_api_exports_match_documented_entrypoints():
     assert aspect_event_feature_matrix_rows is features_aspect_event_feature_matrix_rows
     assert aspect_event_feature_matrix_rows_with_schema is features_aspect_event_feature_matrix_rows_with_schema
     assert aspect_event_feature_matrix_summary_row is features_aspect_event_feature_matrix_summary_row
+    assert aspect_event_feature_matrix_summary_rows is features_aspect_event_feature_matrix_summary_rows
     assert callable(aspect_event_study)
     assert callable(aspect_scan_summary_row)
     assert callable(aspect_scan_summary_rows)

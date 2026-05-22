@@ -7,6 +7,7 @@ from hermetic_alpha.features import (
     aspect_event_feature_matrix_rows,
     aspect_event_feature_matrix_rows_with_schema,
     aspect_event_feature_matrix_summary_row,
+    aspect_event_feature_matrix_summary_rows,
     aspect_event_feature_rows,
 )
 from hermetic_alpha.models import AspectEvent
@@ -313,6 +314,96 @@ def test_aspect_event_feature_matrix_summary_row_is_csv_compatible():
         "first_timestamp,last_timestamp"
     )
     assert "train,1,1,1,1,0,0,1,2026-05-18T00:00:00+00:00" in text
+
+
+def test_aspect_event_feature_matrix_summary_rows_preserves_ordered_mapping_order():
+    ts1 = datetime(2026, 5, 18, tzinfo=timezone.utc)
+    ts2 = datetime(2026, 5, 19, tzinfo=timezone.utc)
+    first = [_aspect_event("sun", "jupiter", "conjunction", ts1)]
+    second = [_aspect_event("mars", "saturn", "square", ts2)]
+
+    rows = aspect_event_feature_matrix_summary_rows({"train": first, "test": second})
+
+    assert [row["matrix_id"] for row in rows] == ["train", "test"]
+    assert rows[0]["event_count"] == 1
+    assert rows[0]["first_timestamp"] == ts1
+    assert rows[1]["first_timestamp"] == ts2
+
+
+def test_aspect_event_feature_matrix_summary_rows_accepts_ordered_pairs_and_empty_events():
+    ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
+    events = [_aspect_event("sun", "jupiter", "conjunction", ts)]
+
+    rows = aspect_event_feature_matrix_summary_rows([("empty", []), ("active", events)])
+
+    assert [row["matrix_id"] for row in rows] == ["empty", "active"]
+    assert rows[0]["row_count"] == 0
+    assert rows[0]["first_timestamp"] is None
+    assert rows[1]["row_count"] == 1
+
+
+def test_aspect_event_feature_matrix_summary_rows_rejects_duplicate_matrix_ids():
+    ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
+    events = [_aspect_event("sun", "jupiter", "conjunction", ts)]
+
+    with pytest.raises(ValueError, match="matrix IDs must be unique"):
+        aspect_event_feature_matrix_summary_rows([("train", events), ("train", events)])
+
+
+def test_aspect_event_feature_matrix_summary_rows_rejects_blank_matrix_ids():
+    with pytest.raises(ValueError, match="matrix ID must not be blank"):
+        aspect_event_feature_matrix_summary_rows([("   ", [])])
+
+
+def test_aspect_event_feature_matrix_summary_rows_accepts_shared_configured_feature_keys():
+    ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
+    events = [_aspect_event("sun", "jupiter", "conjunction", ts)]
+
+    rows = aspect_event_feature_matrix_summary_rows(
+        {"train": events, "test": []},
+        ["sun_jupiter_conjunction", "mars_saturn_square"],
+    )
+
+    assert [row["configured_feature_count"] for row in rows] == [2, 2]
+    assert [row["duplicate_configured_feature_count"] for row in rows] == [0, 0]
+
+
+def test_aspect_event_feature_matrix_summary_rows_accepts_per_matrix_configured_feature_keys():
+    ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
+    events = [_aspect_event("sun", "jupiter", "conjunction", ts)]
+
+    rows = aspect_event_feature_matrix_summary_rows(
+        [("train", events), ("test", [])],
+        [("train", ["sun_jupiter_conjunction"]), ("test", ["sun_jupiter_conjunction", "mars_saturn_square"])],
+    )
+
+    assert [row["configured_feature_count"] for row in rows] == [1, 2]
+
+
+def test_aspect_event_feature_matrix_summary_rows_rejects_duplicate_configured_matrix_ids():
+    with pytest.raises(ValueError, match="configured matrix IDs must be unique"):
+        aspect_event_feature_matrix_summary_rows(
+            [("train", [])],
+            [("train", ["sun_jupiter_conjunction"]), ("train", ["mars_saturn_square"])],
+        )
+
+
+def test_aspect_event_feature_matrix_summary_rows_is_csv_compatible():
+    ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
+    rows = aspect_event_feature_matrix_summary_rows(
+        [("train", [_aspect_event("sun", "jupiter", "conjunction", ts)]), ("test", [])],
+        ["sun_jupiter_conjunction"],
+    )
+
+    text = to_csv(rows)
+
+    assert text.splitlines()[0] == (
+        "matrix_id,row_count,timestamp_count,observed_feature_count,configured_feature_count,"
+        "duplicate_configured_feature_count,missing_timestamp_count,event_count,"
+        "first_timestamp,last_timestamp"
+    )
+    assert "train,1,1,1,1,0,0,1,2026-05-18T00:00:00+00:00" in text
+    assert "test,0,0,0,1,0,0,0,," in text
 
 
 def _aspect_event(
