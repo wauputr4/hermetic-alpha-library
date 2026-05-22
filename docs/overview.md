@@ -205,6 +205,11 @@ chart-state metadata without embedding the full numeric vector. It uses the same
 ordering and reports position count, vector length, and first/last
 timestamp/body/zodiac boundaries; it does not replace the vector or per-position
 encoding rows.
+Use `planet_position_vector_summary_rows()` when comparing several declared
+chart states before similarity search. It preserves ordered mapping or
+pair-sequence input, rejects blank or duplicate chart IDs, prepends `chart_id`,
+and delegates each row to the single-chart summary helper; it is multi-chart
+audit metadata, not a replacement for raw positions or numeric vectors.
 
 The search layer exposes `SimilarityCandidate`, `find_nearest()`,
 `cosine_similarity()`, and `euclidean_distance()` for small in-memory

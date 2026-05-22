@@ -271,6 +271,10 @@ first/last timestamp/body/zodiac metadata using the same ordering as the vector
 encoder. Keep using `encode_planet_positions()` for numeric similarity search
 and `planet_position_encoding_rows()` when individual sine/cosine components
 must be inspected.
+Use `planet_position_vector_summary_rows()` when audit reports compare several
+named chart states in one flat table. It preserves caller order from mappings or
+`(chart_id, positions)` pairs, rejects blank or duplicate chart IDs, and keeps
+the same metadata-only role as the single-chart helper.
 
 ### Aspect Phase Classification
 
