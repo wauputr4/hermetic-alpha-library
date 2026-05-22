@@ -167,6 +167,11 @@ def test_forward_return_label_coverage_row_validates_horizon():
         forward_return_label_coverage_row([], 0)
 
 
+def test_forward_return_label_coverage_row_rejects_blank_dataset_id():
+    with pytest.raises(ValueError, match="dataset ID must not be blank"):
+        forward_return_label_coverage_row([], 1, dataset_id="   ")
+
+
 def test_multi_horizon_forward_return_label_coverage_rows_preserve_order_and_deduplicate():
     labels = add_forward_returns([100, 110, 99, 120], [1, 2])
 
@@ -201,6 +206,8 @@ def test_multi_horizon_forward_return_label_coverage_rows_validate_horizons():
         multi_horizon_forward_return_label_coverage_rows([], [])
     with pytest.raises(ValueError, match="positive integers"):
         multi_horizon_forward_return_label_coverage_rows([], [1, 0])
+    with pytest.raises(ValueError, match="dataset ID must not be blank"):
+        multi_horizon_forward_return_label_coverage_rows([], [1], dataset_id=" ")
 
 
 def test_candle_local_extrema_labels_preserve_timestamp_and_asset():
@@ -309,6 +316,11 @@ def test_local_extrema_label_coverage_row_validates_window():
         local_extrema_label_coverage_row([], 0)
 
 
+def test_local_extrema_label_coverage_row_rejects_blank_dataset_id():
+    with pytest.raises(ValueError, match="dataset ID must not be blank"):
+        local_extrema_label_coverage_row([], 1, dataset_id="   ")
+
+
 def test_multi_window_local_extrema_label_coverage_rows_preserve_order_and_deduplicate():
     labels = add_local_extrema_labels([100, 90, 110, 105, 80], [1, 2])
 
@@ -344,6 +356,8 @@ def test_multi_window_local_extrema_label_coverage_rows_validate_windows():
         multi_window_local_extrema_label_coverage_rows([], [])
     with pytest.raises(ValueError, match="positive integers"):
         multi_window_local_extrema_label_coverage_rows([], [1, 0])
+    with pytest.raises(ValueError, match="dataset ID must not be blank"):
+        multi_window_local_extrema_label_coverage_rows([], [1], dataset_id=" ")
 
 
 def test_candle_local_extrema_labels_reject_mixed_assets():

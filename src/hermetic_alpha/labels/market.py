@@ -137,6 +137,7 @@ def forward_return_label_coverage_row(
     """Return compact CSV-compatible coverage metadata for forward-return labels."""
     if horizon <= 0:
         raise ValueError("horizon must be a positive integer")
+    _validate_dataset_id(dataset_id)
 
     return_key = f"return_{horizon}d"
     bullish_key = f"bullish_{horizon}d"
@@ -182,6 +183,7 @@ def local_extrema_label_coverage_row(
     """Return compact CSV-compatible coverage metadata for local-extrema labels."""
     if window <= 0:
         raise ValueError("window must be a positive integer")
+    _validate_dataset_id(dataset_id)
 
     top_key = f"local_top_{window}d"
     bottom_key = f"local_bottom_{window}d"
@@ -218,3 +220,8 @@ def multi_window_local_extrema_label_coverage_rows(
         local_extrema_label_coverage_row(labels, window, dataset_id=dataset_id)
         for window in _normalize_windows(windows)
     ]
+
+
+def _validate_dataset_id(dataset_id: str | None) -> None:
+    if dataset_id is not None and not dataset_id.strip():
+        raise ValueError("dataset ID must not be blank")
