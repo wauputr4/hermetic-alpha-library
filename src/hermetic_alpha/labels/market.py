@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Iterable, Mapping, Sequence
 
 from hermetic_alpha.models import MarketCandle
 
@@ -13,6 +13,8 @@ ForwardReturnCoverageRow = dict[str, object]
 LocalExtremaCoverageRow = dict[str, object]
 MultiHorizonForwardReturnCoverageRows = list[ForwardReturnCoverageRow]
 MultiWindowLocalExtremaCoverageRows = list[LocalExtremaCoverageRow]
+MultiDatasetForwardReturnCoverageRows = list[ForwardReturnCoverageRow]
+MultiDatasetLocalExtremaCoverageRows = list[LocalExtremaCoverageRow]
 
 
 def add_forward_returns(closes: Sequence[float], horizons: Sequence[int]) -> list[dict[str, float | bool | None]]:
@@ -174,6 +176,22 @@ def multi_horizon_forward_return_label_coverage_rows(
     ]
 
 
+def multi_dataset_forward_return_label_coverage_rows(
+    datasets: Mapping[str, Sequence[dict[str, object]]] | Sequence[tuple[str, Sequence[dict[str, object]]]],
+    horizons: Sequence[int],
+) -> MultiDatasetForwardReturnCoverageRows:
+    """Return ordered forward-return coverage rows for several label datasets."""
+    rows: MultiDatasetForwardReturnCoverageRows = []
+    seen_dataset_ids: set[str] = set()
+    for dataset_id, labels in _iter_named_label_datasets(datasets):
+        _validate_required_dataset_id(dataset_id)
+        if dataset_id in seen_dataset_ids:
+            raise ValueError("dataset IDs must be unique")
+        seen_dataset_ids.add(dataset_id)
+        rows.extend(multi_horizon_forward_return_label_coverage_rows(labels, horizons, dataset_id=dataset_id))
+    return rows
+
+
 def local_extrema_label_coverage_row(
     labels: Sequence[dict[str, object]],
     window: int,
@@ -222,6 +240,36 @@ def multi_window_local_extrema_label_coverage_rows(
     ]
 
 
+def multi_dataset_local_extrema_label_coverage_rows(
+    datasets: Mapping[str, Sequence[dict[str, object]]] | Sequence[tuple[str, Sequence[dict[str, object]]]],
+    windows: int | Sequence[int],
+) -> MultiDatasetLocalExtremaCoverageRows:
+    """Return ordered local-extrema coverage rows for several label datasets."""
+    rows: MultiDatasetLocalExtremaCoverageRows = []
+    seen_dataset_ids: set[str] = set()
+    for dataset_id, labels in _iter_named_label_datasets(datasets):
+        _validate_required_dataset_id(dataset_id)
+        if dataset_id in seen_dataset_ids:
+            raise ValueError("dataset IDs must be unique")
+        seen_dataset_ids.add(dataset_id)
+        rows.extend(multi_window_local_extrema_label_coverage_rows(labels, windows, dataset_id=dataset_id))
+    return rows
+
+
 def _validate_dataset_id(dataset_id: str | None) -> None:
     if dataset_id is not None and not dataset_id.strip():
         raise ValueError("dataset ID must not be blank")
+
+
+def _validate_required_dataset_id(dataset_id: str) -> None:
+    if not dataset_id.strip():
+        raise ValueError("dataset ID must not be blank")
+
+
+def _iter_named_label_datasets(
+    datasets: Mapping[str, Sequence[dict[str, object]]] | Sequence[tuple[str, Sequence[dict[str, object]]]],
+) -> Iterable[tuple[str, Sequence[dict[str, object]]]]:
+    if isinstance(datasets, Mapping):
+        yield from datasets.items()
+        return
+    yield from datasets

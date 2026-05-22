@@ -42,6 +42,8 @@ from hermetic_alpha.labels import (
     add_local_extrema_labels,
     forward_return_label_coverage_row,
     local_extrema_label_coverage_row,
+    multi_dataset_forward_return_label_coverage_rows,
+    multi_dataset_local_extrema_label_coverage_rows,
     multi_horizon_forward_return_label_coverage_rows,
     multi_window_local_extrema_label_coverage_rows,
 )
@@ -187,6 +189,20 @@ def test_csv_accepts_multi_horizon_forward_return_label_coverage_rows():
     assert "\nclose-list,1,4,3,2,1,1,,," in text
 
 
+def test_csv_accepts_multi_dataset_forward_return_label_coverage_rows():
+    train = add_forward_returns([100, 110, 99], [1])
+    test = add_forward_returns([200, 190, 210], [1])
+
+    text = to_csv(multi_dataset_forward_return_label_coverage_rows([("train", train), ("test", test)], [1]))
+
+    assert text.splitlines()[0] == (
+        "dataset_id,horizon,row_count,labeled_return_count,bullish_count,"
+        "bearish_count,missing_label_count,asset,first_timestamp,last_timestamp"
+    )
+    assert "\ntrain,1,3,2,1,1,1,,," in text
+    assert "\ntest,1,3,2,1,1,1,,," in text
+
+
 def test_csv_accepts_local_extrema_label_coverage_rows():
     labels = add_local_extrema_labels([100, 90, 110, 105], 1)
 
@@ -210,6 +226,20 @@ def test_csv_accepts_multi_window_local_extrema_label_coverage_rows():
     )
     assert "\nextrema,2,5,1,4,1,0,,," in text
     assert "\nextrema,1,5,3,2,1,1,,," in text
+
+
+def test_csv_accepts_multi_dataset_local_extrema_label_coverage_rows():
+    train = add_local_extrema_labels([100, 90, 110, 105], 1)
+    test = add_local_extrema_labels([200, 210, 190, 220], 1)
+
+    text = to_csv(multi_dataset_local_extrema_label_coverage_rows([("train", train), ("test", test)], 1))
+
+    assert text.splitlines()[0] == (
+        "dataset_id,window,row_count,labeled_count,missing_label_count,"
+        "local_top_count,local_bottom_count,asset,first_timestamp,last_timestamp"
+    )
+    assert "\ntrain,1,4,2,2,1,1,,," in text
+    assert "\ntest,1,4,2,2,1,1,,," in text
 
 
 def test_csv_accepts_flat_baseline_comparison_rows():

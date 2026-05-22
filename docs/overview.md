@@ -169,6 +169,16 @@ Examples:
 Coverage row helpers accept `dataset_id=None` for intentionally unnamed audit
 rows, but supplied dataset IDs must not be blank so CSV reports do not carry
 ambiguous identifiers.
+Use `multi_dataset_forward_return_label_coverage_rows()` when comparing several
+declared forward-return label datasets, such as train/test slices, asset
+subsets, or provider sources. It preserves ordered mapping or pair-sequence
+input, rejects blank or duplicate dataset IDs, and delegates horizon rows to
+the existing multi-horizon helper.
+Use `multi_dataset_local_extrema_label_coverage_rows()` when comparing several
+declared retrospective label datasets. It preserves ordered mapping or
+pair-sequence input, rejects blank or duplicate dataset IDs, and delegates
+window rows to the existing multi-window helper while preserving the
+retrospective-label caveat.
 
 ### `hermetic_alpha.analysis`
 
