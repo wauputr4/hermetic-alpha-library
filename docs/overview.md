@@ -165,6 +165,10 @@ Examples:
 - Local bottom detection.
 - Volatility regime.
 
+Coverage row helpers accept `dataset_id=None` for intentionally unnamed audit
+rows, but supplied dataset IDs must not be blank so CSV reports do not carry
+ambiguous identifiers.
+
 ### `hermetic_alpha.analysis`
 
 Responsible for statistical research workflows.
