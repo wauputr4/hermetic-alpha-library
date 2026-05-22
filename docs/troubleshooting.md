@@ -213,6 +213,11 @@ windows for JSON inspection, while the row helper emits compact boundary,
 window-size, and endpoint fields. Endpoint values are included only when they
 are CSV-safe scalars; nested observations such as mappings or lists are emitted
 as `None` in the endpoint columns.
+Use `walk_forward_split_group_rows()` when a report compares several declared
+split configurations, such as train/test sizes, step sizes, or asset subsets.
+It preserves mapping or pair-sequence order, rejects blank or duplicate split
+group IDs, prepends `split_group_id`, and emits no rows for empty groups. Keep
+the original `WalkForwardSplit` objects for inspecting full train/test windows.
 
 ### Nearest-Neighbor Report Rows
 

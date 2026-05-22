@@ -261,6 +261,12 @@ Use `walk_forward_split_rows()` before CSV export when reports need compact
 split boundaries instead of the full nested train/test windows. It preserves
 split order, includes boundary and size fields, and emits scalar endpoint
 values when they are CSV-safe.
+Use `walk_forward_split_group_rows()` when comparing several declared
+walk-forward configurations in one audit table. It accepts ordered mappings or
+ordered `(split_group_id, splits)` pairs, rejects blank or duplicate group IDs,
+prepends `split_group_id` to each emitted split row, and skips empty groups.
+The helper is multi-configuration audit metadata, not a replacement for
+inspecting the original `WalkForwardSplit` objects.
 Walk-forward validation reduces leakage risk, but it does not prove predictive
 value by itself.
 
