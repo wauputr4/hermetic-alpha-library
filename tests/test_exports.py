@@ -21,6 +21,7 @@ from hermetic_alpha.analysis import (
     summarize_validated_event_study,
     summarize_validated_multi_horizon_event_study,
     timestamp_join_summary_row,
+    timestamp_join_summary_rows,
     validated_event_study_report_row,
     validated_multi_horizon_event_study_report_rows,
     walk_forward_split_rows,
@@ -367,6 +368,26 @@ def test_csv_accepts_flat_timestamp_join_summary_rows():
         "last_unmatched_event_index"
     )
     assert "\n1,1,1,0,0,1,1" in text
+
+
+def test_csv_accepts_flat_multi_timestamp_join_summary_rows():
+    ts = datetime(2026, 5, 17, tzinfo=timezone.utc)
+    joined = join_aspect_events_to_market_labels(
+        [
+            AspectEvent("sun", "jupiter", "conjunction", 0, 1, 1, 3, 2 / 3, timestamp=ts),
+            AspectEvent("sun", "mars", "square", 90, 93, 3, 5, 0.4, timestamp=ts.replace(day=18)),
+        ],
+        [{"timestamp": ts, "return_1d": 0.05, "bullish_1d": True}],
+    )
+
+    text = to_csv(timestamp_join_summary_rows({"train": joined}))
+
+    assert text.splitlines()[0] == (
+        "join_id,matched_event_count,unmatched_event_count,matched_label_index_count,"
+        "first_matched_event_index,last_matched_event_index,first_unmatched_event_index,"
+        "last_unmatched_event_index"
+    )
+    assert "\ntrain,1,1,1,0,0,1,1" in text
 
 
 def test_csv_accepts_flat_candle_dataset_summary_rows():

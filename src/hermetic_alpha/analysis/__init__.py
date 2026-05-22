@@ -12,6 +12,7 @@ from .event_study import (
     summarize_validated_event_study,
     summarize_validated_multi_horizon_event_study,
     timestamp_join_summary_row,
+    timestamp_join_summary_rows,
     validated_event_study_report_row,
     validated_multi_horizon_event_study_report_rows,
 )
@@ -58,6 +59,7 @@ __all__ = [
     "summarize_validated_event_study",
     "summarize_validated_multi_horizon_event_study",
     "timestamp_join_summary_row",
+    "timestamp_join_summary_rows",
     "validated_event_study_report_row",
     "validated_multi_horizon_event_study_report_rows",
     "walk_forward_split_rows",

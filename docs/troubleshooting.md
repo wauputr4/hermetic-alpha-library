@@ -315,6 +315,11 @@ CLIs need only compact join audit metadata. The summary row intentionally keeps
 the nested joined records and full unmatched-event detail in
 `TimestampJoinResult.to_dict()` so researchers can inspect the full join when a
 count looks suspicious.
+Use `timestamp_join_summary_rows()` when several predeclared exact joins need
+one compact CSV-safe audit table. The helper preserves caller order, rejects
+blank or duplicate join IDs, prepends `join_id`, and reuses the single-join
+summary fields; inspect `TimestampJoinResult.joined` when row counts look
+suspicious.
 
 Use `add_candle_forward_returns()` instead of the bare close-list helper when an
 event-study workflow starts from `MarketCandle` rows. It preserves candle

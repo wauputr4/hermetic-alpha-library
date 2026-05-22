@@ -30,6 +30,12 @@ Use `timestamp_join_summary_row()` when the exact-join result needs a compact
 CSV-safe audit row. It reports matched/unmatched counts and first/last matched
 or unmatched event indexes without replacing the full `TimestampJoinResult`
 object used for inspection.
+Use `timestamp_join_summary_rows()` when comparing several declared exact joins
+in one audit table, such as train/test slices, asset subsets, aspect filters, or
+horizon-specific label tables. It preserves ordered mapping or pair-sequence
+input, rejects blank or duplicate join IDs, prepends `join_id`, and delegates to
+the single-join summary helper without replacing inspection of
+`TimestampJoinResult.joined`.
 
 Multi-horizon event studies should reuse the same selected event indexes across all configured horizons so 1D, 7D, and 30D summaries are comparable and auditable.
 

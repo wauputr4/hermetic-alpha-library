@@ -20,6 +20,7 @@ from hermetic_alpha.analysis import (
     random_baseline_distribution_rows,
     summarize_validated_multi_horizon_event_study,
     timestamp_join_summary_row,
+    timestamp_join_summary_rows,
     validated_multi_horizon_event_study_report_rows,
 )
 from hermetic_alpha.astro import AspectDefinition as AstroAspectDefinition
@@ -76,6 +77,7 @@ def test_public_api_exports_match_documented_entrypoints():
     assert callable(nearest_neighbor_summary_rows)
     assert callable(summarize_validated_multi_horizon_event_study)
     assert callable(timestamp_join_summary_row)
+    assert callable(timestamp_join_summary_rows)
     assert callable(validated_multi_horizon_event_study_report_rows)
     assert callable(candle_dataset_summary_row)
     assert callable(candle_dataset_summary_rows)
