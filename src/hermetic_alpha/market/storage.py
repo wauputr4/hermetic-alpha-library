@@ -86,6 +86,8 @@ def candle_dataset_summary_rows(
     rows: list[dict[str, object]] = []
     seen_dataset_ids: set[str] = set()
     for dataset_id, candles in _iter_named_candle_datasets(datasets):
+        if not dataset_id.strip():
+            raise CandleStorageError("dataset ID must not be blank")
         if dataset_id in seen_dataset_ids:
             raise CandleStorageError("dataset IDs must be unique")
         seen_dataset_ids.add(dataset_id)

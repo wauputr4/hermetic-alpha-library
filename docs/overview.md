@@ -107,8 +107,9 @@ boundaries. It does not replace exporting the underlying candle rows or the JSON
 cache helpers.
 Use `candle_dataset_summary_rows()` when comparing several predeclared candle
 caches before label generation or event joins. It preserves ordered mapping or
-pair-sequence input, rejects duplicate dataset IDs, and delegates each dataset
-to the single-row helper so validation and column names stay centralized.
+pair-sequence input, rejects blank or duplicate dataset IDs, and delegates each
+dataset to the single-row helper so validation and column names stay
+centralized.
 
 ### `hermetic_alpha.features`
 
