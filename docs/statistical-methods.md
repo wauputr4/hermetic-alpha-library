@@ -114,6 +114,12 @@ Use `multi_horizon_baseline_comparison_rows()` when ordered
 comparison fields for CSV or notebook tables. It is an export convenience, not a
 new statistical method, and each row still delegates to the single-horizon
 baseline comparison helper.
+Use `multi_horizon_baseline_comparison_group_rows()` when a report compares
+several declared baseline-comparison scenarios, such as train/test slices,
+event filters, or asset subsets. It prepends `comparison_group_id`, preserves
+caller order, rejects blank or duplicate group IDs, and emits no rows for empty
+groups; it remains multi-scenario audit metadata, not a replacement for
+inspecting the underlying `EventStudyResult` objects.
 
 ## 4. Bootstrap Confidence Interval
 

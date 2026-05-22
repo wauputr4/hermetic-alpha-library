@@ -156,6 +156,35 @@ def multi_horizon_baseline_comparison_rows(
     return [event_study_baseline_comparison_row(result) for result in ordered_results]
 
 
+def multi_horizon_baseline_comparison_group_rows(
+    comparison_groups: Mapping[str, Mapping[int, EventStudyResult] | Sequence[EventStudyResult]]
+    | Sequence[tuple[str, Mapping[int, EventStudyResult] | Sequence[EventStudyResult]]],
+) -> list[dict[str, object]]:
+    """Return ordered flat baseline comparison rows for declared groups.
+
+    Each group delegates horizon-level flattening to
+    ``multi_horizon_baseline_comparison_rows()`` and prepends the caller's
+    comparison group ID to every emitted row. Empty groups emit no rows.
+    """
+
+    rows: list[dict[str, object]] = []
+    seen_group_ids: set[str] = set()
+    for comparison_group_id, results in _iter_named_comparison_groups(comparison_groups):
+        if not comparison_group_id.strip():
+            raise ValueError("comparison group ID must not be blank")
+        if comparison_group_id in seen_group_ids:
+            raise ValueError("comparison group IDs must be unique")
+        seen_group_ids.add(comparison_group_id)
+        rows.extend(
+            {
+                "comparison_group_id": comparison_group_id,
+                **row,
+            }
+            for row in multi_horizon_baseline_comparison_rows(results)
+        )
+    return rows
+
+
 def timestamp_join_summary_row(result: TimestampJoinResult) -> dict[str, object]:
     """Return flat exact-join audit fields for CSV-friendly export."""
 
@@ -196,6 +225,16 @@ def _iter_named_joins(
         yield from joins.items()
         return
     yield from joins
+
+
+def _iter_named_comparison_groups(
+    comparison_groups: Mapping[str, Mapping[int, EventStudyResult] | Sequence[EventStudyResult]]
+    | Sequence[tuple[str, Mapping[int, EventStudyResult] | Sequence[EventStudyResult]]],
+) -> Iterable[tuple[str, Mapping[int, EventStudyResult] | Sequence[EventStudyResult]]]:
+    if isinstance(comparison_groups, Mapping):
+        yield from comparison_groups.items()
+        return
+    yield from comparison_groups
 
 
 def aspect_event_study(
