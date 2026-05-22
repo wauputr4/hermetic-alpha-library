@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass
 from datetime import datetime
-from collections.abc import Sequence
 from statistics import mean, median
-from typing import Mapping
 
 from .validation import bootstrap_percentile_interval, low_sample_warning
 from hermetic_alpha.models import AspectEvent, EventStudyResult, MarketLabel
@@ -171,6 +170,32 @@ def timestamp_join_summary_row(result: TimestampJoinResult) -> dict[str, object]
         "first_unmatched_event_index": unmatched_event_indexes[0] if unmatched_event_indexes else None,
         "last_unmatched_event_index": unmatched_event_indexes[-1] if unmatched_event_indexes else None,
     }
+
+
+def timestamp_join_summary_rows(
+    joins: Mapping[str, TimestampJoinResult] | Sequence[tuple[str, TimestampJoinResult]],
+) -> list[dict[str, object]]:
+    """Return ordered flat exact-join audit rows for several declared joins."""
+
+    rows: list[dict[str, object]] = []
+    seen_join_ids: set[str] = set()
+    for join_id, result in _iter_named_joins(joins):
+        if not join_id.strip():
+            raise ValueError("join ID must not be blank")
+        if join_id in seen_join_ids:
+            raise ValueError("join IDs must be unique")
+        seen_join_ids.add(join_id)
+        rows.append({"join_id": join_id, **timestamp_join_summary_row(result)})
+    return rows
+
+
+def _iter_named_joins(
+    joins: Mapping[str, TimestampJoinResult] | Sequence[tuple[str, TimestampJoinResult]],
+) -> Iterable[tuple[str, TimestampJoinResult]]:
+    if isinstance(joins, Mapping):
+        yield from joins.items()
+        return
+    yield from joins
 
 
 def aspect_event_study(

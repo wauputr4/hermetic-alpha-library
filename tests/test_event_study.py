@@ -11,6 +11,7 @@ from hermetic_alpha.analysis import (
     summarize_validated_event_study,
     summarize_validated_multi_horizon_event_study,
     timestamp_join_summary_row,
+    timestamp_join_summary_rows,
     validated_event_study_report_row,
     validated_multi_horizon_event_study_report_rows,
 )
@@ -764,6 +765,73 @@ def test_timestamp_join_summary_row_handles_empty_matched_and_unmatched_edges():
         "first_unmatched_event_index": None,
         "last_unmatched_event_index": None,
     }
+
+
+def test_timestamp_join_summary_rows_preserves_ordered_mapping_input():
+    ts1 = datetime(2026, 5, 6, tzinfo=timezone.utc)
+    ts2 = datetime(2026, 5, 7, tzinfo=timezone.utc)
+    train_join = join_aspect_events_to_market_labels(
+        [_aspect_event("sun", "jupiter", ts1), _aspect_event("moon", "mars", ts2)],
+        [{"timestamp": ts1, "return_1d": 0.1, "bullish_1d": True}],
+    )
+    test_join = join_aspect_events_to_market_labels(
+        [_aspect_event("sun", "mars", ts2)],
+        [{"timestamp": ts2, "return_1d": -0.05, "bullish_1d": False}],
+    )
+
+    rows = timestamp_join_summary_rows({"train": train_join, "test": test_join})
+
+    assert [row["join_id"] for row in rows] == ["train", "test"]
+    assert rows[0] == {
+        "join_id": "train",
+        "matched_event_count": 1,
+        "unmatched_event_count": 1,
+        "matched_label_index_count": 1,
+        "first_matched_event_index": 0,
+        "last_matched_event_index": 0,
+        "first_unmatched_event_index": 1,
+        "last_unmatched_event_index": 1,
+    }
+    assert rows[1]["matched_event_count"] == 1
+
+
+def test_timestamp_join_summary_rows_accepts_pair_input_and_empty_results():
+    ts = datetime(2026, 5, 6, tzinfo=timezone.utc)
+    no_matches = join_aspect_events_to_market_labels([_aspect_event("sun", "jupiter", ts)], [])
+    empty = join_aspect_events_to_market_labels([], [])
+
+    rows = timestamp_join_summary_rows([("no-matches", no_matches), ("empty", empty)])
+
+    assert rows[0] == {
+        "join_id": "no-matches",
+        "matched_event_count": 0,
+        "unmatched_event_count": 1,
+        "matched_label_index_count": 0,
+        "first_matched_event_index": None,
+        "last_matched_event_index": None,
+        "first_unmatched_event_index": 0,
+        "last_unmatched_event_index": 0,
+    }
+    assert rows[1] == {
+        "join_id": "empty",
+        "matched_event_count": 0,
+        "unmatched_event_count": 0,
+        "matched_label_index_count": 0,
+        "first_matched_event_index": None,
+        "last_matched_event_index": None,
+        "first_unmatched_event_index": None,
+        "last_unmatched_event_index": None,
+    }
+
+
+def test_timestamp_join_summary_rows_rejects_duplicate_and_blank_join_ids():
+    empty = join_aspect_events_to_market_labels([], [])
+
+    with pytest.raises(ValueError, match="join IDs must be unique"):
+        timestamp_join_summary_rows([("same", empty), ("same", empty)])
+
+    with pytest.raises(ValueError, match="join ID must not be blank"):
+        timestamp_join_summary_rows([(" ", empty)])
 
 
 def test_join_aspect_events_to_market_labels_rejects_duplicate_label_timestamps():
