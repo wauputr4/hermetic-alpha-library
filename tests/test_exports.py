@@ -24,6 +24,7 @@ from hermetic_alpha.analysis import (
     timestamp_join_summary_rows,
     validated_event_study_report_row,
     validated_multi_horizon_event_study_report_rows,
+    walk_forward_split_group_rows,
     walk_forward_split_rows,
     walk_forward_splits,
 )
@@ -554,6 +555,18 @@ def test_csv_accepts_flat_walk_forward_split_rows():
     )
     assert "\n0,0,3,3,4,3,1,0,2,3,3" in text
     assert "\n2,2,5,5,6,3,1,2,4,5,5" in text
+
+
+def test_csv_accepts_flat_walk_forward_split_group_rows():
+    splits = walk_forward_splits(["d1", "d2", "d3", "d4"], train_size=2, test_size=1)
+
+    text = to_csv(walk_forward_split_group_rows([("daily", splits[:1]), ("empty", [])]))
+
+    assert text.splitlines()[0] == (
+        "split_group_id,split_index,train_start_index,train_end_index,test_start_index,"
+        "test_end_index,train_size,test_size,train_first,train_last,test_first,test_last"
+    )
+    assert "\ndaily,0,0,2,2,3,2,1,d1,d2,d3,d3" in text
 
 
 def test_csv_accepts_walk_forward_rows_with_nested_endpoints_removed():

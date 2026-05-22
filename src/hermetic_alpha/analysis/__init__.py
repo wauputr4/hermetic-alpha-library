@@ -29,6 +29,7 @@ from .validation import (
     random_baseline_distribution,
     random_baseline_distribution_row,
     random_baseline_distribution_rows,
+    walk_forward_split_group_rows,
     walk_forward_split_rows,
     walk_forward_splits,
 )
@@ -62,6 +63,7 @@ __all__ = [
     "timestamp_join_summary_rows",
     "validated_event_study_report_row",
     "validated_multi_horizon_event_study_report_rows",
+    "walk_forward_split_group_rows",
     "walk_forward_split_rows",
     "walk_forward_splits",
 ]

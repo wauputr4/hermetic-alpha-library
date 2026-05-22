@@ -13,6 +13,7 @@ from hermetic_alpha.analysis import (
     random_baseline_distribution,
     random_baseline_distribution_row,
     random_baseline_distribution_rows,
+    walk_forward_split_group_rows,
     walk_forward_split_rows,
     walk_forward_splits,
 )
@@ -470,6 +471,49 @@ def test_walk_forward_split_rows_replace_nested_endpoints_with_none():
     assert rows[0]["train_last"] is None
     assert rows[0]["test_first"] is None
     assert rows[0]["test_last"] is None
+
+
+def test_walk_forward_split_group_rows_preserve_mapping_order_and_emit_group_ids():
+    expanding = walk_forward_splits(["d1", "d2", "d3", "d4", "d5"], train_size=2, test_size=1)
+    monthly = walk_forward_splits(["m1", "m2", "m3", "m4"], train_size=2, test_size=1, step_size=1)
+
+    rows = walk_forward_split_group_rows({
+        "expanding-daily": expanding,
+        "monthly": monthly[:1],
+    })
+
+    assert [row["split_group_id"] for row in rows] == [
+        "expanding-daily",
+        "expanding-daily",
+        "expanding-daily",
+        "monthly",
+    ]
+    assert rows[0]["split_index"] == 0
+    assert rows[2]["test_last"] == "d5"
+    assert rows[3]["train_first"] == "m1"
+
+
+def test_walk_forward_split_group_rows_preserve_pair_order_and_skip_empty_groups():
+    active = walk_forward_splits([1, 2, 3, 4], train_size=2, test_size=1)
+
+    rows = walk_forward_split_group_rows([
+        ("empty", []),
+        ("active", active[:1]),
+    ])
+
+    assert [row["split_group_id"] for row in rows] == ["active"]
+    assert rows[0]["train_size"] == 2
+    assert rows[0]["test_first"] == 3
+
+
+def test_walk_forward_split_group_rows_reject_duplicate_and_blank_group_ids():
+    split = WalkForwardSplit(("d1",), ("d2",), 0, 1, 1, 2)
+
+    with pytest.raises(ValueError, match="split group IDs must be unique"):
+        walk_forward_split_group_rows([("daily", [split]), ("daily", [split])])
+
+    with pytest.raises(ValueError, match="split group ID must not be blank"):
+        walk_forward_split_group_rows([("   ", [split])])
 
 
 def test_walk_forward_splits_validate_inputs():

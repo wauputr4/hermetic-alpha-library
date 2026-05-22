@@ -217,6 +217,29 @@ def walk_forward_split_rows(splits: Sequence[WalkForwardSplit]) -> list[dict[str
     ]
 
 
+def walk_forward_split_group_rows(
+    split_groups: Mapping[str, Sequence[WalkForwardSplit]] | Sequence[tuple[str, Sequence[WalkForwardSplit]]],
+) -> list[dict[str, ReportScalar]]:
+    """Return ordered flat rows for several walk-forward split configurations."""
+
+    rows: list[dict[str, ReportScalar]] = []
+    seen_split_group_ids: set[str] = set()
+    for split_group_id, splits in _iter_named_split_groups(split_groups):
+        if not split_group_id.strip():
+            raise ValueError("split group ID must not be blank")
+        if split_group_id in seen_split_group_ids:
+            raise ValueError("split group IDs must be unique")
+        seen_split_group_ids.add(split_group_id)
+        rows.extend(
+            {
+                "split_group_id": split_group_id,
+                **row,
+            }
+            for row in walk_forward_split_rows(splits)
+        )
+    return rows
+
+
 def _default_statistic(values: Sequence[float]) -> float:
     return mean(values)
 
@@ -520,6 +543,25 @@ def _iter_named_permutation_results(
             raise ValueError("results must contain PermutationTestResult values")
         named_results.append((scenario_id, result))
     return tuple(named_results)
+
+
+def _iter_named_split_groups(
+    split_groups: Mapping[str, Sequence[WalkForwardSplit]] | Sequence[tuple[str, Sequence[WalkForwardSplit]]],
+) -> tuple[tuple[str, Sequence[WalkForwardSplit]], ...]:
+    if isinstance(split_groups, Mapping):
+        return tuple(split_groups.items())
+    if isinstance(split_groups, str | bytes):
+        raise ValueError("split groups must be an ordered mapping or sequence of split group ID and splits pairs")
+
+    named_split_groups: list[tuple[str, Sequence[WalkForwardSplit]]] = []
+    for item in split_groups:
+        if not isinstance(item, Sequence) or isinstance(item, str | bytes) or len(item) != 2:
+            raise ValueError("split groups must be an ordered mapping or sequence of split group ID and splits pairs")
+        split_group_id, splits = item
+        if not isinstance(split_group_id, str):
+            raise ValueError("split group IDs must be strings")
+        named_split_groups.append((split_group_id, splits))
+    return tuple(named_split_groups)
 
 
 def _permutation_p_value(
