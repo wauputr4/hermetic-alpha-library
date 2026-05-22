@@ -144,8 +144,8 @@ confidence, seed, and statistic-name metadata for notebooks and audit exports.
 Use `bootstrap_interval_rows()` when a notebook or audit compares several
 predeclared bootstrap intervals in one table. It preserves ordered statistic
 names, applies the same optional sample, confidence, and seed metadata to every
-row, and delegates each interval to the single-row helper so validation and
-column names remain centralized.
+row, rejects blank or duplicate statistic names, and delegates each interval to
+the single-row helper so validation and column names remain centralized.
 
 ## 5. Permutation Test
 
@@ -167,9 +167,9 @@ for CSV output. It keeps the full distribution list out of the row and emits
 count, minimum, maximum, mean, and optional sample metadata instead.
 Use `random_baseline_distribution_rows()` when several declared baseline
 scenarios need one compact CSV-safe table. It preserves ordered baseline IDs,
-applies shared sample metadata to every row, and delegates distribution
-summaries to the single-row helper; keep the full distributions for plots or
-deeper inspection.
+rejects blank or duplicate baseline IDs, applies shared sample metadata to every
+row, and delegates distribution summaries to the single-row helper; keep the
+full distributions for plots or deeper inspection.
 
 The library also exposes `permutation_test()` for dependency-free two-sample
 random relabeling. Pass observed event outcomes and baseline outcomes, choose a
@@ -184,9 +184,9 @@ count, seed, and null mean fields, while replacing the full null distribution
 list with count, minimum, and maximum metadata.
 Use `permutation_test_result_rows()` when several declared permutation-test
 scenarios need one compact CSV-safe table. It preserves ordered scenario IDs,
-prepends each row with `scenario_id`, and delegates the statistical fields to
-`permutation_test_result_row()`; keep full `PermutationTestResult` values for
-inspecting or plotting null distributions.
+rejects blank or duplicate IDs, prepends each row with `scenario_id`, and
+delegates the statistical fields to `permutation_test_result_row()`; keep full
+`PermutationTestResult` values for inspecting or plotting null distributions.
 
 Permutation tests do not remove overfitting by themselves. They only compare one
 declared statistic against a random relabeling baseline for the supplied sample.

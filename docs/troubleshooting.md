@@ -139,9 +139,9 @@ Mitigation:
   schema.
 - Use `bootstrap_interval_rows()` before writing a compact table of several
   predeclared bootstrap intervals. It accepts an ordered mapping or ordered
-  `(statistic_name, interval)` pairs, rejects duplicate statistic names, and
-  reuses `bootstrap_interval_row()` for each interval; it does not replace the
-  raw bootstrap distribution or the single-interval helper.
+  `(statistic_name, interval)` pairs, rejects blank or duplicate statistic
+  names, and reuses `bootstrap_interval_row()` for each interval; it does not
+  replace the raw bootstrap distribution or the single-interval helper.
 - Seed `permutation_test()` and report its `alternative`, `permutations`, and
   p-value correction behavior when using permutation p-values in research notes.
 - Use `summarize_validated_event_study()` when a report should carry the core
@@ -182,8 +182,8 @@ constructed result has an empty distribution, the count is `0` and the min/max
 fields are `None`.
 Use `permutation_test_result_rows()` for compact multi-scenario permutation
 metadata tables. It preserves ordered mapping or pair-sequence input, rejects
-duplicate scenario IDs, and prepends `scenario_id` while keeping full null
-distributions out of CSV output.
+blank or duplicate scenario IDs, and prepends `scenario_id` while keeping full
+null distributions out of CSV output.
 
 Use `random_baseline_distribution_row()` when random-baseline results need the
 same compact CSV treatment. `random_baseline_distribution()` intentionally
@@ -194,9 +194,9 @@ summary values instead of raising from `min()` or `max()`.
 
 Use `random_baseline_distribution_rows()` for compact multi-scenario baseline
 tables. It accepts an ordered mapping or ordered `(baseline_id, distribution)`
-pairs, rejects duplicate baseline IDs, prepends `baseline_id`, and reuses the
-single-distribution row helper for summary fields. It is for audit metadata, not
-a replacement for inspecting or plotting full distributions.
+pairs, rejects blank or duplicate baseline IDs, prepends `baseline_id`, and
+reuses the single-distribution row helper for summary fields. It is for audit
+metadata, not a replacement for inspecting or plotting full distributions.
 
 ### Walk-Forward Split Boundaries
 
