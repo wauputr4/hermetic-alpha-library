@@ -5,6 +5,7 @@ from hermetic_alpha.analysis import (
     ValidatedEventStudyReport,
     event_study_baseline_comparison_row,
     join_aspect_events_to_market_labels,
+    multi_horizon_baseline_comparison_group_rows,
     multi_horizon_baseline_comparison_rows,
     summarize_event_study,
     summarize_multi_horizon_event_study,
@@ -655,6 +656,52 @@ def test_multi_horizon_baseline_comparison_rows_flatten_sequence_in_order():
 def test_multi_horizon_baseline_comparison_rows_accept_empty_input():
     assert multi_horizon_baseline_comparison_rows({}) == []
     assert multi_horizon_baseline_comparison_rows([]) == []
+
+
+def test_multi_horizon_baseline_comparison_group_rows_preserve_mapping_order():
+    labels = add_forward_returns([100, 110, 99, 120], [2, 1])
+    train_results = summarize_multi_horizon_event_study(labels, [0, 1], [2, 1])
+    test_results = summarize_multi_horizon_event_study(labels, [1], [1])
+
+    rows = multi_horizon_baseline_comparison_group_rows({
+        "train": train_results,
+        "test": test_results,
+    })
+
+    assert [row["comparison_group_id"] for row in rows] == ["train", "train", "test"]
+    assert [row["horizon"] for row in rows] == [2, 1, 1]
+    assert rows[0] == {"comparison_group_id": "train", **event_study_baseline_comparison_row(train_results[2])}
+    assert rows[1] == {"comparison_group_id": "train", **event_study_baseline_comparison_row(train_results[1])}
+    assert rows[2] == {"comparison_group_id": "test", **event_study_baseline_comparison_row(test_results[1])}
+
+
+def test_multi_horizon_baseline_comparison_group_rows_preserve_pair_order_and_skip_empty_groups():
+    labels = add_forward_returns([100, 110, 99, 120], [1, 2])
+    results = summarize_multi_horizon_event_study(labels, [0, 1], [1, 2])
+
+    rows = multi_horizon_baseline_comparison_group_rows([
+        ("empty", []),
+        ("test", [results[2], results[1]]),
+    ])
+
+    assert [row["comparison_group_id"] for row in rows] == ["test", "test"]
+    assert [row["horizon"] for row in rows] == [2, 1]
+
+
+def test_multi_horizon_baseline_comparison_group_rows_reject_duplicate_group_ids():
+    labels = add_forward_returns([100, 110, 99, 120], [1])
+    results = summarize_multi_horizon_event_study(labels, [0, 1], [1])
+
+    with pytest.raises(ValueError, match="comparison group IDs must be unique"):
+        multi_horizon_baseline_comparison_group_rows([
+            ("train", results),
+            ("train", results),
+        ])
+
+
+def test_multi_horizon_baseline_comparison_group_rows_reject_blank_group_ids():
+    with pytest.raises(ValueError, match="comparison group ID must not be blank"):
+        multi_horizon_baseline_comparison_group_rows([("   ", [])])
 
 
 def test_join_aspect_events_to_market_labels_orders_matches_by_event_timestamp():

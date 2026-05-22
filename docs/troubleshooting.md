@@ -488,6 +488,12 @@ columns are needed for ordered multi-horizon summaries. It accepts the mapping
 returned by `summarize_multi_horizon_event_study()` or an already ordered
 sequence of `EventStudyResult` values, preserves caller order, and returns an
 empty list for empty input.
+Use `multi_horizon_baseline_comparison_group_rows()` when combining several
+declared baseline-comparison result sets into one audit table. The helper
+accepts an ordered mapping or ordered `(comparison_group_id, results)` pairs,
+prepends `comparison_group_id`, rejects blank or duplicate group IDs, and emits
+no rows for empty groups. It is multi-scenario audit metadata only; keep the
+raw `EventStudyResult` values for statistical interpretation and deeper review.
 
 ## Reliable test verification (local + CI)
 
