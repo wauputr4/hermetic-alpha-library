@@ -228,6 +228,12 @@ similarity search run. It keeps payload inspection out of the summary, uses the
 first ranked result as the top neighbor, reports min/max score and distance
 boundaries across the supplied results, and emits `None` boundary fields for
 empty result sets.
+Use `nearest_neighbor_summary_rows()` when a report compares several predeclared
+similarity searches. The helper preserves caller order, rejects blank or
+duplicate search IDs, prepends `search_id`, and can attach per-search `query_id`,
+`metric`, and `limit` metadata while reusing the single-search summary schema.
+Keep `nearest_neighbor_rows()` or the raw `NearestNeighbor` values for ranked
+neighbor and payload inspection.
 
 ### Exact-Orb Aspect Queries
 

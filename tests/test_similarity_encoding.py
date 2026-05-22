@@ -14,6 +14,7 @@ from hermetic_alpha.similarity import (
     find_nearest,
     nearest_neighbor_rows,
     nearest_neighbor_summary_row,
+    nearest_neighbor_summary_rows,
     planet_position_encoding_rows,
     planet_position_vector_summary_row,
     planet_position_vector_summary_rows,
@@ -418,6 +419,105 @@ def test_nearest_neighbor_summary_row_is_csv_compatible():
         "min_score,max_score,min_distance,max_distance"
     )
     assert "query-b,euclidean,,1,nearest,-0.14142135623730964,0.14142135623730964" in text
+
+
+def test_nearest_neighbor_summary_rows_preserves_ordered_mapping_input():
+    query_a = find_nearest(
+        [1.0, 0.0],
+        [
+            SimilarityCandidate("far", [0.0, 1.0]),
+            SimilarityCandidate("near", [1.0, 0.0]),
+        ],
+    )
+    query_b = find_nearest([0.0, 1.0], [SimilarityCandidate("match", [0.0, 1.0])])
+
+    rows = nearest_neighbor_summary_rows(
+        {"search-a": query_a, "search-b": query_b},
+        query_ids={"search-a": "btc-query", "search-b": "eth-query"},
+        metrics={"search-a": "cosine", "search-b": "cosine"},
+        limits={"search-a": 2, "search-b": 1},
+    )
+
+    assert [row["search_id"] for row in rows] == ["search-a", "search-b"]
+    assert rows[0] == {
+        "search_id": "search-a",
+        "query_id": "btc-query",
+        "metric": "cosine",
+        "limit": 2,
+        "result_count": 2,
+        "top_id": "near",
+        "top_score": 1.0,
+        "top_distance": 0.0,
+        "min_score": 0.0,
+        "max_score": 1.0,
+        "min_distance": 0.0,
+        "max_distance": 1.0,
+    }
+    assert rows[1]["top_id"] == "match"
+
+
+def test_nearest_neighbor_summary_rows_accepts_pair_input_and_empty_results():
+    rows = nearest_neighbor_summary_rows(
+        [
+            ("empty-search", []),
+            ("euclidean-search", find_nearest([1.0], [SimilarityCandidate("close", [1.5])], metric="euclidean")),
+        ],
+        query_ids=[("empty-search", "empty-query"), ("euclidean-search", "distance-query")],
+        metrics=[("empty-search", "cosine"), ("euclidean-search", "euclidean")],
+        limits=[("empty-search", 5), ("euclidean-search", None)],
+    )
+
+    assert rows[0] == {
+        "search_id": "empty-search",
+        "query_id": "empty-query",
+        "metric": "cosine",
+        "limit": 5,
+        "result_count": 0,
+        "top_id": None,
+        "top_score": None,
+        "top_distance": None,
+        "min_score": None,
+        "max_score": None,
+        "min_distance": None,
+        "max_distance": None,
+    }
+    assert rows[1]["search_id"] == "euclidean-search"
+    assert rows[1]["top_id"] == "close"
+
+
+def test_nearest_neighbor_summary_rows_rejects_duplicate_and_blank_search_ids():
+    with pytest.raises(ValueError, match="search IDs must be unique"):
+        nearest_neighbor_summary_rows([("same", []), ("same", [])])
+
+    with pytest.raises(ValueError, match="search ID must not be blank"):
+        nearest_neighbor_summary_rows([(" ", [])])
+
+
+def test_nearest_neighbor_summary_rows_rejects_duplicate_metadata_ids():
+    with pytest.raises(ValueError, match="query ID search IDs must be unique"):
+        nearest_neighbor_summary_rows(
+            {"search": []},
+            query_ids=[("search", "first"), ("search", "second")],
+        )
+
+    with pytest.raises(ValueError, match="metric search ID must not be blank"):
+        nearest_neighbor_summary_rows({"search": []}, metrics=[(" ", "cosine")])
+
+
+def test_nearest_neighbor_summary_rows_is_csv_compatible():
+    results = find_nearest(
+        [1.0, 0.0],
+        [SimilarityCandidate("near", [1.0, 0.0])],
+        metric="cosine",
+    )
+
+    text = to_csv(nearest_neighbor_summary_rows({"search-a": results}, metrics={"search-a": "cosine"}))
+
+    assert text.splitlines()[0] == (
+        "search_id,query_id,metric,limit,result_count,top_id,top_score,top_distance,"
+        "min_score,max_score,min_distance,max_distance"
+    )
+    assert "\nsearch-a,,cosine,,1,near,1.0,0.0,1.0,1.0,0.0,0.0" in text
 
 
 def test_similarity_search_validates_inputs():

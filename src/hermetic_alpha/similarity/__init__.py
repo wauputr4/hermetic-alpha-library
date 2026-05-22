@@ -15,6 +15,7 @@ from .search import (
     find_nearest,
     nearest_neighbor_rows,
     nearest_neighbor_summary_row,
+    nearest_neighbor_summary_rows,
 )
 
 __all__ = [
@@ -27,6 +28,7 @@ __all__ = [
     "find_nearest",
     "nearest_neighbor_rows",
     "nearest_neighbor_summary_row",
+    "nearest_neighbor_summary_rows",
     "planet_position_encoding_rows",
     "planet_position_vector_summary_row",
     "planet_position_vector_summary_rows",

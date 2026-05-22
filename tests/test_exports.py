@@ -49,6 +49,7 @@ from hermetic_alpha.similarity import (
     find_nearest,
     nearest_neighbor_rows,
     nearest_neighbor_summary_row,
+    nearest_neighbor_summary_rows,
     planet_position_encoding_rows,
     planet_position_vector_summary_row,
     planet_position_vector_summary_rows,
@@ -679,3 +680,28 @@ def test_csv_accepts_flat_nearest_neighbor_summary_rows():
         "min_score,max_score,min_distance,max_distance"
     )
     assert "\nbtc-query,cosine,10,2,near-chart,1.0,0.0,0.0,1.0,0.0,1.0" in text
+
+
+def test_csv_accepts_flat_multi_search_nearest_neighbor_summary_rows():
+    results = find_nearest(
+        [1.0, 0.0],
+        [
+            SimilarityCandidate("distant-chart", [0.0, 1.0]),
+            SimilarityCandidate("near-chart", [1.0, 0.0]),
+        ],
+    )
+
+    text = to_csv(
+        nearest_neighbor_summary_rows(
+            {"btc-cosine": results},
+            query_ids={"btc-cosine": "btc-query"},
+            metrics={"btc-cosine": "cosine"},
+            limits={"btc-cosine": 10},
+        )
+    )
+
+    assert text.splitlines()[0] == (
+        "search_id,query_id,metric,limit,result_count,top_id,top_score,top_distance,"
+        "min_score,max_score,min_distance,max_distance"
+    )
+    assert "\nbtc-cosine,btc-query,cosine,10,2,near-chart,1.0,0.0,0.0,1.0,0.0,1.0" in text

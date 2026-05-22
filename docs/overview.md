@@ -225,6 +225,12 @@ Use `nearest_neighbor_summary_row()` when an audit table needs compact metadata
 for a similarity search run before inspecting individual neighbors. It reports
 result count, top neighbor identity, score/distance boundaries, and optional
 query, metric, and limit metadata without flattening payload values.
+Use `nearest_neighbor_summary_rows()` when comparing several declared similarity
+searches, such as different query charts, metrics, candidate sets, or limits.
+It preserves ordered mapping or pair-sequence input, rejects blank or duplicate
+search IDs, prepends `search_id`, and delegates each row to the single-search
+summary helper. The helper is multi-search audit metadata, not a replacement
+for ranked neighbor rows or caller-owned payload inspection.
 
 Recommended methods:
 

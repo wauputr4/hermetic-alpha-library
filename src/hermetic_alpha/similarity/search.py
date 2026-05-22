@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date, datetime
 from math import sqrt
@@ -131,6 +131,65 @@ def nearest_neighbor_summary_row(
         "min_distance": min(distances) if distances else None,
         "max_distance": max(distances) if distances else None,
     }
+
+
+def nearest_neighbor_summary_rows(
+    searches: Mapping[str, Sequence[NearestNeighbor]] | Sequence[tuple[str, Sequence[NearestNeighbor]]],
+    *,
+    query_ids: Mapping[str, str | None] | Sequence[tuple[str, str | None]] | None = None,
+    metrics: Mapping[str, SimilarityMetric | None] | Sequence[tuple[str, SimilarityMetric | None]] | None = None,
+    limits: Mapping[str, int | None] | Sequence[tuple[str, int | None]] | None = None,
+) -> list[dict[str, ReportScalar]]:
+    """Return ordered compact metadata rows for several nearest-neighbor searches."""
+
+    query_id_by_search = _optional_metadata_by_search(query_ids, "query ID")
+    metric_by_search = _optional_metadata_by_search(metrics, "metric")
+    limit_by_search = _optional_metadata_by_search(limits, "limit")
+    rows: list[dict[str, ReportScalar]] = []
+    seen_search_ids: set[str] = set()
+
+    for search_id, results in _iter_named_searches(searches):
+        if not search_id.strip():
+            raise ValueError("search ID must not be blank")
+        if search_id in seen_search_ids:
+            raise ValueError("search IDs must be unique")
+        seen_search_ids.add(search_id)
+
+        row = nearest_neighbor_summary_row(
+            results,
+            query_id=query_id_by_search.get(search_id),
+            metric=metric_by_search.get(search_id),
+            limit=limit_by_search.get(search_id),
+        )
+        rows.append({"search_id": search_id, **row})
+    return rows
+
+
+def _iter_named_searches(
+    searches: Mapping[str, Sequence[NearestNeighbor]] | Sequence[tuple[str, Sequence[NearestNeighbor]]],
+) -> Iterable[tuple[str, Sequence[NearestNeighbor]]]:
+    if isinstance(searches, Mapping):
+        yield from searches.items()
+        return
+    yield from searches
+
+
+def _optional_metadata_by_search(
+    values: Mapping[str, Any] | Sequence[tuple[str, Any]] | None,
+    label: str,
+) -> dict[str, Any]:
+    if values is None:
+        return {}
+
+    metadata: dict[str, Any] = {}
+    items = values.items() if isinstance(values, Mapping) else values
+    for search_id, value in items:
+        if not search_id.strip():
+            raise ValueError(f"{label} search ID must not be blank")
+        if search_id in metadata:
+            raise ValueError(f"{label} search IDs must be unique")
+        metadata[search_id] = value
+    return metadata
 
 
 def _rank_candidate(
