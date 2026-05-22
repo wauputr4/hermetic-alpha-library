@@ -51,6 +51,7 @@ from hermetic_alpha.similarity import (
     nearest_neighbor_summary_row,
     planet_position_encoding_rows,
     planet_position_vector_summary_row,
+    planet_position_vector_summary_rows,
 )
 
 
@@ -627,6 +628,23 @@ def test_csv_accepts_flat_planet_position_vector_summary_rows():
         "last_timestamp,last_body,last_zodiac"
     )
     assert "chart-a,2,4,2026-05-17T00:00:00+00:00,moon,tropical" in text
+
+
+def test_csv_accepts_flat_multi_planet_position_vector_summary_rows():
+    timestamp = datetime(2026, 5, 17, tzinfo=timezone.utc)
+    positions = [
+        PlanetPosition(timestamp, "sun", 90),
+        PlanetPosition(timestamp, "moon", 180),
+    ]
+
+    text = to_csv(planet_position_vector_summary_rows([("chart-a", positions), ("empty", [])]))
+
+    assert text.splitlines()[0] == (
+        "chart_id,position_count,vector_length,first_timestamp,first_body,first_zodiac,"
+        "last_timestamp,last_body,last_zodiac"
+    )
+    assert "chart-a,2,4,2026-05-17T00:00:00+00:00,moon,tropical" in text
+    assert "empty,0,0,,,,,," in text
 
 
 def test_csv_accepts_flat_nearest_neighbor_rows():

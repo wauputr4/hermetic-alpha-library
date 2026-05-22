@@ -16,6 +16,7 @@ from hermetic_alpha.similarity import (
     nearest_neighbor_summary_row,
     planet_position_encoding_rows,
     planet_position_vector_summary_row,
+    planet_position_vector_summary_rows,
 )
 
 
@@ -152,6 +153,60 @@ def test_planet_position_vector_summary_row_handles_empty_positions():
         "last_body": None,
         "last_zodiac": None,
     }
+
+
+def test_planet_position_vector_summary_rows_preserves_ordered_mapping_order():
+    early = datetime(2026, 5, 17, 0, 0, tzinfo=timezone.utc)
+    later = datetime(2026, 5, 18, 0, 0, tzinfo=timezone.utc)
+    first = [PlanetPosition(early, "sun", 90)]
+    second = [PlanetPosition(later, "moon", 180)]
+
+    rows = planet_position_vector_summary_rows({"chart-a": first, "chart-b": second})
+
+    assert [row["chart_id"] for row in rows] == ["chart-a", "chart-b"]
+    assert rows[0]["first_timestamp"] == early
+    assert rows[1]["first_timestamp"] == later
+
+
+def test_planet_position_vector_summary_rows_accepts_ordered_pairs_and_empty_positions():
+    ts = datetime(2026, 5, 17, 0, 0, tzinfo=timezone.utc)
+    positions = [PlanetPosition(ts, "sun", 90)]
+
+    rows = planet_position_vector_summary_rows([("empty", []), ("active", positions)])
+
+    assert [row["chart_id"] for row in rows] == ["empty", "active"]
+    assert rows[0]["position_count"] == 0
+    assert rows[0]["first_timestamp"] is None
+    assert rows[1]["position_count"] == 1
+
+
+def test_planet_position_vector_summary_rows_rejects_duplicate_chart_ids():
+    ts = datetime(2026, 5, 17, 0, 0, tzinfo=timezone.utc)
+    positions = [PlanetPosition(ts, "sun", 90)]
+
+    with pytest.raises(ValueError, match="chart IDs must be unique"):
+        planet_position_vector_summary_rows([("chart-a", positions), ("chart-a", positions)])
+
+
+def test_planet_position_vector_summary_rows_rejects_blank_chart_ids():
+    with pytest.raises(ValueError, match="chart ID must not be blank"):
+        planet_position_vector_summary_rows([("   ", [])])
+
+
+def test_planet_position_vector_summary_rows_are_csv_compatible():
+    ts = datetime(2026, 5, 17, 0, 0, tzinfo=timezone.utc)
+    rows = planet_position_vector_summary_rows(
+        [("chart-a", [PlanetPosition(ts, "sun", 90)]), ("empty", [])]
+    )
+
+    text = to_csv(rows)
+
+    assert text.splitlines()[0] == (
+        "chart_id,position_count,vector_length,first_timestamp,first_body,"
+        "first_zodiac,last_timestamp,last_body,last_zodiac"
+    )
+    assert "chart-a,1,2,2026-05-17T00:00:00+00:00,sun,tropical" in text
+    assert "empty,0,0,,,,,," in text
 
 
 def test_find_nearest_ranks_similar_vectors_first_with_cosine_metric():

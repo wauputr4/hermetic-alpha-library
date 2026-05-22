@@ -5,6 +5,7 @@ from .encoding import (
     encode_planet_positions,
     planet_position_encoding_rows,
     planet_position_vector_summary_row,
+    planet_position_vector_summary_rows,
 )
 from .search import (
     NearestNeighbor,
@@ -28,4 +29,5 @@ __all__ = [
     "nearest_neighbor_summary_row",
     "planet_position_encoding_rows",
     "planet_position_vector_summary_row",
+    "planet_position_vector_summary_rows",
 ]

@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping, Sequence
 from datetime import date, datetime
 from math import cos, radians, sin
-from typing import Sequence
 
 from hermetic_alpha.astro.math import normalize_degrees
 from hermetic_alpha.models import PlanetPosition
@@ -73,6 +73,32 @@ def planet_position_vector_summary_row(
         "last_body": last_position.body if last_position is not None else None,
         "last_zodiac": last_position.zodiac if last_position is not None else None,
     }
+
+
+def planet_position_vector_summary_rows(
+    charts: Mapping[str, Sequence[PlanetPosition]] | Sequence[tuple[str, Sequence[PlanetPosition]]],
+) -> list[dict[str, EncodingScalar]]:
+    """Return ordered compact vector metadata rows for several chart states."""
+    rows: list[dict[str, EncodingScalar]] = []
+    seen_chart_ids: set[str] = set()
+    for chart_id, positions in _iter_named_charts(charts):
+        if not chart_id.strip():
+            raise ValueError("chart ID must not be blank")
+        if chart_id in seen_chart_ids:
+            raise ValueError("chart IDs must be unique")
+        seen_chart_ids.add(chart_id)
+        row = planet_position_vector_summary_row(positions)
+        rows.append({**row, "chart_id": chart_id})
+    return rows
+
+
+def _iter_named_charts(
+    charts: Mapping[str, Sequence[PlanetPosition]] | Sequence[tuple[str, Sequence[PlanetPosition]]],
+) -> Iterable[tuple[str, Sequence[PlanetPosition]]]:
+    if isinstance(charts, Mapping):
+        yield from charts.items()
+        return
+    yield from charts
 
 
 def _position_sort_key(position: PlanetPosition) -> tuple[datetime, str, str]:
