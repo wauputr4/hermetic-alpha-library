@@ -234,6 +234,8 @@ def _configured_feature_keys_by_matrix(
     if _is_ordered_feature_key_pairs(feature_keys):
         configured: dict[str, Sequence[str]] = {}
         for matrix_id, matrix_feature_keys in feature_keys:
+            if not matrix_id.strip():
+                raise ValueError("configured matrix ID must not be blank")
             if matrix_id in configured:
                 raise ValueError("configured matrix IDs must be unique")
             configured[matrix_id] = matrix_feature_keys

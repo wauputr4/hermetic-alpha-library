@@ -491,7 +491,9 @@ Use `aspect_event_feature_matrix_summary_rows()` when batch feature-matrix
 audits need one flat table across named matrices. It preserves caller order from
 ordered mappings or `(matrix_id, events)` pairs, rejects blank or duplicate
 matrix IDs, supports shared or per-matrix configured feature keys, and keeps the
-same metadata-only role as the single-row helper.
+same metadata-only role as the single-row helper. When configured feature keys
+are supplied per matrix, each configured matrix ID must be non-blank and match a
+declared matrix ID so notebook and CLI audit setup mistakes fail early.
 
 `event_study_baseline_comparison_row()` is the preferred flat row helper when
 reports need probability deltas and relative lift. It leaves derived fields as

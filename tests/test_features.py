@@ -388,6 +388,14 @@ def test_aspect_event_feature_matrix_summary_rows_rejects_duplicate_configured_m
         )
 
 
+def test_aspect_event_feature_matrix_summary_rows_rejects_blank_configured_matrix_ids():
+    with pytest.raises(ValueError, match="configured matrix ID must not be blank"):
+        aspect_event_feature_matrix_summary_rows(
+            [("train", [])],
+            [("   ", ["sun_jupiter_conjunction"])],
+        )
+
+
 def test_aspect_event_feature_matrix_summary_rows_is_csv_compatible():
     ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
     rows = aspect_event_feature_matrix_summary_rows(
