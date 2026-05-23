@@ -138,7 +138,9 @@ Use `aspect_event_feature_matrix_summary_rows()` when comparing several
 predeclared feature matrices in one audit table, such as train/test slices,
 walk-forward folds, aspect schemas, or orb configurations. It preserves ordered
 mapping or pair-sequence input, rejects blank or duplicate matrix IDs, prepends
-`matrix_id`, and delegates each row to the single-matrix helper.
+`matrix_id`, and delegates each row to the single-matrix helper. Per-matrix
+configured feature-key pairs must also use non-blank matrix IDs that match the
+declared matrices.
 
 Examples:
 
