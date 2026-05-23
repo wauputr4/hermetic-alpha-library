@@ -24,6 +24,7 @@ from hermetic_alpha.analysis import (
     timestamp_join_summary_row,
     timestamp_join_summary_rows,
     validated_event_study_report_row,
+    validated_multi_horizon_event_study_report_group_rows,
     validated_multi_horizon_event_study_report_rows,
     walk_forward_split_group_rows,
     walk_forward_split_rows,
@@ -162,6 +163,28 @@ def test_csv_accepts_flat_validated_multi_horizon_event_study_report_rows():
     )
     assert "\n2,2," in text
     assert "\n2,1," in text
+
+
+def test_csv_accepts_flat_grouped_validated_multi_horizon_event_study_report_rows():
+    labels = add_forward_returns([100, 110, 99, 120], [2, 1])
+    reports = summarize_validated_multi_horizon_event_study(
+        labels,
+        [0, 1],
+        [2, 1],
+        bootstrap_samples=20,
+        bootstrap_seed=3,
+    )
+
+    text = to_csv(validated_multi_horizon_event_study_report_group_rows([("train", reports), ("empty", [])]))
+
+    assert text.splitlines()[0] == (
+        "report_group_id,events,horizon,baseline_bullish_probability,"
+        "conditional_bullish_probability,average_return,median_return,"
+        "low_sample_warning,bootstrap_samples,bootstrap_confidence,bootstrap_seed,"
+        "return_confidence_interval_lower,return_confidence_interval_upper"
+    )
+    assert "\ntrain,2,2," in text
+    assert "\ntrain,2,1," in text
 
 
 def test_csv_accepts_forward_return_label_coverage_rows():

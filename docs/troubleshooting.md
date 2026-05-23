@@ -175,6 +175,11 @@ Mitigation:
   reports. The helper preserves mapping or sequence order and reuses the
   single-report row flattener, so missing confidence intervals still emit
   `None` lower/upper bounds.
+- Use `validated_multi_horizon_event_study_report_group_rows()` when combining
+  several declared validated-report scenarios into one audit table. It preserves
+  ordered mappings or `(report_group_id, reports)` pairs, rejects blank or
+  duplicate group IDs, skips empty groups, and prepends `report_group_id`; keep
+  the original `ValidatedEventStudyReport` objects for detailed inspection.
 
 ### Permutation Test Interpretation
 
