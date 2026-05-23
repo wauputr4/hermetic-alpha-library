@@ -238,6 +238,10 @@ output. The helper preserves rank order, emits `id`, `score`, and `distance`,
 and includes only scalar payload data or explicitly selected scalar fields from
 mapping payloads so nested caller-owned payloads do not leak into generic CSV
 export.
+Use `nearest_neighbor_group_rows()` when comparing ranked results from several
+declared similarity searches in one audit table. It preserves caller order,
+rejects blank or duplicate search IDs, prepends `search_id`, skips empty
+groups, and delegates payload field handling to `nearest_neighbor_rows()`.
 Use `nearest_neighbor_summary_row()` when an audit table needs compact metadata
 for a similarity search run before inspecting individual neighbors. It reports
 result count, top neighbor identity, score/distance boundaries, and optional

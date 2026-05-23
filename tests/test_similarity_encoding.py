@@ -12,6 +12,7 @@ from hermetic_alpha.similarity import (
     encode_planet_positions,
     euclidean_distance,
     find_nearest,
+    nearest_neighbor_group_rows,
     nearest_neighbor_rows,
     nearest_neighbor_summary_row,
     nearest_neighbor_summary_rows,
@@ -357,6 +358,59 @@ def test_nearest_neighbor_rows_requires_mapping_payload_for_payload_fields():
 
     with pytest.raises(TypeError, match="payload_fields requires mapping payload values"):
         nearest_neighbor_rows(results, payload_fields=["asset"])
+
+
+def test_nearest_neighbor_group_rows_preserves_ordered_mapping_input():
+    search_a = find_nearest(
+        [1.0, 0.0],
+        [
+            SimilarityCandidate("far", [0.0, 1.0]),
+            SimilarityCandidate("near", [1.0, 0.0]),
+        ],
+    )
+    search_b = find_nearest([0.0, 1.0], [SimilarityCandidate("match", [0.0, 1.0])])
+
+    rows = nearest_neighbor_group_rows({"search-a": search_a, "search-b": search_b})
+
+    assert [row["search_id"] for row in rows] == ["search-a", "search-a", "search-b"]
+    assert [row["rank"] for row in rows] == [1, 2, 1]
+    assert [row["id"] for row in rows] == ["near", "far", "match"]
+
+
+def test_nearest_neighbor_group_rows_accepts_pair_input_skips_empty_groups_and_forwards_payload_fields():
+    rows = nearest_neighbor_group_rows(
+        [
+            ("empty-search", []),
+            (
+                "payload-search",
+                find_nearest(
+                    [1.0, 0.0],
+                    [SimilarityCandidate("near", [1.0, 0.0], payload={"asset": "BTC-USD"})],
+                ),
+            ),
+        ],
+        payload_fields=["asset", "missing"],
+    )
+
+    assert rows == [
+        {
+            "search_id": "payload-search",
+            "rank": 1,
+            "id": "near",
+            "score": 1.0,
+            "distance": 0.0,
+            "payload_asset": "BTC-USD",
+            "payload_missing": None,
+        }
+    ]
+
+
+def test_nearest_neighbor_group_rows_rejects_duplicate_and_blank_search_ids():
+    with pytest.raises(ValueError, match="search IDs must be unique"):
+        nearest_neighbor_group_rows([("same", []), ("same", [])])
+
+    with pytest.raises(ValueError, match="search ID must not be blank"):
+        nearest_neighbor_group_rows([(" ", [])])
 
 
 def test_nearest_neighbor_summary_row_reports_ranked_result_boundaries():
