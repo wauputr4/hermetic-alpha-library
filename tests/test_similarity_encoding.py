@@ -504,6 +504,19 @@ def test_nearest_neighbor_summary_rows_rejects_duplicate_metadata_ids():
         nearest_neighbor_summary_rows({"search": []}, metrics=[(" ", "cosine")])
 
 
+def test_nearest_neighbor_summary_rows_rejects_unknown_metadata_ids():
+    searches = {"declared": []}
+
+    with pytest.raises(ValueError, match="query ID search IDs must match declared searches"):
+        nearest_neighbor_summary_rows(searches, query_ids={"unknown": "query"})
+
+    with pytest.raises(ValueError, match="metric search IDs must match declared searches"):
+        nearest_neighbor_summary_rows(searches, metrics={"unknown": "cosine"})
+
+    with pytest.raises(ValueError, match="limit search IDs must match declared searches"):
+        nearest_neighbor_summary_rows(searches, limits={"unknown": 3})
+
+
 def test_nearest_neighbor_summary_rows_is_csv_compatible():
     results = find_nearest(
         [1.0, 0.0],

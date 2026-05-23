@@ -256,7 +256,9 @@ Use `nearest_neighbor_summary_rows()` when a report compares several predeclared
 similarity searches. The helper preserves caller order, rejects blank or
 duplicate search IDs, prepends `search_id`, and can attach per-search `query_id`,
 `metric`, and `limit` metadata while reusing the single-search summary schema.
-Keep `nearest_neighbor_rows()` or the raw `NearestNeighbor` values for ranked
+Those optional metadata mappings must use declared search IDs; unknown metadata
+IDs are rejected so typos do not silently disappear from audit reports. Keep
+`nearest_neighbor_rows()` or the raw `NearestNeighbor` values for ranked
 neighbor and payload inspection.
 
 ### Exact-Orb Aspect Queries
