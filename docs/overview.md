@@ -143,11 +143,11 @@ timestamp count, and timestamp boundaries; it is metadata only, not a
 replacement for exporting the feature matrix rows.
 Use `aspect_event_feature_matrix_summary_rows()` when comparing several
 predeclared feature matrices in one audit table, such as train/test slices,
-walk-forward folds, aspect schemas, or orb configurations. It preserves ordered
-mapping or pair-sequence input, rejects blank or duplicate matrix IDs, prepends
-`matrix_id`, and delegates each row to the single-matrix helper. Per-matrix
-configured feature-key pairs must also use non-blank matrix IDs that match the
-declared matrices.
+walk-forward folds, aspect schemas, or orb configurations. It preserves
+ordered mapping or pair-sequence input, requires matrix IDs to be non-blank
+strings, rejects duplicates, prepends `matrix_id`, and delegates each row to
+the single-matrix helper. Per-matrix configured feature-key mappings or pairs
+must also use non-blank string matrix IDs that match the declared matrices.
 
 Examples:
 

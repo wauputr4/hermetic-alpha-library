@@ -351,8 +351,13 @@ def test_aspect_event_feature_matrix_summary_rows_rejects_duplicate_matrix_ids()
 
 
 def test_aspect_event_feature_matrix_summary_rows_rejects_blank_matrix_ids():
-    with pytest.raises(ValueError, match="matrix ID must not be blank"):
+    with pytest.raises(ValueError, match="matrix ID must be a non-blank string"):
         aspect_event_feature_matrix_summary_rows([("   ", [])])
+
+
+def test_aspect_event_feature_matrix_summary_rows_rejects_non_string_matrix_ids():
+    with pytest.raises(ValueError, match="matrix ID must be a non-blank string"):
+        aspect_event_feature_matrix_summary_rows([(42, [])])
 
 
 def test_aspect_event_feature_matrix_summary_rows_accepts_shared_configured_feature_keys():
@@ -389,10 +394,26 @@ def test_aspect_event_feature_matrix_summary_rows_rejects_duplicate_configured_m
 
 
 def test_aspect_event_feature_matrix_summary_rows_rejects_blank_configured_matrix_ids():
-    with pytest.raises(ValueError, match="configured matrix ID must not be blank"):
+    with pytest.raises(ValueError, match="configured matrix ID must be a non-blank string"):
         aspect_event_feature_matrix_summary_rows(
             [("train", [])],
             [("   ", ["sun_jupiter_conjunction"])],
+        )
+
+
+def test_aspect_event_feature_matrix_summary_rows_rejects_non_string_configured_matrix_ids():
+    with pytest.raises(ValueError, match="configured matrix ID must be a non-blank string"):
+        aspect_event_feature_matrix_summary_rows(
+            [("train", [])],
+            [(42, ["sun_jupiter_conjunction"])],
+        )
+
+
+def test_aspect_event_feature_matrix_summary_rows_rejects_non_string_configured_mapping_ids():
+    with pytest.raises(ValueError, match="configured matrix ID must be a non-blank string"):
+        aspect_event_feature_matrix_summary_rows(
+            [("train", [])],
+            {42: ["sun_jupiter_conjunction"]},
         )
 
 

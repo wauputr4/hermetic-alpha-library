@@ -116,8 +116,7 @@ def aspect_event_feature_matrix_summary_rows(
     seen_matrix_ids: set[str] = set()
 
     for matrix_id, events in _iter_named_feature_matrices(matrices):
-        if not matrix_id.strip():
-            raise ValueError("matrix ID must not be blank")
+        _validate_matrix_id(matrix_id, "matrix ID")
         if matrix_id in seen_matrix_ids:
             raise ValueError("matrix IDs must be unique")
         seen_matrix_ids.add(matrix_id)
@@ -230,12 +229,15 @@ def _configured_feature_keys_by_matrix(
     if feature_keys is None:
         return None
     if isinstance(feature_keys, Mapping):
-        return dict(feature_keys.items())
+        configured: dict[str, Sequence[str]] = {}
+        for matrix_id, matrix_feature_keys in feature_keys.items():
+            _validate_matrix_id(matrix_id, "configured matrix ID")
+            configured[matrix_id] = matrix_feature_keys
+        return configured
     if _is_ordered_feature_key_pairs(feature_keys):
         configured: dict[str, Sequence[str]] = {}
         for matrix_id, matrix_feature_keys in feature_keys:
-            if not matrix_id.strip():
-                raise ValueError("configured matrix ID must not be blank")
+            _validate_matrix_id(matrix_id, "configured matrix ID")
             if matrix_id in configured:
                 raise ValueError("configured matrix IDs must be unique")
             configured[matrix_id] = matrix_feature_keys
@@ -279,6 +281,11 @@ def _normalize_feature_key(feature_key: str) -> str:
 
 def _normalize_feature_key_part(value: str) -> str:
     return value.strip().lower()
+
+
+def _validate_matrix_id(matrix_id: object, label: str) -> None:
+    if not isinstance(matrix_id, str) or not matrix_id.strip():
+        raise ValueError(f"{label} must be a non-blank string")
 
 
 def _duplicate_values(values: Sequence[str]) -> list[str]:
