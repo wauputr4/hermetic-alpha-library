@@ -348,6 +348,18 @@ def test_nearest_neighbor_rows_rejects_selected_nested_payload_fields():
         nearest_neighbor_rows(results, payload_fields=["metadata"])
 
 
+def test_nearest_neighbor_rows_rejects_blank_payload_field_names_before_rows():
+    results = find_nearest(
+        [1.0],
+        [
+            SimilarityCandidate("scalar", [1.0], payload="BTC-USD"),
+        ],
+    )
+
+    with pytest.raises(ValueError, match="payload field names must be non-blank strings"):
+        nearest_neighbor_rows(results, payload_fields=["asset", " "])
+
+
 def test_nearest_neighbor_rows_requires_mapping_payload_for_payload_fields():
     results = find_nearest(
         [1.0],
@@ -411,6 +423,11 @@ def test_nearest_neighbor_group_rows_rejects_duplicate_and_blank_search_ids():
 
     with pytest.raises(ValueError, match="search ID must not be blank"):
         nearest_neighbor_group_rows([(" ", [])])
+
+
+def test_nearest_neighbor_group_rows_rejects_blank_payload_field_names():
+    with pytest.raises(ValueError, match="payload field names must be non-blank strings"):
+        nearest_neighbor_group_rows([("empty-search", [])], payload_fields=["asset", ""])
 
 
 def test_nearest_neighbor_summary_row_reports_ranked_result_boundaries():

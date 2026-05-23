@@ -244,9 +244,10 @@ the original `WalkForwardSplit` objects for inspecting full train/test windows.
 results for in-memory inspection. Use `nearest_neighbor_rows()` before writing
 similarity rankings with `to_csv()`. The row helper emits rank, ID, score, and
 distance fields; scalar payloads are included as `payload`, while mapping
-payloads require explicit `payload_fields` so report columns stay intentional.
-Selected nested payload fields raise `TypeError` instead of letting the generic
-CSV exporter fail later with an unclear schema.
+payloads require explicit non-blank `payload_fields` so report columns stay
+intentional. Blank payload field names raise `ValueError`, and selected nested
+payload fields raise `TypeError` instead of letting the generic CSV exporter
+fail later with an unclear schema.
 Use `nearest_neighbor_group_rows()` when a report needs one ranked-neighbor
 audit table across several declared similarity searches. It rejects blank or
 duplicate search IDs, skips empty result groups, prepends `search_id`, and

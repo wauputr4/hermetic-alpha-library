@@ -236,8 +236,8 @@ ties are ordered by candidate ID for reproducible reports.
 Use `nearest_neighbor_rows()` when ranked similarity results need flat CSV
 output. The helper preserves rank order, emits `id`, `score`, and `distance`,
 and includes only scalar payload data or explicitly selected scalar fields from
-mapping payloads so nested caller-owned payloads do not leak into generic CSV
-export.
+mapping payloads with non-blank field names so nested caller-owned payloads do
+not leak into generic CSV export.
 Use `nearest_neighbor_group_rows()` when comparing ranked results from several
 declared similarity searches in one audit table. It preserves caller order,
 rejects blank or duplicate search IDs, prepends `search_id`, skips empty
