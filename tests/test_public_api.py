@@ -53,6 +53,7 @@ from hermetic_alpha.similarity import (
     nearest_neighbor_group_rows,
     nearest_neighbor_summary_row,
     nearest_neighbor_summary_rows,
+    planet_position_encoding_group_rows,
     planet_position_encoding_rows,
     planet_position_vector_summary_row,
     planet_position_vector_summary_rows,
@@ -77,6 +78,7 @@ def test_public_api_exports_match_documented_entrypoints():
     assert callable(multi_horizon_baseline_comparison_rows)
     assert callable(permutation_test_result_rows)
     assert callable(random_baseline_distribution_rows)
+    assert callable(planet_position_encoding_group_rows)
     assert callable(planet_position_encoding_rows)
     assert callable(planet_position_vector_summary_row)
     assert callable(planet_position_vector_summary_rows)

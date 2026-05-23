@@ -52,6 +52,29 @@ def planet_position_encoding_rows(positions: Sequence[PlanetPosition]) -> list[d
     return rows
 
 
+def planet_position_encoding_group_rows(
+    charts: Mapping[str, Sequence[PlanetPosition]] | Sequence[tuple[str, Sequence[PlanetPosition]]],
+) -> list[dict[str, EncodingScalar]]:
+    """Return ordered per-position encoding rows for several chart states."""
+
+    rows: list[dict[str, EncodingScalar]] = []
+    seen_chart_ids: set[str] = set()
+    for chart_id, positions in _iter_named_charts(charts):
+        if not chart_id.strip():
+            raise ValueError("chart ID must not be blank")
+        if chart_id in seen_chart_ids:
+            raise ValueError("chart IDs must be unique")
+        seen_chart_ids.add(chart_id)
+        rows.extend(
+            {
+                "chart_id": chart_id,
+                **row,
+            }
+            for row in planet_position_encoding_rows(positions)
+        )
+    return rows
+
+
 def planet_position_vector_summary_row(
     positions: Sequence[PlanetPosition],
     *,
