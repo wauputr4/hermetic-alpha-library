@@ -77,13 +77,14 @@ reports event count, timestamp coverage, aspect/body-pair diversity, phase
 counts, missing timestamp count, and timestamp boundaries; it does not replace
 exporting the underlying `AspectEvent` rows or feature rows.
 Use `aspect_scan_summary_rows()` when comparing several predeclared scans in one
-audit table. It preserves ordered mapping or pair-sequence input, rejects blank
-or duplicate scan IDs, prepends `scan_id`, and delegates scan metadata to the
-single-scan helper.
+audit table. It preserves ordered mapping or pair-sequence input, requires scan
+IDs to be non-blank strings, rejects duplicates, prepends `scan_id`, and
+delegates scan metadata to the single-scan helper.
 Use `aspect_scan_event_group_rows()` when comparing raw aspect events from
 several declared scans in one audit table. It preserves ordered mapping or
-pair-sequence input, rejects blank or duplicate scan IDs, skips empty scan
-groups, prepends `scan_id`, and delegates event fields to the existing
+pair-sequence input, requires scan IDs to be non-blank strings, rejects
+duplicates, skips empty scan groups, prepends `scan_id`, and delegates event
+fields to the existing
 `AspectEvent.to_dict()` shape; it is grouped raw-event audit metadata, not a
 replacement for `AspectEvent` objects, feature rows, or scan summaries.
 When both positions in a detected aspect include `speed`, the returned

@@ -222,8 +222,7 @@ def aspect_scan_summary_rows(
     rows: list[dict[str, object]] = []
     seen_scan_ids: set[str] = set()
     for scan_id, events in _iter_named_aspect_scans(scans):
-        if not scan_id.strip():
-            raise ValueError("scan ID must not be blank")
+        _validate_scan_id(scan_id)
         if scan_id in seen_scan_ids:
             raise ValueError("scan IDs must be unique")
         seen_scan_ids.add(scan_id)
@@ -240,8 +239,7 @@ def aspect_scan_event_group_rows(
     rows: list[dict[str, object]] = []
     seen_scan_ids: set[str] = set()
     for scan_id, events in _iter_named_aspect_scans(scans):
-        if not scan_id.strip():
-            raise ValueError("scan ID must not be blank")
+        _validate_scan_id(scan_id)
         if scan_id in seen_scan_ids:
             raise ValueError("scan IDs must be unique")
         seen_scan_ids.add(scan_id)
@@ -263,3 +261,8 @@ def _iter_named_aspect_scans(
         yield from scans.items()
         return
     yield from scans
+
+
+def _validate_scan_id(scan_id: object) -> None:
+    if not isinstance(scan_id, str) or not scan_id.strip():
+        raise ValueError("scan ID must be a non-blank string")

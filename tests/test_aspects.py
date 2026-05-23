@@ -299,8 +299,15 @@ def test_aspect_scan_summary_rows_rejects_duplicate_scan_ids():
 def test_aspect_scan_summary_rows_rejects_blank_scan_ids():
     events = find_aspects({"sun": 0, "jupiter": 1}, {"conjunction": 3})
 
-    with pytest.raises(ValueError, match="scan ID must not be blank"):
+    with pytest.raises(ValueError, match="scan ID must be a non-blank string"):
         aspect_scan_summary_rows([("   ", events)])
+
+
+def test_aspect_scan_summary_rows_rejects_non_string_scan_ids():
+    events = find_aspects({"sun": 0, "jupiter": 1}, {"conjunction": 3})
+
+    with pytest.raises(ValueError, match="scan ID must be a non-blank string"):
+        aspect_scan_summary_rows([(42, events)])
 
 
 def test_aspect_scan_event_group_rows_preserves_ordered_mapping_order():
@@ -348,5 +355,12 @@ def test_aspect_scan_event_group_rows_rejects_duplicate_scan_ids():
 def test_aspect_scan_event_group_rows_rejects_blank_scan_ids():
     events = find_aspects({"sun": 0, "jupiter": 1}, {"conjunction": 3})
 
-    with pytest.raises(ValueError, match="scan ID must not be blank"):
+    with pytest.raises(ValueError, match="scan ID must be a non-blank string"):
         aspect_scan_event_group_rows([("   ", events)])
+
+
+def test_aspect_scan_event_group_rows_rejects_non_string_scan_ids():
+    events = find_aspects({"sun": 0, "jupiter": 1}, {"conjunction": 3})
+
+    with pytest.raises(ValueError, match="scan ID must be a non-blank string"):
+        aspect_scan_event_group_rows([(42, events)])
