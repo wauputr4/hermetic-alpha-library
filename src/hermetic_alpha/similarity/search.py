@@ -92,6 +92,7 @@ def nearest_neighbor_rows(
     selected values are rejected so report schemas stay inspectable.
     """
 
+    validated_payload_fields = _validate_payload_fields(payload_fields)
     rows: list[dict[str, ReportScalar]] = []
     for rank, result in enumerate(results, start=1):
         row: dict[str, ReportScalar] = {
@@ -100,7 +101,7 @@ def nearest_neighbor_rows(
             "score": result.score,
             "distance": result.distance,
         }
-        _add_payload_fields(row, result.payload, payload_fields)
+        _add_payload_fields(row, result.payload, validated_payload_fields)
         rows.append(row)
     return rows
 
@@ -274,6 +275,15 @@ def _add_payload_fields(
                 f"payload field {field!r} contains unsupported nested value {type(value).__name__}"
             )
         row[f"payload_{field}"] = value
+
+
+def _validate_payload_fields(payload_fields: Sequence[str] | None) -> Sequence[str] | None:
+    if payload_fields is None:
+        return None
+    for field in payload_fields:
+        if not isinstance(field, str) or not field.strip():
+            raise ValueError("payload field names must be non-blank strings")
+    return payload_fields
 
 
 def _is_report_scalar(value: Any) -> bool:
