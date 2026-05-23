@@ -5,6 +5,7 @@ import pytest
 from hermetic_alpha.models import PlanetPosition
 
 from hermetic_alpha.astro import (
+    aspect_scan_event_group_rows,
     aspect_scan_summary_row,
     aspect_scan_summary_rows,
     circular_distance,
@@ -300,3 +301,52 @@ def test_aspect_scan_summary_rows_rejects_blank_scan_ids():
 
     with pytest.raises(ValueError, match="scan ID must not be blank"):
         aspect_scan_summary_rows([("   ", events)])
+
+
+def test_aspect_scan_event_group_rows_preserves_ordered_mapping_order():
+    ts1 = datetime(2026, 5, 6, tzinfo=timezone.utc)
+    ts2 = datetime(2026, 5, 7, tzinfo=timezone.utc)
+    first = find_aspects(
+        {"sun": PlanetPosition(ts1, "sun", 0), "jupiter": PlanetPosition(ts1, "jupiter", 1)},
+        {"conjunction": 3},
+    )
+    second = find_aspects(
+        {"mars": PlanetPosition(ts2, "mars", 90), "saturn": PlanetPosition(ts2, "saturn", 181)},
+        {"square": 3},
+    )
+
+    rows = aspect_scan_event_group_rows({"sun-jupiter": first, "mars-saturn": second})
+
+    assert [row["scan_id"] for row in rows] == ["sun-jupiter", "mars-saturn"]
+    assert [row["timestamp"] for row in rows] == [ts1.isoformat(), ts2.isoformat()]
+    assert [(row["body_a"], row["body_b"], row["aspect"]) for row in rows] == [
+        ("sun", "jupiter", "conjunction"),
+        ("mars", "saturn", "square"),
+    ]
+
+
+def test_aspect_scan_event_group_rows_accepts_pairs_and_skips_empty_groups():
+    ts = datetime(2026, 5, 6, tzinfo=timezone.utc)
+    events = find_aspects(
+        {"sun": PlanetPosition(ts, "sun", 0), "jupiter": PlanetPosition(ts, "jupiter", 1)},
+        {"conjunction": 3},
+    )
+
+    rows = aspect_scan_event_group_rows([("empty-scan", []), ("active-scan", events)])
+
+    assert [row["scan_id"] for row in rows] == ["active-scan"]
+    assert rows[0]["timestamp"] == ts.isoformat()
+
+
+def test_aspect_scan_event_group_rows_rejects_duplicate_scan_ids():
+    events = find_aspects({"sun": 0, "jupiter": 1}, {"conjunction": 3})
+
+    with pytest.raises(ValueError, match="scan IDs must be unique"):
+        aspect_scan_event_group_rows([("scan-a", events), ("scan-a", events)])
+
+
+def test_aspect_scan_event_group_rows_rejects_blank_scan_ids():
+    events = find_aspects({"sun": 0, "jupiter": 1}, {"conjunction": 3})
+
+    with pytest.raises(ValueError, match="scan ID must not be blank"):
+        aspect_scan_event_group_rows([("   ", events)])

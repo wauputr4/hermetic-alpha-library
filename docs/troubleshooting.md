@@ -293,6 +293,12 @@ ephemeris engines. The helper keeps caller order, prepends `scan_id`, rejects
 blank or duplicate scan IDs, and reuses the single-scan summary schema for each
 row; it is batch audit metadata, not a replacement for exporting raw aspect
 events or feature rows.
+Use `aspect_scan_event_group_rows()` when several named scans need one flat raw
+aspect-event audit table. The helper keeps caller order, prepends `scan_id`,
+rejects blank or duplicate scan IDs, skips empty scan groups, and delegates
+event columns to `AspectEvent.to_dict()`. Keep `AspectEvent` objects for
+inspection, feature-row helpers for model inputs, and summary rows for compact
+scan metadata.
 
 ### Planet-Position Encoding Reports
 
