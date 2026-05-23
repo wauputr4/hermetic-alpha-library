@@ -53,6 +53,7 @@ from hermetic_alpha.models import AspectEvent, EventStudyResult, MarketCandle, P
 from hermetic_alpha.similarity import (
     SimilarityCandidate,
     find_nearest,
+    nearest_neighbor_group_rows,
     nearest_neighbor_rows,
     nearest_neighbor_summary_row,
     nearest_neighbor_summary_rows,
@@ -764,6 +765,23 @@ def test_csv_accepts_flat_nearest_neighbor_rows():
     assert text.splitlines()[0] == "rank,id,score,distance,payload_asset"
     assert "\n1,near-chart,1.0,0.0,BTC-USD" in text
     assert "\n2,distant-chart,0.0,1.0,ETH-USD" in text
+
+
+def test_csv_accepts_flat_nearest_neighbor_group_rows():
+    results = find_nearest(
+        [1.0, 0.0],
+        [
+            SimilarityCandidate("distant-chart", [0.0, 1.0], payload={"asset": "ETH-USD"}),
+            SimilarityCandidate("near-chart", [1.0, 0.0], payload={"asset": "BTC-USD"}),
+        ],
+    )
+
+    text = to_csv(nearest_neighbor_group_rows([("btc-search", results), ("empty-search", [])], payload_fields=["asset"]))
+
+    assert text.splitlines()[0] == "search_id,rank,id,score,distance,payload_asset"
+    assert "\nbtc-search,1,near-chart,1.0,0.0,BTC-USD" in text
+    assert "\nbtc-search,2,distant-chart,0.0,1.0,ETH-USD" in text
+    assert "empty-search" not in text
 
 
 def test_csv_accepts_flat_nearest_neighbor_summary_rows():

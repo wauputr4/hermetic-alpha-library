@@ -105,6 +105,31 @@ def nearest_neighbor_rows(
     return rows
 
 
+def nearest_neighbor_group_rows(
+    searches: Mapping[str, Sequence[NearestNeighbor]] | Sequence[tuple[str, Sequence[NearestNeighbor]]],
+    *,
+    payload_fields: Sequence[str] | None = None,
+) -> list[dict[str, ReportScalar]]:
+    """Return ordered flat ranked-neighbor rows for several declared searches."""
+
+    rows: list[dict[str, ReportScalar]] = []
+    seen_search_ids: set[str] = set()
+    for search_id, results in _iter_named_searches(searches):
+        if not search_id.strip():
+            raise ValueError("search ID must not be blank")
+        if search_id in seen_search_ids:
+            raise ValueError("search IDs must be unique")
+        seen_search_ids.add(search_id)
+        rows.extend(
+            {
+                "search_id": search_id,
+                **row,
+            }
+            for row in nearest_neighbor_rows(results, payload_fields=payload_fields)
+        )
+    return rows
+
+
 def nearest_neighbor_summary_row(
     results: Sequence[NearestNeighbor],
     *,

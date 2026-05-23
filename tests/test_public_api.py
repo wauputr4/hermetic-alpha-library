@@ -50,6 +50,7 @@ from hermetic_alpha.labels import (
     multi_window_local_extrema_label_coverage_rows,
 )
 from hermetic_alpha.similarity import (
+    nearest_neighbor_group_rows,
     nearest_neighbor_summary_row,
     nearest_neighbor_summary_rows,
     planet_position_encoding_rows,
@@ -79,6 +80,7 @@ def test_public_api_exports_match_documented_entrypoints():
     assert callable(planet_position_encoding_rows)
     assert callable(planet_position_vector_summary_row)
     assert callable(planet_position_vector_summary_rows)
+    assert callable(nearest_neighbor_group_rows)
     assert callable(nearest_neighbor_summary_row)
     assert callable(nearest_neighbor_summary_rows)
     assert callable(summarize_validated_multi_horizon_event_study)

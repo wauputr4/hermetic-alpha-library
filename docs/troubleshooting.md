@@ -247,6 +247,11 @@ distance fields; scalar payloads are included as `payload`, while mapping
 payloads require explicit `payload_fields` so report columns stay intentional.
 Selected nested payload fields raise `TypeError` instead of letting the generic
 CSV exporter fail later with an unclear schema.
+Use `nearest_neighbor_group_rows()` when a report needs one ranked-neighbor
+audit table across several declared similarity searches. It rejects blank or
+duplicate search IDs, skips empty result groups, prepends `search_id`, and
+delegates rank and payload columns to `nearest_neighbor_rows()`; keep the raw
+`NearestNeighbor` objects for deeper payload inspection.
 Use `nearest_neighbor_summary_row()` when reports need one compact row per
 similarity search run. It keeps payload inspection out of the summary, uses the
 first ranked result as the top neighbor, reports min/max score and distance
