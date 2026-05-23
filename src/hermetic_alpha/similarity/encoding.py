@@ -60,8 +60,7 @@ def planet_position_encoding_group_rows(
     rows: list[dict[str, EncodingScalar]] = []
     seen_chart_ids: set[str] = set()
     for chart_id, positions in _iter_named_charts(charts):
-        if not chart_id.strip():
-            raise ValueError("chart ID must not be blank")
+        _validate_chart_id(chart_id)
         if chart_id in seen_chart_ids:
             raise ValueError("chart IDs must be unique")
         seen_chart_ids.add(chart_id)
@@ -105,8 +104,7 @@ def planet_position_vector_summary_rows(
     rows: list[dict[str, EncodingScalar]] = []
     seen_chart_ids: set[str] = set()
     for chart_id, positions in _iter_named_charts(charts):
-        if not chart_id.strip():
-            raise ValueError("chart ID must not be blank")
+        _validate_chart_id(chart_id)
         if chart_id in seen_chart_ids:
             raise ValueError("chart IDs must be unique")
         seen_chart_ids.add(chart_id)
@@ -122,6 +120,13 @@ def _iter_named_charts(
         yield from charts.items()
         return
     yield from charts
+
+
+def _validate_chart_id(chart_id: str) -> None:
+    if not isinstance(chart_id, str):
+        raise ValueError("chart ID must be a string")
+    if not chart_id.strip():
+        raise ValueError("chart ID must not be blank")
 
 
 def _position_sort_key(position: PlanetPosition) -> tuple[datetime, str, str]:

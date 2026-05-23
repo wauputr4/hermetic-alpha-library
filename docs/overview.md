@@ -219,10 +219,11 @@ timestamp, body, zodiac, raw longitude, and the sine/cosine components; it is
 for audit/reporting and does not replace numeric vectors for `find_nearest()`.
 Use `planet_position_encoding_group_rows()` when comparing per-position
 encoding rows for several declared chart states in one audit table. It
-preserves ordered mapping or pair-sequence input, rejects blank or duplicate
-chart IDs, skips empty chart groups, prepends `chart_id`, and delegates each
-group to the single-chart row helper; it is multi-chart audit metadata, not a
-replacement for raw `PlanetPosition` objects or numeric vectors.
+preserves ordered mapping or pair-sequence input, requires chart IDs to be
+non-blank strings, rejects duplicates, skips empty chart groups, prepends
+`chart_id`, and delegates each group to the single-chart row helper; it is
+multi-chart audit metadata, not a replacement for raw `PlanetPosition` objects
+or numeric vectors.
 Use `planet_position_vector_summary_row()` when an audit table needs compact
 chart-state metadata without embedding the full numeric vector. It uses the same
 ordering and reports position count, vector length, and first/last
@@ -230,9 +231,10 @@ timestamp/body/zodiac boundaries; it does not replace the vector or per-position
 encoding rows.
 Use `planet_position_vector_summary_rows()` when comparing several declared
 chart states before similarity search. It preserves ordered mapping or
-pair-sequence input, rejects blank or duplicate chart IDs, prepends `chart_id`,
-and delegates each row to the single-chart summary helper; it is multi-chart
-audit metadata, not a replacement for raw positions or numeric vectors.
+pair-sequence input, requires chart IDs to be non-blank strings, rejects
+duplicates, prepends `chart_id`, and delegates each row to the single-chart
+summary helper; it is multi-chart audit metadata, not a replacement for raw
+positions or numeric vectors.
 
 The search layer exposes `SimilarityCandidate`, `find_nearest()`,
 `cosine_similarity()`, and `euclidean_distance()` for small in-memory
