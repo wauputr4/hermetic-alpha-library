@@ -14,6 +14,7 @@ from hermetic_alpha.analysis import (
     timestamp_join_summary_row,
     timestamp_join_summary_rows,
     validated_event_study_report_row,
+    validated_multi_horizon_event_study_report_group_rows,
     validated_multi_horizon_event_study_report_rows,
 )
 from hermetic_alpha.labels import (
@@ -716,6 +717,87 @@ def test_validated_multi_horizon_event_study_report_rows_flatten_sequence_in_ord
     assert [row["horizon"] for row in rows] == [2, 1]
     assert rows[0]["return_confidence_interval_lower"] is None
     assert rows[0]["return_confidence_interval_upper"] is None
+
+
+def test_validated_multi_horizon_event_study_report_group_rows_preserve_mapping_order():
+    labels = add_forward_returns([100, 110, 99, 120, 126], [2, 1])
+    train_reports = summarize_validated_multi_horizon_event_study(
+        labels,
+        [0, 1, 2],
+        [2, 1],
+        bootstrap_samples=20,
+        bootstrap_seed=3,
+        minimum_events=5,
+    )
+    test_reports = summarize_validated_multi_horizon_event_study(
+        labels,
+        [1],
+        [1],
+        bootstrap_samples=20,
+        bootstrap_seed=5,
+        minimum_events=1,
+    )
+
+    rows = validated_multi_horizon_event_study_report_group_rows({
+        "train": train_reports,
+        "test": test_reports,
+    })
+
+    assert [row["report_group_id"] for row in rows] == ["train", "train", "test"]
+    assert [row["horizon"] for row in rows] == [2, 1, 1]
+    assert rows[0] == {
+        "report_group_id": "train",
+        **validated_event_study_report_row(train_reports[2]),
+    }
+    assert rows[1] == {
+        "report_group_id": "train",
+        **validated_event_study_report_row(train_reports[1]),
+    }
+    assert rows[2] == {
+        "report_group_id": "test",
+        **validated_event_study_report_row(test_reports[1]),
+    }
+
+
+def test_validated_multi_horizon_event_study_report_group_rows_preserve_pair_order_and_skip_empty_groups():
+    labels = add_forward_returns([100, 110, 99], [1, 2])
+    reports = summarize_validated_multi_horizon_event_study(
+        labels,
+        [1],
+        [1, 2],
+        bootstrap_samples=10,
+        minimum_events=1,
+    )
+
+    rows = validated_multi_horizon_event_study_report_group_rows([
+        ("empty", []),
+        ("test", [reports[2], reports[1]]),
+    ])
+
+    assert [row["report_group_id"] for row in rows] == ["test", "test"]
+    assert [row["horizon"] for row in rows] == [2, 1]
+
+
+def test_validated_multi_horizon_event_study_report_group_rows_reject_duplicate_group_ids():
+    labels = add_forward_returns([100, 110, 99], [1])
+    reports = summarize_validated_multi_horizon_event_study(
+        labels,
+        [0],
+        [1],
+        bootstrap_samples=10,
+        minimum_events=1,
+    )
+
+    with pytest.raises(ValueError, match="report group IDs must be unique"):
+        validated_multi_horizon_event_study_report_group_rows([
+            ("train", reports),
+            ("train", reports),
+        ])
+
+
+def test_validated_multi_horizon_event_study_report_group_rows_reject_blank_group_ids():
+    with pytest.raises(ValueError, match="report group ID must not be blank"):
+        validated_multi_horizon_event_study_report_group_rows([("   ", [])])
 
 
 def test_event_study_baseline_comparison_row_calculates_delta_and_lift():

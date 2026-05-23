@@ -56,6 +56,12 @@ Use `validated_multi_horizon_event_study_report_rows()` when the ordered
 mapping from `summarize_validated_multi_horizon_event_study()` needs CSV output.
 It preserves report order and delegates each row to the single-report flattener;
 it is an export convenience, not a separate statistical method.
+Use `validated_multi_horizon_event_study_report_group_rows()` when a report
+compares several declared validated-report scenarios, such as train/test
+slices, asset subsets, or event filters. It prepends `report_group_id`,
+preserves caller order, rejects blank or duplicate group IDs, and emits no rows
+for empty groups; it is multi-scenario audit metadata, not a replacement for
+inspecting the underlying `ValidatedEventStudyReport` objects.
 Use `event_study_baseline_comparison_row()` when a report needs explicit
 baseline comparison fields. It preserves the core event count and probabilities,
 then adds absolute `probability_delta` and relative `relative_lift` values while

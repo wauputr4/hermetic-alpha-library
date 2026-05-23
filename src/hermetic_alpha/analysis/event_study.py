@@ -121,6 +121,35 @@ def validated_multi_horizon_event_study_report_rows(
     return [validated_event_study_report_row(report) for report in ordered_reports]
 
 
+def validated_multi_horizon_event_study_report_group_rows(
+    report_groups: Mapping[str, Mapping[int, ValidatedEventStudyReport] | Sequence[ValidatedEventStudyReport]]
+    | Sequence[tuple[str, Mapping[int, ValidatedEventStudyReport] | Sequence[ValidatedEventStudyReport]]],
+) -> list[dict[str, object]]:
+    """Return ordered flat validated report rows for declared groups.
+
+    Each group delegates horizon-level flattening to
+    ``validated_multi_horizon_event_study_report_rows()`` and prepends the
+    caller's report group ID to every emitted row. Empty groups emit no rows.
+    """
+
+    rows: list[dict[str, object]] = []
+    seen_group_ids: set[str] = set()
+    for report_group_id, reports in _iter_named_validated_report_groups(report_groups):
+        if not report_group_id.strip():
+            raise ValueError("report group ID must not be blank")
+        if report_group_id in seen_group_ids:
+            raise ValueError("report group IDs must be unique")
+        seen_group_ids.add(report_group_id)
+        rows.extend(
+            {
+                "report_group_id": report_group_id,
+                **row,
+            }
+            for row in validated_multi_horizon_event_study_report_rows(reports)
+        )
+    return rows
+
+
 def event_study_baseline_comparison_row(result: EventStudyResult) -> dict[str, object]:
     """Return flat baseline comparison fields for an event-study result."""
 
@@ -235,6 +264,16 @@ def _iter_named_comparison_groups(
         yield from comparison_groups.items()
         return
     yield from comparison_groups
+
+
+def _iter_named_validated_report_groups(
+    report_groups: Mapping[str, Mapping[int, ValidatedEventStudyReport] | Sequence[ValidatedEventStudyReport]]
+    | Sequence[tuple[str, Mapping[int, ValidatedEventStudyReport] | Sequence[ValidatedEventStudyReport]]],
+) -> Iterable[tuple[str, Mapping[int, ValidatedEventStudyReport] | Sequence[ValidatedEventStudyReport]]]:
+    if isinstance(report_groups, Mapping):
+        yield from report_groups.items()
+        return
+    yield from report_groups
 
 
 def aspect_event_study(

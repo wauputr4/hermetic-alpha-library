@@ -22,6 +22,7 @@ from hermetic_alpha.analysis import (
     summarize_validated_multi_horizon_event_study,
     timestamp_join_summary_row,
     timestamp_join_summary_rows,
+    validated_multi_horizon_event_study_report_group_rows,
     validated_multi_horizon_event_study_report_rows,
     walk_forward_split_group_rows,
 )
@@ -83,6 +84,7 @@ def test_public_api_exports_match_documented_entrypoints():
     assert callable(summarize_validated_multi_horizon_event_study)
     assert callable(timestamp_join_summary_row)
     assert callable(timestamp_join_summary_rows)
+    assert callable(validated_multi_horizon_event_study_report_group_rows)
     assert callable(validated_multi_horizon_event_study_report_rows)
     assert callable(walk_forward_split_group_rows)
     assert callable(candle_dataset_summary_row)
