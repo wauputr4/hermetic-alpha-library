@@ -57,6 +57,7 @@ from hermetic_alpha.similarity import (
     nearest_neighbor_rows,
     nearest_neighbor_summary_row,
     nearest_neighbor_summary_rows,
+    planet_position_encoding_group_rows,
     planet_position_encoding_rows,
     planet_position_vector_summary_row,
     planet_position_vector_summary_rows,
@@ -662,6 +663,24 @@ def test_csv_accepts_flat_planet_position_encoding_rows():
         "position_index,timestamp,body,zodiac,longitude,longitude_sin,longitude_cos"
     )
     assert "0,2026-05-17T00:00:00+00:00,sun,tropical,90," in text
+
+
+def test_csv_accepts_flat_planet_position_encoding_group_rows():
+    timestamp = datetime(2026, 5, 17, tzinfo=timezone.utc)
+
+    text = to_csv(
+        planet_position_encoding_group_rows(
+            [
+                ("empty", []),
+                ("chart-a", [PlanetPosition(timestamp, "sun", 90)]),
+            ]
+        )
+    )
+
+    assert text.splitlines()[0] == (
+        "chart_id,position_index,timestamp,body,zodiac,longitude,longitude_sin,longitude_cos"
+    )
+    assert "chart-a,0,2026-05-17T00:00:00+00:00,sun,tropical,90," in text
 
 
 def test_csv_accepts_flat_planet_position_series_summary_rows():

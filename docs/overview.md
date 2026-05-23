@@ -217,6 +217,12 @@ inspectable CSV or notebook report before similarity search. It uses the same
 ordering as `encode_planet_positions()` and emits one row per position with
 timestamp, body, zodiac, raw longitude, and the sine/cosine components; it is
 for audit/reporting and does not replace numeric vectors for `find_nearest()`.
+Use `planet_position_encoding_group_rows()` when comparing per-position
+encoding rows for several declared chart states in one audit table. It
+preserves ordered mapping or pair-sequence input, rejects blank or duplicate
+chart IDs, skips empty chart groups, prepends `chart_id`, and delegates each
+group to the single-chart row helper; it is multi-chart audit metadata, not a
+replacement for raw `PlanetPosition` objects or numeric vectors.
 Use `planet_position_vector_summary_row()` when an audit table needs compact
 chart-state metadata without embedding the full numeric vector. It uses the same
 ordering and reports position count, vector length, and first/last

@@ -16,6 +16,7 @@ from hermetic_alpha.similarity import (
     nearest_neighbor_rows,
     nearest_neighbor_summary_row,
     nearest_neighbor_summary_rows,
+    planet_position_encoding_group_rows,
     planet_position_encoding_rows,
     planet_position_vector_summary_row,
     planet_position_vector_summary_rows,
@@ -114,6 +115,70 @@ def test_planet_position_encoding_rows_keep_circular_components_inspectable():
     assert sun_row["longitude"] == 359
     assert moon_row["longitude_sin"] == pytest.approx(sun_row["longitude_sin"])
     assert moon_row["longitude_cos"] == pytest.approx(sun_row["longitude_cos"])
+
+
+def test_planet_position_encoding_group_rows_preserves_ordered_mapping_order():
+    early = datetime(2026, 5, 17, 0, 0, tzinfo=timezone.utc)
+    later = datetime(2026, 5, 18, 0, 0, tzinfo=timezone.utc)
+
+    rows = planet_position_encoding_group_rows(
+        {
+            "chart-a": [PlanetPosition(early, "sun", 90)],
+            "chart-b": [PlanetPosition(later, "moon", 180)],
+        }
+    )
+
+    assert [row["chart_id"] for row in rows] == ["chart-a", "chart-b"]
+    assert [row["timestamp"] for row in rows] == [early, later]
+    assert [row["position_index"] for row in rows] == [0, 0]
+
+
+def test_planet_position_encoding_group_rows_accepts_pairs_and_skips_empty_groups():
+    ts = datetime(2026, 5, 17, 0, 0, tzinfo=timezone.utc)
+
+    rows = planet_position_encoding_group_rows(
+        [
+            ("empty", []),
+            (
+                "chart-a",
+                [
+                    PlanetPosition(ts, "sun", 90),
+                    PlanetPosition(ts, "moon", 180),
+                ],
+            ),
+        ]
+    )
+
+    assert [row["chart_id"] for row in rows] == ["chart-a", "chart-a"]
+    assert [row["body"] for row in rows] == ["moon", "sun"]
+
+
+def test_planet_position_encoding_group_rows_rejects_duplicate_chart_ids():
+    ts = datetime(2026, 5, 17, 0, 0, tzinfo=timezone.utc)
+    positions = [PlanetPosition(ts, "sun", 90)]
+
+    with pytest.raises(ValueError, match="chart IDs must be unique"):
+        planet_position_encoding_group_rows([("chart-a", positions), ("chart-a", positions)])
+
+
+def test_planet_position_encoding_group_rows_rejects_blank_chart_ids():
+    with pytest.raises(ValueError, match="chart ID must not be blank"):
+        planet_position_encoding_group_rows([("   ", [])])
+
+
+def test_planet_position_encoding_group_rows_are_csv_compatible():
+    ts = datetime(2026, 5, 17, 0, 0, tzinfo=timezone.utc)
+
+    text = to_csv(
+        planet_position_encoding_group_rows(
+            [("chart-a", [PlanetPosition(ts, "sun", 90)]), ("empty", [])]
+        )
+    )
+
+    assert text.splitlines()[0] == (
+        "chart_id,position_index,timestamp,body,zodiac,longitude,longitude_sin,longitude_cos"
+    )
+    assert "\nchart-a,0,2026-05-17T00:00:00+00:00,sun,tropical,90," in text
 
 
 def test_planet_position_vector_summary_row_uses_sorted_boundary_metadata():

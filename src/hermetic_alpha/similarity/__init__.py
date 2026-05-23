@@ -3,6 +3,7 @@
 from .encoding import (
     encode_longitude,
     encode_planet_positions,
+    planet_position_encoding_group_rows,
     planet_position_encoding_rows,
     planet_position_vector_summary_row,
     planet_position_vector_summary_rows,
@@ -31,6 +32,7 @@ __all__ = [
     "nearest_neighbor_rows",
     "nearest_neighbor_summary_row",
     "nearest_neighbor_summary_rows",
+    "planet_position_encoding_group_rows",
     "planet_position_encoding_rows",
     "planet_position_vector_summary_row",
     "planet_position_vector_summary_rows",
