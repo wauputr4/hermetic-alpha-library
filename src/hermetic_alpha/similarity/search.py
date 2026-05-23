@@ -142,19 +142,25 @@ def nearest_neighbor_summary_rows(
 ) -> list[dict[str, ReportScalar]]:
     """Return ordered compact metadata rows for several nearest-neighbor searches."""
 
+    named_searches = list(_iter_named_searches(searches))
     query_id_by_search = _optional_metadata_by_search(query_ids, "query ID")
     metric_by_search = _optional_metadata_by_search(metrics, "metric")
     limit_by_search = _optional_metadata_by_search(limits, "limit")
     rows: list[dict[str, ReportScalar]] = []
     seen_search_ids: set[str] = set()
 
-    for search_id, results in _iter_named_searches(searches):
+    for search_id, results in named_searches:
         if not search_id.strip():
             raise ValueError("search ID must not be blank")
         if search_id in seen_search_ids:
             raise ValueError("search IDs must be unique")
         seen_search_ids.add(search_id)
 
+    _reject_unknown_metadata_search_ids(query_id_by_search, seen_search_ids, "query ID")
+    _reject_unknown_metadata_search_ids(metric_by_search, seen_search_ids, "metric")
+    _reject_unknown_metadata_search_ids(limit_by_search, seen_search_ids, "limit")
+
+    for search_id, results in named_searches:
         row = nearest_neighbor_summary_row(
             results,
             query_id=query_id_by_search.get(search_id),
@@ -190,6 +196,16 @@ def _optional_metadata_by_search(
             raise ValueError(f"{label} search IDs must be unique")
         metadata[search_id] = value
     return metadata
+
+
+def _reject_unknown_metadata_search_ids(
+    metadata: Mapping[str, Any],
+    declared_search_ids: set[str],
+    label: str,
+) -> None:
+    unknown_ids = [search_id for search_id in metadata if search_id not in declared_search_ids]
+    if unknown_ids:
+        raise ValueError(f"{label} search IDs must match declared searches")
 
 
 def _rank_candidate(
