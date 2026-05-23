@@ -516,11 +516,12 @@ Missing timestamps are counted but excluded from row count and first/last
 timestamp boundaries because they cannot become matrix rows.
 Use `aspect_event_feature_matrix_summary_rows()` when batch feature-matrix
 audits need one flat table across named matrices. It preserves caller order from
-ordered mappings or `(matrix_id, events)` pairs, rejects blank or duplicate
-matrix IDs, supports shared or per-matrix configured feature keys, and keeps the
-same metadata-only role as the single-row helper. When configured feature keys
-are supplied per matrix, each configured matrix ID must be non-blank and match a
-declared matrix ID so notebook and CLI audit setup mistakes fail early.
+ordered mappings or `(matrix_id, events)` pairs, requires matrix IDs to be
+non-blank strings, rejects duplicates, supports shared or per-matrix configured
+feature keys, and keeps the same metadata-only role as the single-row helper.
+When configured feature keys are supplied per matrix, each configured matrix ID
+must also be a non-blank string and match a declared matrix ID so notebook and
+CLI audit setup mistakes fail early.
 
 `event_study_baseline_comparison_row()` is the preferred flat row helper when
 reports need probability deltas and relative lift. It leaves derived fields as
