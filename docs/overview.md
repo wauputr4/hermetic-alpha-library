@@ -80,6 +80,12 @@ Use `aspect_scan_summary_rows()` when comparing several predeclared scans in one
 audit table. It preserves ordered mapping or pair-sequence input, rejects blank
 or duplicate scan IDs, prepends `scan_id`, and delegates scan metadata to the
 single-scan helper.
+Use `aspect_scan_event_group_rows()` when comparing raw aspect events from
+several declared scans in one audit table. It preserves ordered mapping or
+pair-sequence input, rejects blank or duplicate scan IDs, skips empty scan
+groups, prepends `scan_id`, and delegates event fields to the existing
+`AspectEvent.to_dict()` shape; it is grouped raw-event audit metadata, not a
+replacement for `AspectEvent` objects, feature rows, or scan summaries.
 When both positions in a detected aspect include `speed`, the returned
 `AspectEvent.phase` is classified as `applying`, `separating`, or `exact`.
 Missing speed data preserves `phase="unknown"` so raw longitude workflows remain

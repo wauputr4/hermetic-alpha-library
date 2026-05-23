@@ -28,6 +28,7 @@ from hermetic_alpha.analysis import (
 )
 from hermetic_alpha.astro import AspectDefinition as AstroAspectDefinition
 from hermetic_alpha.astro import (
+    aspect_scan_event_group_rows,
     aspect_scan_summary_row,
     aspect_scan_summary_rows,
     planet_position_series_summary_row,
@@ -68,6 +69,7 @@ def test_public_api_exports_match_documented_entrypoints():
     assert aspect_event_feature_matrix_summary_row is features_aspect_event_feature_matrix_summary_row
     assert aspect_event_feature_matrix_summary_rows is features_aspect_event_feature_matrix_summary_rows
     assert callable(aspect_event_study)
+    assert callable(aspect_scan_event_group_rows)
     assert callable(aspect_scan_summary_row)
     assert callable(aspect_scan_summary_rows)
     assert callable(planet_position_series_summary_row)

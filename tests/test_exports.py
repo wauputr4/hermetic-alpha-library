@@ -31,6 +31,7 @@ from hermetic_alpha.analysis import (
     walk_forward_splits,
 )
 from hermetic_alpha.astro import (
+    aspect_scan_event_group_rows,
     aspect_scan_summary_row,
     aspect_scan_summary_rows,
     planet_position_series_summary_row,
@@ -391,6 +392,31 @@ def test_csv_accepts_flat_multi_aspect_scan_summary_rows():
     )
     assert "\nbtc-daily,1,1,1,1,0,0,0,1,0,2026-05-18T00:00:00+00:00" in text
     assert "\nempty,0,0,0,0,0,0,0,0,0,," in text
+
+
+def test_csv_accepts_flat_aspect_scan_event_group_rows():
+    ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
+    events = [
+        AspectEvent(
+            body_a="sun",
+            body_b="jupiter",
+            aspect="conjunction",
+            target_angle=0.0,
+            actual_angle=1.25,
+            orb=1.25,
+            max_orb=3.0,
+            strength=0.5,
+            timestamp=ts,
+        )
+    ]
+
+    text = to_csv(aspect_scan_event_group_rows([("btc-daily", events), ("empty", [])]))
+
+    assert text.splitlines()[0] == (
+        "scan_id,body_a,body_b,aspect,target_angle,actual_angle,orb,max_orb,"
+        "strength,timestamp,phase"
+    )
+    assert "\nbtc-daily,sun,jupiter,conjunction,0.0,1.25,1.25,3.0,0.5,2026-05-18T00:00:00+00:00,unknown" in text
 
 
 def test_csv_accepts_flat_multi_horizon_baseline_comparison_rows():
