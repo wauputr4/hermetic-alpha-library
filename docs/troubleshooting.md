@@ -311,14 +311,16 @@ and `planet_position_encoding_rows()` when individual sine/cosine components
 must be inspected.
 Use `planet_position_encoding_group_rows()` when reports need one per-position
 encoding audit table for several named chart states. It prepends `chart_id`,
-skips empty groups, rejects blank or duplicate chart IDs, and delegates each
-non-empty group to `planet_position_encoding_rows()`. Keep raw
+skips empty groups, requires chart IDs to be non-blank strings, rejects
+duplicates, and delegates each non-empty group to
+`planet_position_encoding_rows()`. Keep raw
 `PlanetPosition` objects and numeric vectors for deeper inspection or
 similarity search.
 Use `planet_position_vector_summary_rows()` when audit reports compare several
 named chart states in one flat table. It preserves caller order from mappings or
-`(chart_id, positions)` pairs, rejects blank or duplicate chart IDs, and keeps
-the same metadata-only role as the single-chart helper.
+`(chart_id, positions)` pairs, requires chart IDs to be non-blank strings,
+rejects duplicates, and keeps the same metadata-only role as the single-chart
+helper.
 
 ### Aspect Phase Classification
 

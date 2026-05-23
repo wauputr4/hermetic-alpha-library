@@ -166,6 +166,11 @@ def test_planet_position_encoding_group_rows_rejects_blank_chart_ids():
         planet_position_encoding_group_rows([("   ", [])])
 
 
+def test_planet_position_encoding_group_rows_rejects_non_string_chart_ids():
+    with pytest.raises(ValueError, match="chart ID must be a string"):
+        planet_position_encoding_group_rows([(123, [])])
+
+
 def test_planet_position_encoding_group_rows_are_csv_compatible():
     ts = datetime(2026, 5, 17, 0, 0, tzinfo=timezone.utc)
 
@@ -258,6 +263,11 @@ def test_planet_position_vector_summary_rows_rejects_duplicate_chart_ids():
 def test_planet_position_vector_summary_rows_rejects_blank_chart_ids():
     with pytest.raises(ValueError, match="chart ID must not be blank"):
         planet_position_vector_summary_rows([("   ", [])])
+
+
+def test_planet_position_vector_summary_rows_rejects_non_string_chart_ids():
+    with pytest.raises(ValueError, match="chart ID must be a string"):
+        planet_position_vector_summary_rows([(123, [])])
 
 
 def test_planet_position_vector_summary_rows_are_csv_compatible():
