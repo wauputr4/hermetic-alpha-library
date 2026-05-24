@@ -131,8 +131,9 @@ rows are unsorted, and leaves `source` as `None` when rows come from mixed or
 unknown sources.
 Use `candle_dataset_summary_rows()` when a report compares several cached
 datasets in one flat table. The helper preserves caller order from mappings or
-ordered `(dataset_id, candles)` pairs, rejects blank or duplicate dataset IDs,
-and keeps the same single-dataset validation as `candle_dataset_summary_row()`.
+ordered `(dataset_id, candles)` pairs, requires supplied dataset IDs to be
+non-blank strings, rejects duplicates, and keeps the same single-dataset
+validation as `candle_dataset_summary_row()`.
 It is compact cache metadata only, not a replacement for exporting the
 underlying candle rows.
 
