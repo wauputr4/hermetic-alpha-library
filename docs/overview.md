@@ -64,8 +64,8 @@ retrograde metadata, and timestamp boundaries; it does not replace raw
 `PlanetPosition` exports or encoded similarity-vector summaries.
 Use `planet_position_series_summary_rows()` when comparing several declared
 ephemeris runs in one audit table. It preserves ordered mapping or pair-sequence
-input, rejects blank or duplicate series IDs, and delegates each row to the
-single-series helper.
+input, requires series IDs to be non-blank strings, rejects duplicates, and
+delegates each row to the single-series helper.
 Use `scan_aspect_series()` to group timestamped `PlanetPosition` rows and run
 the existing aspect detector independently for each timestamp. The scanner
 orders results by timestamp, then sorted body pair and configured aspect order;

@@ -266,6 +266,16 @@ def test_planet_position_series_summary_rows_rejects_blank_series_ids():
         planet_position_series_summary_rows([("   ", positions)])
 
 
+def test_planet_position_series_summary_rows_rejects_non_string_series_ids():
+    positions = [PlanetPosition(datetime(2026, 5, 8, tzinfo=timezone.utc), "sun", 10)]
+
+    with pytest.raises(ValueError, match="series ID must be a string"):
+        planet_position_series_summary_rows({123: positions})
+
+    with pytest.raises(ValueError, match="series ID must be a string"):
+        planet_position_series_summary_rows([(123, positions)])
+
+
 def test_swiss_ephemeris_adapter_returns_normalized_planet_position():
     backend = FakeSwissEph()
     adapter = SwissEphemerisAdapter(ephemeris_path="/tmp/ephe", backend=backend)
