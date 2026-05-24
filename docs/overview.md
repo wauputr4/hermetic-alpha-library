@@ -176,8 +176,8 @@ Examples:
 - Volatility regime.
 
 Coverage row helpers accept `dataset_id=None` for intentionally unnamed audit
-rows, but supplied dataset IDs must not be blank so CSV reports do not carry
-ambiguous identifiers.
+rows, but supplied dataset IDs must be non-blank strings so CSV reports do not
+carry ambiguous identifiers.
 Use `multi_dataset_forward_return_label_coverage_rows()` when comparing several
 declared forward-return label datasets, such as train/test slices, asset
 subsets, or provider sources. It preserves ordered mapping or pair-sequence

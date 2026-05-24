@@ -95,8 +95,9 @@ Mitigation:
   and delegates row fields to the single-dataset coverage helpers; it is
   multi-dataset audit metadata, not a replacement for inspecting the underlying
   label rows.
-- Supplied label coverage `dataset_id` values must not be blank. Pass `None`
-  when a forward-return or local-extrema coverage row should remain unnamed.
+- Supplied label coverage `dataset_id` values must be non-blank strings. Pass
+  `None` when a forward-return or local-extrema coverage row should remain
+  unnamed.
 - Use `local_extrema_label_coverage_row()` before exporting retrospective
   top/bottom labels when the edge-row footprint needs to be visible. Centered
   local-extrema windows intentionally leave rows near the start and end

@@ -257,11 +257,17 @@ def multi_dataset_local_extrema_label_coverage_rows(
 
 
 def _validate_dataset_id(dataset_id: str | None) -> None:
-    if dataset_id is not None and not dataset_id.strip():
+    if dataset_id is None:
+        return
+    if not isinstance(dataset_id, str):
+        raise ValueError("dataset ID must be a string")
+    if not dataset_id.strip():
         raise ValueError("dataset ID must not be blank")
 
 
 def _validate_required_dataset_id(dataset_id: str) -> None:
+    if not isinstance(dataset_id, str):
+        raise ValueError("dataset ID must be a string")
     if not dataset_id.strip():
         raise ValueError("dataset ID must not be blank")
 
