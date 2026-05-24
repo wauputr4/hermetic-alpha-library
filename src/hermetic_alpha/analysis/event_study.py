@@ -135,8 +135,7 @@ def validated_multi_horizon_event_study_report_group_rows(
     rows: list[dict[str, object]] = []
     seen_group_ids: set[str] = set()
     for report_group_id, reports in _iter_named_validated_report_groups(report_groups):
-        if not report_group_id.strip():
-            raise ValueError("report group ID must not be blank")
+        _validate_required_id(report_group_id, "report group ID")
         if report_group_id in seen_group_ids:
             raise ValueError("report group IDs must be unique")
         seen_group_ids.add(report_group_id)
@@ -199,8 +198,7 @@ def multi_horizon_baseline_comparison_group_rows(
     rows: list[dict[str, object]] = []
     seen_group_ids: set[str] = set()
     for comparison_group_id, results in _iter_named_comparison_groups(comparison_groups):
-        if not comparison_group_id.strip():
-            raise ValueError("comparison group ID must not be blank")
+        _validate_required_id(comparison_group_id, "comparison group ID")
         if comparison_group_id in seen_group_ids:
             raise ValueError("comparison group IDs must be unique")
         seen_group_ids.add(comparison_group_id)
@@ -238,8 +236,7 @@ def timestamp_join_summary_rows(
     rows: list[dict[str, object]] = []
     seen_join_ids: set[str] = set()
     for join_id, result in _iter_named_joins(joins):
-        if not join_id.strip():
-            raise ValueError("join ID must not be blank")
+        _validate_required_id(join_id, "join ID")
         if join_id in seen_join_ids:
             raise ValueError("join IDs must be unique")
         seen_join_ids.add(join_id)
@@ -254,6 +251,13 @@ def _iter_named_joins(
         yield from joins.items()
         return
     yield from joins
+
+
+def _validate_required_id(identifier: str, label: str) -> None:
+    if not isinstance(identifier, str):
+        raise ValueError(f"{label} must be a string")
+    if not identifier.strip():
+        raise ValueError(f"{label} must not be blank")
 
 
 def _iter_named_comparison_groups(

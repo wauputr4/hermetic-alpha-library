@@ -814,6 +814,14 @@ def test_validated_multi_horizon_event_study_report_group_rows_reject_blank_grou
         validated_multi_horizon_event_study_report_group_rows([("   ", [])])
 
 
+def test_validated_multi_horizon_event_study_report_group_rows_reject_non_string_group_ids():
+    with pytest.raises(ValueError, match="report group ID must be a string"):
+        validated_multi_horizon_event_study_report_group_rows({123: []})  # type: ignore[dict-item]
+
+    with pytest.raises(ValueError, match="report group ID must be a string"):
+        validated_multi_horizon_event_study_report_group_rows([(123, [])])  # type: ignore[list-item]
+
+
 def test_event_study_baseline_comparison_row_calculates_delta_and_lift():
     result = summarize_event_study(add_forward_returns([100, 110, 99, 120], [1]), [0, 1], 1)
 
@@ -920,6 +928,14 @@ def test_multi_horizon_baseline_comparison_group_rows_reject_duplicate_group_ids
 def test_multi_horizon_baseline_comparison_group_rows_reject_blank_group_ids():
     with pytest.raises(ValueError, match="comparison group ID must not be blank"):
         multi_horizon_baseline_comparison_group_rows([("   ", [])])
+
+
+def test_multi_horizon_baseline_comparison_group_rows_reject_non_string_group_ids():
+    with pytest.raises(ValueError, match="comparison group ID must be a string"):
+        multi_horizon_baseline_comparison_group_rows({123: []})  # type: ignore[dict-item]
+
+    with pytest.raises(ValueError, match="comparison group ID must be a string"):
+        multi_horizon_baseline_comparison_group_rows([(123, [])])  # type: ignore[list-item]
 
 
 def test_join_aspect_events_to_market_labels_orders_matches_by_event_timestamp():
@@ -1097,6 +1113,16 @@ def test_timestamp_join_summary_rows_rejects_duplicate_and_blank_join_ids():
 
     with pytest.raises(ValueError, match="join ID must not be blank"):
         timestamp_join_summary_rows([(" ", empty)])
+
+
+def test_timestamp_join_summary_rows_rejects_non_string_join_ids():
+    empty = join_aspect_events_to_market_labels([], [])
+
+    with pytest.raises(ValueError, match="join ID must be a string"):
+        timestamp_join_summary_rows({123: empty})  # type: ignore[dict-item]
+
+    with pytest.raises(ValueError, match="join ID must be a string"):
+        timestamp_join_summary_rows([(123, empty)])  # type: ignore[list-item]
 
 
 def test_join_aspect_events_to_market_labels_rejects_duplicate_label_timestamps():
