@@ -506,6 +506,12 @@ aspect event; it does not pivot absent aspects into false indicator columns.
 Aspect feature row builders require `body_a`, `body_b`, and `aspect` values to
 be non-blank strings so malformed external events fail before ambiguous column
 keys are produced.
+Use `aspect_event_feature_group_rows()` when several declared event groups need
+one raw feature-row export. It preserves caller group order and event order,
+rejects blank/duplicate/non-string group IDs, skips empty groups, prepends
+`group_id`, and reuses `aspect_event_feature_rows()` so malformed aspect
+components keep the same validation behavior. Use matrix helpers only when the
+report needs timestamp-level pivoted feature columns or matrix metadata.
 
 Use `aspect_event_feature_matrix_rows()` when downstream code needs one row per
 timestamp with deterministic aspect indicator columns. It rejects untimestamped

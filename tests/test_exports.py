@@ -38,7 +38,11 @@ from hermetic_alpha.astro import (
     planet_position_series_summary_rows,
 )
 from hermetic_alpha.exports import to_csv, to_json, write_csv, write_json
-from hermetic_alpha.features import aspect_event_feature_matrix_summary_row, aspect_event_feature_matrix_summary_rows
+from hermetic_alpha.features import (
+    aspect_event_feature_group_rows,
+    aspect_event_feature_matrix_summary_row,
+    aspect_event_feature_matrix_summary_rows,
+)
 from hermetic_alpha.labels import (
     add_forward_returns,
     add_local_extrema_labels,
@@ -312,6 +316,32 @@ def test_csv_accepts_flat_aspect_feature_matrix_summary_rows():
         "first_timestamp,last_timestamp"
     )
     assert "btc-train,1,1,1,1,0,0,1,2026-05-18T00:00:00+00:00" in text
+
+
+def test_csv_accepts_flat_aspect_feature_group_rows():
+    ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
+    events = [
+        AspectEvent(
+            body_a="sun",
+            body_b="jupiter",
+            aspect="conjunction",
+            target_angle=0.0,
+            actual_angle=1.25,
+            orb=1.25,
+            max_orb=3.0,
+            strength=1 - (1.25 / 3.0),
+            timestamp=ts,
+            phase="applying",
+        )
+    ]
+
+    text = to_csv(aspect_event_feature_group_rows([("train", events), ("empty", [])]))
+
+    assert text.splitlines()[0] == (
+        "group_id,timestamp,body_a,body_b,body_pair,aspect,feature_key,active,"
+        "target_angle,actual_angle,orb,max_orb,strength,phase"
+    )
+    assert "\ntrain,2026-05-18T00:00:00+00:00,sun,jupiter,sun:jupiter,conjunction" in text
 
 
 def test_csv_accepts_flat_multi_aspect_feature_matrix_summary_rows():

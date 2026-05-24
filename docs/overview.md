@@ -135,6 +135,11 @@ passed directly to `hermetic_alpha.exports.to_csv()` or simple model-building
 code without adding CLI-specific formatting. Aspect feature row builders expect
 `body_a`, `body_b`, and `aspect` values to be non-blank strings before deriving
 column keys.
+Use `aspect_event_feature_group_rows()` when a report needs those raw feature
+rows from several declared scans, train/test slices, or orb configurations in
+one CSV-safe table. It preserves group order and event order, requires
+non-blank unique group IDs, skips empty groups, prepends `group_id`, and
+delegates feature fields to `aspect_event_feature_rows()`.
 Use `aspect_event_feature_matrix_rows()` when model-building code needs one row
 per timestamp. It groups exact timestamp matches and emits deterministic
 `<body_a>_<body_b>_<aspect>_active`, `_orb`, `_strength`, and `_phase` columns
