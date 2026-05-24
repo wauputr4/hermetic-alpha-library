@@ -33,8 +33,9 @@ object used for inspection.
 Use `timestamp_join_summary_rows()` when comparing several declared exact joins
 in one audit table, such as train/test slices, asset subsets, aspect filters, or
 horizon-specific label tables. It preserves ordered mapping or pair-sequence
-input, rejects blank or duplicate join IDs, prepends `join_id`, and delegates to
-the single-join summary helper without replacing inspection of
+input, requires join IDs to be non-blank strings, rejects duplicates, prepends
+`join_id`, and delegates to the single-join summary helper without replacing
+inspection of
 `TimestampJoinResult.joined`.
 
 Multi-horizon event studies should reuse the same selected event indexes across all configured horizons so 1D, 7D, and 30D summaries are comparable and auditable.
@@ -59,8 +60,9 @@ it is an export convenience, not a separate statistical method.
 Use `validated_multi_horizon_event_study_report_group_rows()` when a report
 compares several declared validated-report scenarios, such as train/test
 slices, asset subsets, or event filters. It prepends `report_group_id`,
-preserves caller order, rejects blank or duplicate group IDs, and emits no rows
-for empty groups; it is multi-scenario audit metadata, not a replacement for
+preserves caller order, requires group IDs to be non-blank strings, rejects
+duplicates, and emits no rows for empty groups; it is multi-scenario audit
+metadata, not a replacement for
 inspecting the underlying `ValidatedEventStudyReport` objects.
 Use `event_study_baseline_comparison_row()` when a report needs explicit
 baseline comparison fields. It preserves the core event count and probabilities,
@@ -123,8 +125,9 @@ baseline comparison helper.
 Use `multi_horizon_baseline_comparison_group_rows()` when a report compares
 several declared baseline-comparison scenarios, such as train/test slices,
 event filters, or asset subsets. It prepends `comparison_group_id`, preserves
-caller order, rejects blank or duplicate group IDs, and emits no rows for empty
-groups; it remains multi-scenario audit metadata, not a replacement for
+caller order, requires group IDs to be non-blank strings, rejects duplicates,
+and emits no rows for empty groups; it remains multi-scenario audit metadata,
+not a replacement for
 inspecting the underlying `EventStudyResult` objects.
 
 ## 4. Bootstrap Confidence Interval

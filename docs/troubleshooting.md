@@ -180,9 +180,10 @@ Mitigation:
   `None` lower/upper bounds.
 - Use `validated_multi_horizon_event_study_report_group_rows()` when combining
   several declared validated-report scenarios into one audit table. It preserves
-  ordered mappings or `(report_group_id, reports)` pairs, rejects blank or
-  duplicate group IDs, skips empty groups, and prepends `report_group_id`; keep
-  the original `ValidatedEventStudyReport` objects for detailed inspection.
+  ordered mappings or `(report_group_id, reports)` pairs, requires group IDs to
+  be non-blank strings, rejects duplicates, skips empty groups, and prepends
+  `report_group_id`; keep the original `ValidatedEventStudyReport` objects for
+  detailed inspection.
 
 ### Permutation Test Interpretation
 
@@ -367,10 +368,10 @@ the nested joined records and full unmatched-event detail in
 `TimestampJoinResult.to_dict()` so researchers can inspect the full join when a
 count looks suspicious.
 Use `timestamp_join_summary_rows()` when several predeclared exact joins need
-one compact CSV-safe audit table. The helper preserves caller order, rejects
-blank or duplicate join IDs, prepends `join_id`, and reuses the single-join
-summary fields; inspect `TimestampJoinResult.joined` when row counts look
-suspicious.
+one compact CSV-safe audit table. The helper preserves caller order, requires
+join IDs to be non-blank strings, rejects duplicates, prepends `join_id`, and
+reuses the single-join summary fields; inspect `TimestampJoinResult.joined`
+when row counts look suspicious.
 
 Use `add_candle_forward_returns()` instead of the bare close-list helper when an
 event-study workflow starts from `MarketCandle` rows. It preserves candle
@@ -540,8 +541,9 @@ empty list for empty input.
 Use `multi_horizon_baseline_comparison_group_rows()` when combining several
 declared baseline-comparison result sets into one audit table. The helper
 accepts an ordered mapping or ordered `(comparison_group_id, results)` pairs,
-prepends `comparison_group_id`, rejects blank or duplicate group IDs, and emits
-no rows for empty groups. It is multi-scenario audit metadata only; keep the
+prepends `comparison_group_id`, requires group IDs to be non-blank strings,
+rejects duplicates, and emits no rows for empty groups. It is multi-scenario
+audit metadata only; keep the
 raw `EventStudyResult` values for statistical interpretation and deeper review.
 
 ## Reliable test verification (local + CI)
