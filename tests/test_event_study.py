@@ -175,6 +175,11 @@ def test_forward_return_label_coverage_row_rejects_blank_dataset_id():
         forward_return_label_coverage_row([], 1, dataset_id="   ")
 
 
+def test_forward_return_label_coverage_row_rejects_non_string_dataset_id():
+    with pytest.raises(ValueError, match="dataset ID must be a string"):
+        forward_return_label_coverage_row([], 1, dataset_id=123)  # type: ignore[arg-type]
+
+
 def test_multi_horizon_forward_return_label_coverage_rows_preserve_order_and_deduplicate():
     labels = add_forward_returns([100, 110, 99, 120], [1, 2])
 
@@ -245,6 +250,8 @@ def test_multi_dataset_forward_return_label_coverage_rows_validates_dataset_ids(
         multi_dataset_forward_return_label_coverage_rows([("train", labels), ("train", labels)], [1])
     with pytest.raises(ValueError, match="dataset ID must not be blank"):
         multi_dataset_forward_return_label_coverage_rows([(" ", labels)], [1])
+    with pytest.raises(ValueError, match="dataset ID must be a string"):
+        multi_dataset_forward_return_label_coverage_rows([(123, labels)], [1])  # type: ignore[list-item]
 
 
 def test_multi_dataset_forward_return_label_coverage_rows_accepts_empty_label_datasets():
@@ -377,6 +384,11 @@ def test_local_extrema_label_coverage_row_rejects_blank_dataset_id():
         local_extrema_label_coverage_row([], 1, dataset_id="   ")
 
 
+def test_local_extrema_label_coverage_row_rejects_non_string_dataset_id():
+    with pytest.raises(ValueError, match="dataset ID must be a string"):
+        local_extrema_label_coverage_row([], 1, dataset_id=123)  # type: ignore[arg-type]
+
+
 def test_multi_window_local_extrema_label_coverage_rows_preserve_order_and_deduplicate():
     labels = add_local_extrema_labels([100, 90, 110, 105, 80], [1, 2])
 
@@ -448,6 +460,8 @@ def test_multi_dataset_local_extrema_label_coverage_rows_validates_dataset_ids()
         multi_dataset_local_extrema_label_coverage_rows([("train", labels), ("train", labels)], 1)
     with pytest.raises(ValueError, match="dataset ID must not be blank"):
         multi_dataset_local_extrema_label_coverage_rows([(" ", labels)], 1)
+    with pytest.raises(ValueError, match="dataset ID must be a string"):
+        multi_dataset_local_extrema_label_coverage_rows([(123, labels)], 1)  # type: ignore[list-item]
 
 
 def test_multi_dataset_local_extrema_label_coverage_rows_accepts_empty_label_datasets():
