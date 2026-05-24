@@ -49,7 +49,7 @@ from hermetic_alpha.labels import (
     multi_horizon_forward_return_label_coverage_rows,
     multi_window_local_extrema_label_coverage_rows,
 )
-from hermetic_alpha.market import candle_dataset_summary_row, candle_dataset_summary_rows
+from hermetic_alpha.market import candle_dataset_group_rows, candle_dataset_summary_row, candle_dataset_summary_rows
 from hermetic_alpha.models import AspectEvent, EventStudyResult, MarketCandle, PlanetPosition
 from hermetic_alpha.similarity import (
     SimilarityCandidate,
@@ -513,6 +513,29 @@ def test_csv_accepts_flat_multi_candle_dataset_summary_rows():
     )
     assert "\nbtc-daily,1,BTC-USD,1d," in text
     assert "\neth-daily,1,ETH-USD,1d," in text
+
+
+def test_csv_accepts_flat_candle_dataset_group_rows():
+    btc = [
+        MarketCandle(
+            datetime(2024, 5, 8, tzinfo=timezone.utc),
+            "BTC-USD",
+            100,
+            105,
+            95,
+            102,
+            volume=1200,
+            interval="1d",
+            source="yahoo_finance",
+        )
+    ]
+    eth = [MarketCandle(datetime(2024, 5, 9, tzinfo=timezone.utc), "ETH-USD", 200, 205, 195, 202)]
+
+    text = to_csv(candle_dataset_group_rows([("btc-daily", btc), ("empty", []), ("eth-daily", eth)]))
+
+    assert text.splitlines()[0] == "dataset_id,timestamp,asset,open,high,low,close,volume,interval,source"
+    assert "\nbtc-daily,2024-05-08T00:00:00+00:00,BTC-USD,100,105,95,102,1200,1d,yahoo_finance" in text
+    assert "\neth-daily,2024-05-09T00:00:00+00:00,ETH-USD,200,205,195,202,,1d," in text
 
 
 def test_csv_accepts_flat_permutation_test_result_rows():

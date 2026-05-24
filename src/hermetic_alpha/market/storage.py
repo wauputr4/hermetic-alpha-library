@@ -94,6 +94,23 @@ def candle_dataset_summary_rows(
     return rows
 
 
+def candle_dataset_group_rows(
+    datasets: Mapping[str, Sequence[MarketCandle]] | Sequence[tuple[str, Sequence[MarketCandle]]],
+) -> list[dict[str, object]]:
+    """Return ordered raw candle rows for several named datasets."""
+
+    rows: list[dict[str, object]] = []
+    seen_dataset_ids: set[str] = set()
+    for dataset_id, candles in _iter_named_candle_datasets(datasets):
+        _validate_required_dataset_id(dataset_id)
+        if dataset_id in seen_dataset_ids:
+            raise CandleStorageError("dataset IDs must be unique")
+        seen_dataset_ids.add(dataset_id)
+        for candle in candles:
+            rows.append({"dataset_id": dataset_id, **candle.to_dict()})
+    return rows
+
+
 def _candle_from_row(row: Any, index: int) -> MarketCandle:
     if not isinstance(row, dict):
         raise CandleStorageError(f"candle row {index} must be an object")

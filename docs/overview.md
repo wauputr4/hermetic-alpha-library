@@ -118,6 +118,12 @@ pair-sequence input, requires supplied dataset IDs to be non-blank strings,
 rejects duplicates, and delegates each dataset to the single-row helper so
 validation and column names stay
 centralized.
+Use `candle_dataset_group_rows()` when a report needs the normalized raw
+`MarketCandle` rows from several declared datasets in one CSV-safe table. It
+preserves dataset order and candle order, requires non-blank unique dataset
+IDs, skips empty datasets, prepends `dataset_id`, and delegates candle fields to
+`MarketCandle.to_dict()`. Use the summary helpers when only compact cache
+metadata is needed.
 
 ### `hermetic_alpha.features`
 
