@@ -66,6 +66,16 @@ def test_aspect_event_feature_rows_are_csv_compatible():
     assert "2026-05-18T00:00:00+00:00,sun,jupiter,sun:jupiter,conjunction" in text
 
 
+def test_aspect_event_feature_rows_reject_non_string_feature_components():
+    with pytest.raises(ValueError, match="aspect feature components must be non-blank strings"):
+        aspect_event_feature_rows([_aspect_event(42, "jupiter", "conjunction", None)])
+
+
+def test_aspect_event_feature_rows_reject_blank_feature_components():
+    with pytest.raises(ValueError, match="aspect feature components must be non-blank strings"):
+        aspect_event_feature_rows([_aspect_event("sun", "   ", "conjunction", None)])
+
+
 def test_aspect_event_feature_matrix_rows_group_events_by_timestamp():
     ts1 = datetime(2026, 5, 18, tzinfo=timezone.utc)
     ts2 = datetime(2026, 5, 19, tzinfo=timezone.utc)
@@ -127,6 +137,20 @@ def test_aspect_event_feature_matrix_rows_reject_duplicate_features_at_same_time
                 _aspect_event("sun", "jupiter", "conjunction", ts),
             ]
         )
+
+
+def test_aspect_event_feature_matrix_rows_reject_non_string_feature_components():
+    ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
+
+    with pytest.raises(ValueError, match="aspect feature components must be non-blank strings"):
+        aspect_event_feature_matrix_rows([_aspect_event("sun", 42, "conjunction", ts)])
+
+
+def test_aspect_event_feature_matrix_rows_reject_blank_feature_components():
+    ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
+
+    with pytest.raises(ValueError, match="aspect feature components must be non-blank strings"):
+        aspect_event_feature_matrix_rows([_aspect_event("sun", "jupiter", "   ", ts)])
 
 
 def test_aspect_event_feature_matrix_rows_with_schema_keeps_train_test_columns_stable():
@@ -213,6 +237,16 @@ def test_aspect_event_feature_matrix_rows_with_schema_rejects_duplicate_observed
                 _aspect_event("sun", "jupiter", "conjunction", ts),
                 _aspect_event("sun", "jupiter", "conjunction", ts),
             ],
+            ["sun_jupiter_conjunction"],
+        )
+
+
+def test_aspect_event_feature_matrix_rows_with_schema_rejects_non_string_observed_components():
+    ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
+
+    with pytest.raises(ValueError, match="aspect feature components must be non-blank strings"):
+        aspect_event_feature_matrix_rows_with_schema(
+            [_aspect_event("sun", "jupiter", 42, ts)],
             ["sun_jupiter_conjunction"],
         )
 
@@ -306,6 +340,14 @@ def test_aspect_event_feature_matrix_summary_row_rejects_empty_configured_keys()
 def test_aspect_event_feature_matrix_summary_row_rejects_non_string_configured_keys():
     with pytest.raises(ValueError, match="configured aspect feature keys must be non-blank strings"):
         aspect_event_feature_matrix_summary_row([], ["sun_jupiter_conjunction", 42])
+
+
+def test_aspect_event_feature_matrix_summary_row_rejects_non_string_observed_components():
+    with pytest.raises(ValueError, match="aspect feature components must be non-blank strings"):
+        aspect_event_feature_matrix_summary_row(
+            [_aspect_event("sun", "jupiter", 42, None)],
+            ["sun_jupiter_conjunction"],
+        )
 
 
 def test_aspect_event_feature_matrix_summary_row_is_csv_compatible():
@@ -462,9 +504,9 @@ def test_aspect_event_feature_matrix_summary_rows_is_csv_compatible():
 
 
 def _aspect_event(
-    body_a: str,
-    body_b: str,
-    aspect: str,
+    body_a: object,
+    body_b: object,
+    aspect: object,
     timestamp: datetime | None,
     *,
     phase: str = "unknown",
