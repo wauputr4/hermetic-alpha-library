@@ -136,7 +136,8 @@ walk-forward, or batch exports need the same feature columns even when a
 configured aspect is absent from one dataset. Missing configured features emit
 inactive `False` flags and `None` numeric/phase values. Unknown observed
 features are included by default for exploratory exports, or rejected with
-`include_unknown_features=False` for strict schema validation.
+`include_unknown_features=False` for strict schema validation. Configured
+aspect feature keys must be non-blank strings.
 Use `aspect_event_feature_matrix_summary_row()` when audits need compact matrix
 metadata before export or model training. It reports row/timestamp count,
 observed and configured feature counts, duplicate configured keys, missing
@@ -148,7 +149,8 @@ walk-forward folds, aspect schemas, or orb configurations. It preserves
 ordered mapping or pair-sequence input, requires matrix IDs to be non-blank
 strings, rejects duplicates, prepends `matrix_id`, and delegates each row to
 the single-matrix helper. Per-matrix configured feature-key mappings or pairs
-must also use non-blank string matrix IDs that match the declared matrices.
+must also use non-blank string matrix IDs that match the declared matrices, and
+configured aspect feature keys must be non-blank strings.
 
 Examples:
 
