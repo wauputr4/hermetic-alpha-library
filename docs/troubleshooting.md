@@ -154,9 +154,10 @@ Mitigation:
   schema.
 - Use `bootstrap_interval_rows()` before writing a compact table of several
   predeclared bootstrap intervals. It accepts an ordered mapping or ordered
-  `(statistic_name, interval)` pairs, rejects blank or duplicate statistic
-  names, and reuses `bootstrap_interval_row()` for each interval; it does not
-  replace the raw bootstrap distribution or the single-interval helper.
+  `(statistic_name, interval)` pairs, requires statistic names to be non-blank
+  strings, rejects duplicates, and reuses `bootstrap_interval_row()` for each
+  interval; it does not replace the raw bootstrap distribution or the
+  single-interval helper.
 - Seed `permutation_test()` and report its `alternative`, `permutations`, and
   p-value correction behavior when using permutation p-values in research notes.
 - Use `summarize_validated_event_study()` when a report should carry the core
@@ -202,8 +203,8 @@ constructed result has an empty distribution, the count is `0` and the min/max
 fields are `None`.
 Use `permutation_test_result_rows()` for compact multi-scenario permutation
 metadata tables. It preserves ordered mapping or pair-sequence input, rejects
-blank or duplicate scenario IDs, and prepends `scenario_id` while keeping full
-null distributions out of CSV output.
+scenario IDs that are not non-blank strings, rejects duplicates, and prepends
+`scenario_id` while keeping full null distributions out of CSV output.
 
 Use `random_baseline_distribution_row()` when random-baseline results need the
 same compact CSV treatment. `random_baseline_distribution()` intentionally
@@ -214,9 +215,10 @@ summary values instead of raising from `min()` or `max()`.
 
 Use `random_baseline_distribution_rows()` for compact multi-scenario baseline
 tables. It accepts an ordered mapping or ordered `(baseline_id, distribution)`
-pairs, rejects blank or duplicate baseline IDs, prepends `baseline_id`, and
-reuses the single-distribution row helper for summary fields. It is for audit
-metadata, not a replacement for inspecting or plotting full distributions.
+pairs, rejects baseline IDs that are not non-blank strings, rejects duplicates,
+prepends `baseline_id`, and reuses the single-distribution row helper for
+summary fields. It is for audit metadata, not a replacement for inspecting or
+plotting full distributions.
 
 ### Walk-Forward Split Boundaries
 
@@ -235,9 +237,10 @@ are CSV-safe scalars; nested observations such as mappings or lists are emitted
 as `None` in the endpoint columns.
 Use `walk_forward_split_group_rows()` when a report compares several declared
 split configurations, such as train/test sizes, step sizes, or asset subsets.
-It preserves mapping or pair-sequence order, rejects blank or duplicate split
-group IDs, prepends `split_group_id`, and emits no rows for empty groups. Keep
-the original `WalkForwardSplit` objects for inspecting full train/test windows.
+It preserves mapping or pair-sequence order, rejects split group IDs that are
+not non-blank strings, rejects duplicates, prepends `split_group_id`, and emits
+no rows for empty groups. Keep the original `WalkForwardSplit` objects for
+inspecting full train/test windows.
 
 ### Nearest-Neighbor Report Rows
 

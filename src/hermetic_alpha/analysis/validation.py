@@ -85,8 +85,7 @@ def permutation_test_result_rows(
     rows: list[dict[str, float | int | str | None]] = []
     seen_scenario_ids: set[str] = set()
     for scenario_id, result in _iter_named_permutation_results(results):
-        if not scenario_id.strip():
-            raise ValueError("scenario ID must not be blank")
+        _validate_report_id(scenario_id, singular_name="scenario ID")
         if scenario_id in seen_scenario_ids:
             raise ValueError("scenario IDs must be unique")
         seen_scenario_ids.add(scenario_id)
@@ -130,8 +129,7 @@ def random_baseline_distribution_rows(
     rows: list[dict[str, float | int | str | None]] = []
     seen_baseline_ids: set[str] = set()
     for baseline_id, distribution in _iter_named_distributions(distributions):
-        if not baseline_id.strip():
-            raise ValueError("baseline ID must not be blank")
+        _validate_report_id(baseline_id, singular_name="baseline ID")
         if baseline_id in seen_baseline_ids:
             raise ValueError("baseline IDs must be unique")
         seen_baseline_ids.add(baseline_id)
@@ -180,8 +178,7 @@ def bootstrap_interval_rows(
     rows: list[dict[str, float | int | str | None]] = []
     seen_statistic_names: set[str] = set()
     for statistic_name, interval in _iter_named_intervals(intervals):
-        if not statistic_name.strip():
-            raise ValueError("statistic name must not be blank")
+        _validate_report_id(statistic_name, singular_name="statistic name")
         if statistic_name in seen_statistic_names:
             raise ValueError("statistic names must be unique")
         seen_statistic_names.add(statistic_name)
@@ -225,8 +222,7 @@ def walk_forward_split_group_rows(
     rows: list[dict[str, ReportScalar]] = []
     seen_split_group_ids: set[str] = set()
     for split_group_id, splits in _iter_named_split_groups(split_groups):
-        if not split_group_id.strip():
-            raise ValueError("split group ID must not be blank")
+        _validate_report_id(split_group_id, singular_name="split group ID")
         if split_group_id in seen_split_group_ids:
             raise ValueError("split group IDs must be unique")
         seen_split_group_ids.add(split_group_id)
@@ -468,6 +464,13 @@ def _evaluate_distribution_value(value: float) -> float:
     if not isfinite(result):
         raise ValueError("distribution values must be finite numeric values")
     return result
+
+
+def _validate_report_id(identifier: object, *, singular_name: str) -> None:
+    if not isinstance(identifier, str):
+        raise ValueError(f"{singular_name} must be a string")
+    if not identifier.strip():
+        raise ValueError(f"{singular_name} must not be blank")
 
 
 def _iter_named_distributions(
