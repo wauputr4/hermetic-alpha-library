@@ -176,6 +176,20 @@ def test_candle_dataset_summary_rows_rejects_blank_dataset_ids():
         candle_dataset_summary_rows([("   ", candles)])
 
 
+def test_candle_dataset_summary_rows_rejects_non_string_mapping_dataset_ids():
+    candles = [MarketCandle(datetime(2024, 5, 8, tzinfo=timezone.utc), "BTC-USD", 100, 105, 95, 102)]
+
+    with pytest.raises(CandleStorageError, match="dataset ID must be a string"):
+        candle_dataset_summary_rows({123: candles})  # type: ignore[dict-item]
+
+
+def test_candle_dataset_summary_rows_rejects_non_string_pair_dataset_ids():
+    candles = [MarketCandle(datetime(2024, 5, 8, tzinfo=timezone.utc), "BTC-USD", 100, 105, 95, 102)]
+
+    with pytest.raises(CandleStorageError, match="dataset ID must be a string"):
+        candle_dataset_summary_rows([(123, candles)])  # type: ignore[list-item]
+
+
 def test_candle_dataset_summary_rows_delegates_dataset_validation():
     candles = [
         MarketCandle(datetime(2024, 5, 8, tzinfo=timezone.utc), "BTC-USD", 100, 105, 95, 102),
