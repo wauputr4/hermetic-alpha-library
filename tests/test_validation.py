@@ -573,6 +573,9 @@ def test_validation_helpers_validate_inputs():
     with pytest.raises(ValueError, match="baseline ID must not be blank"):
         random_baseline_distribution_rows([("   ", [0.1])])
 
+    with pytest.raises(ValueError, match="baseline ID must be a string"):
+        random_baseline_distribution_rows({123: [0.1]})  # type: ignore[dict-item]
+
     with pytest.raises(ValueError, match="distribution values must be finite numeric values"):
         random_baseline_distribution_rows({"all_windows": [float("nan")]})
 
@@ -593,6 +596,9 @@ def test_validation_helpers_validate_inputs():
 
     with pytest.raises(ValueError, match="statistic name must not be blank"):
         bootstrap_interval_rows([("   ", (0.1, 0.2))])
+
+    with pytest.raises(ValueError, match="statistic name must be a string"):
+        bootstrap_interval_rows({123: (0.1, 0.2)})  # type: ignore[dict-item]
 
     with pytest.raises(ValueError, match="interval must contain exactly two finite numeric bounds"):
         bootstrap_interval_rows({"mean_return": (0.1,)})
@@ -615,8 +621,15 @@ def test_validation_helpers_validate_inputs():
     with pytest.raises(ValueError, match="scenario ID must not be blank"):
         permutation_test_result_rows([("   ", result)])
 
+    with pytest.raises(ValueError, match="scenario ID must be a string"):
+        permutation_test_result_rows({123: result})  # type: ignore[dict-item]
+
     with pytest.raises(ValueError, match="results must contain PermutationTestResult values"):
         permutation_test_result_rows([("bullish_7d", object())])
+
+    split = WalkForwardSplit(("d1",), ("d2",), 0, 1, 1, 2)
+    with pytest.raises(ValueError, match="split group ID must be a string"):
+        walk_forward_split_group_rows({123: [split]})  # type: ignore[dict-item]
 
 
 def test_low_sample_warning_returns_message_only_below_threshold():

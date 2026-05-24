@@ -156,8 +156,9 @@ confidence, seed, and statistic-name metadata for notebooks and audit exports.
 Use `bootstrap_interval_rows()` when a notebook or audit compares several
 predeclared bootstrap intervals in one table. It preserves ordered statistic
 names, applies the same optional sample, confidence, and seed metadata to every
-row, rejects blank or duplicate statistic names, and delegates each interval to
-the single-row helper so validation and column names remain centralized.
+row, requires statistic names to be non-blank strings, rejects duplicates, and
+delegates each interval to the single-row helper so validation and column names
+remain centralized.
 
 ## 5. Permutation Test
 
@@ -179,9 +180,9 @@ for CSV output. It keeps the full distribution list out of the row and emits
 count, minimum, maximum, mean, and optional sample metadata instead.
 Use `random_baseline_distribution_rows()` when several declared baseline
 scenarios need one compact CSV-safe table. It preserves ordered baseline IDs,
-rejects blank or duplicate baseline IDs, applies shared sample metadata to every
-row, and delegates distribution summaries to the single-row helper; keep the
-full distributions for plots or deeper inspection.
+requires baseline IDs to be non-blank strings, rejects duplicates, applies
+shared sample metadata to every row, and delegates distribution summaries to the
+single-row helper; keep the full distributions for plots or deeper inspection.
 
 The library also exposes `permutation_test()` for dependency-free two-sample
 random relabeling. Pass observed event outcomes and baseline outcomes, choose a
@@ -196,9 +197,10 @@ count, seed, and null mean fields, while replacing the full null distribution
 list with count, minimum, and maximum metadata.
 Use `permutation_test_result_rows()` when several declared permutation-test
 scenarios need one compact CSV-safe table. It preserves ordered scenario IDs,
-rejects blank or duplicate IDs, prepends each row with `scenario_id`, and
-delegates the statistical fields to `permutation_test_result_row()`; keep full
-`PermutationTestResult` values for inspecting or plotting null distributions.
+requires scenario IDs to be non-blank strings, rejects duplicates, prepends
+each row with `scenario_id`, and delegates the statistical fields to
+`permutation_test_result_row()`; keep full `PermutationTestResult` values for
+inspecting or plotting null distributions.
 
 Permutation tests do not remove overfitting by themselves. They only compare one
 declared statistic against a random relabeling baseline for the supplied sample.
@@ -275,9 +277,10 @@ split order, includes boundary and size fields, and emits scalar endpoint
 values when they are CSV-safe.
 Use `walk_forward_split_group_rows()` when comparing several declared
 walk-forward configurations in one audit table. It accepts ordered mappings or
-ordered `(split_group_id, splits)` pairs, rejects blank or duplicate group IDs,
-prepends `split_group_id` to each emitted split row, and skips empty groups.
-The helper is multi-configuration audit metadata, not a replacement for
+ordered `(split_group_id, splits)` pairs, requires split group IDs to be
+non-blank strings, rejects duplicates, prepends `split_group_id` to each
+emitted split row, and skips empty groups. The helper is multi-configuration
+audit metadata, not a replacement for
 inspecting the original `WalkForwardSplit` objects.
 Walk-forward validation reduces leakage risk, but it does not prove predictive
 value by itself.
