@@ -281,7 +281,9 @@ def _normalize_feature_key(feature_key: object) -> str:
     return normalized
 
 
-def _normalize_feature_key_part(value: str) -> str:
+def _normalize_feature_key_part(value: object) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("aspect feature components must be non-blank strings")
     return value.strip().lower()
 
 

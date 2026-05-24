@@ -126,7 +126,9 @@ The initial helper is `aspect_event_feature_rows()`, which turns ordered
 `AspectEvent` values into flat scalar rows with timestamp, body pair, aspect,
 active flag, angle/orb fields, strength, and phase columns. The output can be
 passed directly to `hermetic_alpha.exports.to_csv()` or simple model-building
-code without adding CLI-specific formatting.
+code without adding CLI-specific formatting. Aspect feature row builders expect
+`body_a`, `body_b`, and `aspect` values to be non-blank strings before deriving
+column keys.
 Use `aspect_event_feature_matrix_rows()` when model-building code needs one row
 per timestamp. It groups exact timestamp matches and emits deterministic
 `<body_a>_<body_b>_<aspect>_active`, `_orb`, `_strength`, and `_phase` columns

@@ -496,6 +496,9 @@ them to CSV so column names remain auditable.
 `None`, and emits only scalar values, so its output can be exported through
 `to_csv()` without nested-value errors. The helper records the row as an active
 aspect event; it does not pivot absent aspects into false indicator columns.
+Aspect feature row builders require `body_a`, `body_b`, and `aspect` values to
+be non-blank strings so malformed external events fail before ambiguous column
+keys are produced.
 
 Use `aspect_event_feature_matrix_rows()` when downstream code needs one row per
 timestamp with deterministic aspect indicator columns. It rejects untimestamped
