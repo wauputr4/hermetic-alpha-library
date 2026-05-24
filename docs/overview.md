@@ -256,8 +256,9 @@ mapping payloads with non-blank field names so nested caller-owned payloads do
 not leak into generic CSV export.
 Use `nearest_neighbor_group_rows()` when comparing ranked results from several
 declared similarity searches in one audit table. It preserves caller order,
-rejects blank or duplicate search IDs, prepends `search_id`, skips empty
-groups, and delegates payload field handling to `nearest_neighbor_rows()`.
+requires search IDs to be non-blank strings, rejects duplicates, prepends
+`search_id`, skips empty groups, and delegates payload field handling to
+`nearest_neighbor_rows()`.
 Use `nearest_neighbor_summary_row()` when an audit table needs compact metadata
 for a similarity search run before inspecting individual neighbors. It reports
 result count, top neighbor identity, score/distance boundaries, and optional
@@ -266,9 +267,10 @@ Use `nearest_neighbor_summary_rows()` when comparing several declared similarity
 searches, such as different query charts, metrics, candidate sets, or limits.
 It preserves ordered mapping or pair-sequence input, rejects blank or duplicate
 search IDs, requires optional `query_id`, `metric`, and `limit` metadata keys
-to match declared search IDs, prepends `search_id`, and delegates each row to
-the single-search summary helper. The helper is multi-search audit metadata,
-not a replacement for ranked neighbor rows or caller-owned payload inspection.
+to be non-blank string search IDs that match declared searches, prepends
+`search_id`, and delegates each row to the single-search summary helper. The
+helper is multi-search audit metadata, not a replacement for ranked neighbor
+rows or caller-owned payload inspection.
 
 Recommended methods:
 

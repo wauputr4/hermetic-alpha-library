@@ -256,9 +256,10 @@ payload fields raise `TypeError` instead of letting the generic CSV exporter
 fail later with an unclear schema.
 Use `nearest_neighbor_group_rows()` when a report needs one ranked-neighbor
 audit table across several declared similarity searches. It rejects blank or
-duplicate search IDs, skips empty result groups, prepends `search_id`, and
-delegates rank and payload columns to `nearest_neighbor_rows()`; keep the raw
-`NearestNeighbor` objects for deeper payload inspection.
+duplicate search IDs, requires supplied search IDs to be strings, skips empty
+result groups, prepends `search_id`, and delegates rank and payload columns to
+`nearest_neighbor_rows()`; keep the raw `NearestNeighbor` objects for deeper
+payload inspection.
 Use `nearest_neighbor_summary_row()` when reports need one compact row per
 similarity search run. It keeps payload inspection out of the summary, uses the
 first ranked result as the top neighbor, reports min/max score and distance
@@ -268,10 +269,10 @@ Use `nearest_neighbor_summary_rows()` when a report compares several predeclared
 similarity searches. The helper preserves caller order, rejects blank or
 duplicate search IDs, prepends `search_id`, and can attach per-search `query_id`,
 `metric`, and `limit` metadata while reusing the single-search summary schema.
-Those optional metadata mappings must use declared search IDs; unknown metadata
-IDs are rejected so typos do not silently disappear from audit reports. Keep
-`nearest_neighbor_rows()` or the raw `NearestNeighbor` values for ranked
-neighbor and payload inspection.
+Those optional metadata mappings must use declared non-blank string search IDs;
+unknown metadata IDs are rejected so typos do not silently disappear from audit
+reports. Keep `nearest_neighbor_rows()` or the raw `NearestNeighbor` values for
+ranked neighbor and payload inspection.
 
 ### Exact-Orb Aspect Queries
 

@@ -116,8 +116,7 @@ def nearest_neighbor_group_rows(
     rows: list[dict[str, ReportScalar]] = []
     seen_search_ids: set[str] = set()
     for search_id, results in _iter_named_searches(searches):
-        if not search_id.strip():
-            raise ValueError("search ID must not be blank")
+        _validate_search_id(search_id, "search ID")
         if search_id in seen_search_ids:
             raise ValueError("search IDs must be unique")
         seen_search_ids.add(search_id)
@@ -176,8 +175,7 @@ def nearest_neighbor_summary_rows(
     seen_search_ids: set[str] = set()
 
     for search_id, results in named_searches:
-        if not search_id.strip():
-            raise ValueError("search ID must not be blank")
+        _validate_search_id(search_id, "search ID")
         if search_id in seen_search_ids:
             raise ValueError("search IDs must be unique")
         seen_search_ids.add(search_id)
@@ -216,12 +214,18 @@ def _optional_metadata_by_search(
     metadata: dict[str, Any] = {}
     items = values.items() if isinstance(values, Mapping) else values
     for search_id, value in items:
-        if not search_id.strip():
-            raise ValueError(f"{label} search ID must not be blank")
+        _validate_search_id(search_id, f"{label} search ID")
         if search_id in metadata:
             raise ValueError(f"{label} search IDs must be unique")
         metadata[search_id] = value
     return metadata
+
+
+def _validate_search_id(search_id: Any, label: str) -> None:
+    if not isinstance(search_id, str):
+        raise ValueError(f"{label} must be a string")
+    if not search_id.strip():
+        raise ValueError(f"{label} must not be blank")
 
 
 def _reject_unknown_metadata_search_ids(

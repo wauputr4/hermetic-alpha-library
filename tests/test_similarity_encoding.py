@@ -500,6 +500,14 @@ def test_nearest_neighbor_group_rows_rejects_duplicate_and_blank_search_ids():
         nearest_neighbor_group_rows([(" ", [])])
 
 
+def test_nearest_neighbor_group_rows_rejects_non_string_search_ids():
+    with pytest.raises(ValueError, match="search ID must be a string"):
+        nearest_neighbor_group_rows({123: []})
+
+    with pytest.raises(ValueError, match="search ID must be a string"):
+        nearest_neighbor_group_rows([(123, [])])
+
+
 def test_nearest_neighbor_group_rows_rejects_blank_payload_field_names():
     with pytest.raises(ValueError, match="payload field names must be non-blank strings"):
         nearest_neighbor_group_rows([("empty-search", [])], payload_fields=["asset", ""])
@@ -639,6 +647,14 @@ def test_nearest_neighbor_summary_rows_rejects_duplicate_and_blank_search_ids():
         nearest_neighbor_summary_rows([(" ", [])])
 
 
+def test_nearest_neighbor_summary_rows_rejects_non_string_search_ids():
+    with pytest.raises(ValueError, match="search ID must be a string"):
+        nearest_neighbor_summary_rows({123: []})
+
+    with pytest.raises(ValueError, match="search ID must be a string"):
+        nearest_neighbor_summary_rows([(123, [])])
+
+
 def test_nearest_neighbor_summary_rows_rejects_duplicate_metadata_ids():
     with pytest.raises(ValueError, match="query ID search IDs must be unique"):
         nearest_neighbor_summary_rows(
@@ -648,6 +664,17 @@ def test_nearest_neighbor_summary_rows_rejects_duplicate_metadata_ids():
 
     with pytest.raises(ValueError, match="metric search ID must not be blank"):
         nearest_neighbor_summary_rows({"search": []}, metrics=[(" ", "cosine")])
+
+
+def test_nearest_neighbor_summary_rows_rejects_non_string_metadata_ids():
+    with pytest.raises(ValueError, match="query ID search ID must be a string"):
+        nearest_neighbor_summary_rows({"search": []}, query_ids={123: "query"})
+
+    with pytest.raises(ValueError, match="metric search ID must be a string"):
+        nearest_neighbor_summary_rows({"search": []}, metrics=[(123, "cosine")])
+
+    with pytest.raises(ValueError, match="limit search ID must be a string"):
+        nearest_neighbor_summary_rows({"search": []}, limits={123: 3})
 
 
 def test_nearest_neighbor_summary_rows_rejects_unknown_metadata_ids():
