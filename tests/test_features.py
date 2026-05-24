@@ -4,6 +4,7 @@ import pytest
 
 from hermetic_alpha.exports import to_csv
 from hermetic_alpha.features import (
+    aspect_event_feature_group_rows,
     aspect_event_feature_matrix_rows,
     aspect_event_feature_matrix_rows_with_schema,
     aspect_event_feature_matrix_summary_row,
@@ -74,6 +75,61 @@ def test_aspect_event_feature_rows_reject_non_string_feature_components():
 def test_aspect_event_feature_rows_reject_blank_feature_components():
     with pytest.raises(ValueError, match="aspect feature components must be non-blank strings"):
         aspect_event_feature_rows([_aspect_event("sun", "   ", "conjunction", None)])
+
+
+def test_aspect_event_feature_group_rows_preserves_group_and_event_order():
+    ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
+    train = [
+        _aspect_event("sun", "jupiter", "conjunction", ts),
+        _aspect_event("mars", "saturn", "square", ts),
+    ]
+    test = [_aspect_event("moon", "venus", "trine", ts)]
+
+    rows = aspect_event_feature_group_rows({"train": train, "test": test})
+
+    assert [row["group_id"] for row in rows] == ["train", "train", "test"]
+    assert [row["feature_key"] for row in rows] == [
+        "sun_jupiter_conjunction",
+        "mars_saturn_square",
+        "moon_venus_trine",
+    ]
+
+
+def test_aspect_event_feature_group_rows_accepts_pairs_and_skips_empty_groups():
+    ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
+    train = [_aspect_event("sun", "jupiter", "conjunction", ts)]
+    test = [_aspect_event("moon", "venus", "trine", ts)]
+
+    rows = aspect_event_feature_group_rows([("empty", []), ("test", test), ("train", train)])
+
+    assert [row["group_id"] for row in rows] == ["test", "train"]
+
+
+def test_aspect_event_feature_group_rows_rejects_duplicate_group_ids():
+    events = [_aspect_event("sun", "jupiter", "conjunction", None)]
+
+    with pytest.raises(ValueError, match="group IDs must be unique"):
+        aspect_event_feature_group_rows([("train", events), ("train", events)])
+
+
+def test_aspect_event_feature_group_rows_rejects_blank_group_ids():
+    with pytest.raises(ValueError, match="group ID must be a non-blank string"):
+        aspect_event_feature_group_rows([("   ", [])])
+
+
+def test_aspect_event_feature_group_rows_rejects_non_string_group_ids():
+    events = [_aspect_event("sun", "jupiter", "conjunction", None)]
+
+    with pytest.raises(ValueError, match="group ID must be a non-blank string"):
+        aspect_event_feature_group_rows({123: events})  # type: ignore[dict-item]
+
+    with pytest.raises(ValueError, match="group ID must be a non-blank string"):
+        aspect_event_feature_group_rows([(123, events)])  # type: ignore[list-item]
+
+
+def test_aspect_event_feature_group_rows_reuses_event_component_validation():
+    with pytest.raises(ValueError, match="aspect feature components must be non-blank strings"):
+        aspect_event_feature_group_rows([("train", [_aspect_event("sun", "   ", "conjunction", None)])])
 
 
 def test_aspect_event_feature_matrix_rows_group_events_by_timestamp():

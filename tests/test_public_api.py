@@ -5,6 +5,7 @@ from hermetic_alpha import (
     EventStudyResult,
     MarketCandle,
     PlanetPosition,
+    aspect_event_feature_group_rows,
     aspect_event_feature_matrix_rows,
     aspect_event_feature_matrix_rows_with_schema,
     aspect_event_feature_matrix_summary_row,
@@ -35,6 +36,7 @@ from hermetic_alpha.astro import (
     planet_position_series_summary_rows,
 )
 from hermetic_alpha.features import (
+    aspect_event_feature_group_rows as features_aspect_event_feature_group_rows,
     aspect_event_feature_matrix_rows as features_aspect_event_feature_matrix_rows,
     aspect_event_feature_matrix_rows_with_schema as features_aspect_event_feature_matrix_rows_with_schema,
     aspect_event_feature_matrix_summary_row as features_aspect_event_feature_matrix_summary_row,
@@ -64,6 +66,7 @@ from hermetic_alpha.similarity import (
 def test_public_api_exports_match_documented_entrypoints():
     assert AspectDefinition is AstroAspectDefinition
     assert aspect_event_feature_rows is features_aspect_event_feature_rows
+    assert aspect_event_feature_group_rows is features_aspect_event_feature_group_rows
     assert aspect_event_feature_matrix_rows is features_aspect_event_feature_matrix_rows
     assert aspect_event_feature_matrix_rows_with_schema is features_aspect_event_feature_matrix_rows_with_schema
     assert aspect_event_feature_matrix_summary_row is features_aspect_event_feature_matrix_summary_row

@@ -18,6 +18,23 @@ def aspect_event_feature_rows(events: Sequence[AspectEvent]) -> list[dict[str, o
     return [_aspect_event_feature_row(event) for event in events]
 
 
+def aspect_event_feature_group_rows(
+    groups: Mapping[str, Sequence[AspectEvent]] | Sequence[tuple[str, Sequence[AspectEvent]]],
+) -> list[dict[str, object]]:
+    """Return ordered raw aspect feature rows for several named event groups."""
+
+    rows: list[dict[str, object]] = []
+    seen_group_ids: set[str] = set()
+    for group_id, events in _iter_named_feature_matrices(groups):
+        _validate_matrix_id(group_id, "group ID")
+        if group_id in seen_group_ids:
+            raise ValueError("group IDs must be unique")
+        seen_group_ids.add(group_id)
+        for row in aspect_event_feature_rows(events):
+            rows.append({"group_id": group_id, **row})
+    return rows
+
+
 def aspect_event_feature_matrix_rows(events: Sequence[AspectEvent]) -> list[dict[str, object]]:
     """Return one flat aspect-feature row per timestamp.
 
