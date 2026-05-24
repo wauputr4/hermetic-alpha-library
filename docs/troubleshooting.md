@@ -513,7 +513,9 @@ not observed in the supplied events. It does not prove the feature was absent
 from a complete ephemeris scan unless the caller supplied a complete scan and
 schema. Unknown observed features are included by default and appended after
 configured columns; pass `include_unknown_features=False` to reject them during
-strict production exports.
+strict production exports. Configured aspect feature keys must be non-blank
+strings; non-string entries are rejected before normalization so configuration
+mistakes fail as library validation errors instead of string-method failures.
 
 Use `aspect_event_feature_matrix_summary_row()` before CSV export or model
 training when an audit needs matrix shape metadata without writing the full
@@ -529,7 +531,8 @@ non-blank strings, rejects duplicates, supports shared or per-matrix configured
 feature keys, and keeps the same metadata-only role as the single-row helper.
 When configured feature keys are supplied per matrix, each configured matrix ID
 must also be a non-blank string and match a declared matrix ID so notebook and
-CLI audit setup mistakes fail early.
+CLI audit setup mistakes fail early. Shared and per-matrix configured feature
+keys must also be non-blank strings.
 
 `event_study_baseline_comparison_row()` is the preferred flat row helper when
 reports need probability deltas and relative lift. It leaves derived fields as

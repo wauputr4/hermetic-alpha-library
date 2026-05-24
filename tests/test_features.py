@@ -199,6 +199,11 @@ def test_aspect_event_feature_matrix_rows_with_schema_rejects_duplicate_configur
         )
 
 
+def test_aspect_event_feature_matrix_rows_with_schema_rejects_non_string_configured_features():
+    with pytest.raises(ValueError, match="configured aspect feature keys must be non-blank strings"):
+        aspect_event_feature_matrix_rows_with_schema([], ["sun_jupiter_conjunction", 42])
+
+
 def test_aspect_event_feature_matrix_rows_with_schema_rejects_duplicate_observed_features():
     ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
 
@@ -294,8 +299,13 @@ def test_aspect_event_feature_matrix_summary_row_normalizes_duplicate_configured
 
 
 def test_aspect_event_feature_matrix_summary_row_rejects_empty_configured_keys():
-    with pytest.raises(ValueError, match="configured aspect feature keys must be non-empty"):
+    with pytest.raises(ValueError, match="configured aspect feature keys must be non-blank strings"):
         aspect_event_feature_matrix_summary_row([], [" "])
+
+
+def test_aspect_event_feature_matrix_summary_row_rejects_non_string_configured_keys():
+    with pytest.raises(ValueError, match="configured aspect feature keys must be non-blank strings"):
+        aspect_event_feature_matrix_summary_row([], ["sun_jupiter_conjunction", 42])
 
 
 def test_aspect_event_feature_matrix_summary_row_is_csv_compatible():
@@ -373,6 +383,14 @@ def test_aspect_event_feature_matrix_summary_rows_accepts_shared_configured_feat
     assert [row["duplicate_configured_feature_count"] for row in rows] == [0, 0]
 
 
+def test_aspect_event_feature_matrix_summary_rows_rejects_non_string_shared_configured_feature_keys():
+    with pytest.raises(ValueError, match="configured aspect feature keys must be non-blank strings"):
+        aspect_event_feature_matrix_summary_rows(
+            {"train": []},
+            ["sun_jupiter_conjunction", 42],
+        )
+
+
 def test_aspect_event_feature_matrix_summary_rows_accepts_per_matrix_configured_feature_keys():
     ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
     events = [_aspect_event("sun", "jupiter", "conjunction", ts)]
@@ -383,6 +401,14 @@ def test_aspect_event_feature_matrix_summary_rows_accepts_per_matrix_configured_
     )
 
     assert [row["configured_feature_count"] for row in rows] == [1, 2]
+
+
+def test_aspect_event_feature_matrix_summary_rows_rejects_non_string_per_matrix_configured_feature_keys():
+    with pytest.raises(ValueError, match="configured aspect feature keys must be non-blank strings"):
+        aspect_event_feature_matrix_summary_rows(
+            [("train", [])],
+            [("train", ["sun_jupiter_conjunction", 42])],
+        )
 
 
 def test_aspect_event_feature_matrix_summary_rows_rejects_duplicate_configured_matrix_ids():

@@ -272,10 +272,12 @@ def _is_ordered_feature_key_pairs(
     )
 
 
-def _normalize_feature_key(feature_key: str) -> str:
+def _normalize_feature_key(feature_key: object) -> str:
+    if not isinstance(feature_key, str):
+        raise ValueError("configured aspect feature keys must be non-blank strings")
     normalized = feature_key.strip().lower()
     if not normalized:
-        raise ValueError("configured aspect feature keys must be non-empty")
+        raise ValueError("configured aspect feature keys must be non-blank strings")
     return normalized
 
 
