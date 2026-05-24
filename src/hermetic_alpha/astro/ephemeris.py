@@ -114,8 +114,7 @@ def planet_position_series_summary_rows(
     rows: list[dict[str, object]] = []
     seen_series_ids: set[str] = set()
     for series_id, positions in _iter_named_position_series(series):
-        if not series_id.strip():
-            raise ValueError("series ID must not be blank")
+        _validate_series_id(series_id)
         if series_id in seen_series_ids:
             raise ValueError("series IDs must be unique")
         seen_series_ids.add(series_id)
@@ -130,6 +129,13 @@ def _iter_named_position_series(
         yield from series.items()
         return
     yield from series
+
+
+def _validate_series_id(series_id: Any) -> None:
+    if not isinstance(series_id, str):
+        raise ValueError("series ID must be a string")
+    if not series_id.strip():
+        raise ValueError("series ID must not be blank")
 
 
 def _import_swisseph() -> ModuleType:
