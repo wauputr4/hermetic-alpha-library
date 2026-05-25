@@ -209,6 +209,12 @@ declared retrospective label datasets. It preserves ordered mapping or
 pair-sequence input, rejects blank or duplicate dataset IDs, and delegates
 window rows to the existing multi-window helper while preserving the
 retrospective-label caveat.
+Use `local_extrema_label_group_rows()` when a report needs the raw
+retrospective local-extrema label rows from several declared datasets in one
+CSV-safe table. It preserves dataset order and row order, requires non-blank
+unique dataset IDs, skips empty datasets, prepends `dataset_id`, and keeps each
+label row's existing keys and values without changing the retrospective-label
+caveat.
 
 ### `hermetic_alpha.analysis`
 

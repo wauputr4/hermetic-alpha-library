@@ -120,6 +120,11 @@ label table contains several centered windows and reports need one compact row
 per window. It preserves caller window order, deduplicates repeated windows,
 and delegates each row to `local_extrema_label_coverage_row()` so the
 single-window coverage schema and retrospective-label caveat remain centralized.
+Use `local_extrema_label_group_rows()` when exports need the raw retrospective
+local-extrema label rows from several named datasets. It prepends `dataset_id`,
+preserves each label row's existing fields, rejects
+blank/duplicate/non-string dataset IDs, and skips empty datasets so grouped
+raw-label CSVs do not contain placeholder rows.
 
 ## Event Study Result
 

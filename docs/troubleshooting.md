@@ -121,6 +121,13 @@ Mitigation:
   IDs, and delegates row fields to the existing local-extrema coverage helpers;
   it is multi-dataset audit metadata, not a replacement for inspecting the
   underlying label rows.
+- Use `local_extrema_label_group_rows()` when the audit needs those underlying
+  raw retrospective local-extrema label rows from several declared datasets in
+  one flat table. The helper preserves caller order, rejects
+  blank/duplicate/non-string dataset IDs, skips empty datasets, and prepends
+  `dataset_id` before each label row's existing fields. It does not make
+  centered local-extrema labels predictive; it only groups raw retrospective
+  label rows for export.
 
 ### Local Candle Cache Files
 

@@ -48,6 +48,7 @@ from hermetic_alpha.labels import (
     forward_return_label_coverage_row,
     forward_return_label_group_rows,
     local_extrema_label_coverage_row,
+    local_extrema_label_group_rows,
     multi_dataset_forward_return_label_coverage_rows,
     multi_dataset_local_extrema_label_coverage_rows,
     multi_horizon_forward_return_label_coverage_rows,
@@ -103,6 +104,7 @@ def test_public_api_exports_match_documented_entrypoints():
     assert callable(forward_return_label_coverage_row)
     assert callable(forward_return_label_group_rows)
     assert callable(local_extrema_label_coverage_row)
+    assert callable(local_extrema_label_group_rows)
     assert callable(multi_dataset_forward_return_label_coverage_rows)
     assert callable(multi_dataset_local_extrema_label_coverage_rows)
     assert callable(multi_horizon_forward_return_label_coverage_rows)
