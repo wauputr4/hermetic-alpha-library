@@ -24,6 +24,7 @@ from hermetic_alpha.labels import (
     add_local_extrema_labels,
     bullish_probability,
     forward_return_label_coverage_row,
+    forward_return_label_group_rows,
     local_extrema_label_coverage_row,
     multi_dataset_forward_return_label_coverage_rows,
     multi_dataset_local_extrema_label_coverage_rows,
@@ -271,6 +272,69 @@ def test_multi_dataset_forward_return_label_coverage_rows_accepts_empty_label_da
             "last_timestamp": None,
         }
     ]
+
+
+def test_forward_return_label_group_rows_preserve_dataset_and_row_order():
+    train = add_forward_returns([100, 110, 99], [1])
+    test = add_forward_returns([200, 190, 210], [1])
+
+    rows = forward_return_label_group_rows([("test", test), ("train", train)])
+
+    assert [row["dataset_id"] for row in rows] == ["test", "test", "test", "train", "train", "train"]
+    assert rows[0]["return_1d"] == pytest.approx(-0.05)
+    assert rows[0]["bullish_1d"] is False
+    assert rows[1]["return_1d"] == pytest.approx(0.10526315789473684)
+    assert rows[1]["bullish_1d"] is True
+    assert rows[2]["return_1d"] is None
+    assert rows[2]["bullish_1d"] is None
+    assert rows[3]["return_1d"] == pytest.approx(0.1)
+    assert rows[3]["bullish_1d"] is True
+    assert rows[4]["return_1d"] == pytest.approx(-0.1)
+    assert rows[4]["bullish_1d"] is False
+    assert rows[5]["return_1d"] is None
+    assert rows[5]["bullish_1d"] is None
+
+
+def test_forward_return_label_group_rows_preserve_timestamped_label_fields():
+    candles = [
+        MarketCandle(datetime(2026, 5, day, tzinfo=timezone.utc), "BTC-USD", close, close, close, close)
+        for day, close in [(6, 100), (7, 110)]
+    ]
+    labels = add_candle_forward_returns(candles, [1])
+
+    rows = forward_return_label_group_rows({"btc-daily": labels})
+
+    assert rows[0]["dataset_id"] == "btc-daily"
+    assert rows[0]["timestamp"] == candles[0].timestamp
+    assert rows[0]["asset"] == "BTC-USD"
+    assert rows[0]["return_1d"] == pytest.approx(0.1)
+    assert rows[0]["bullish_1d"] is True
+    assert rows[1] == {
+        "dataset_id": "btc-daily",
+        "timestamp": candles[1].timestamp,
+        "asset": "BTC-USD",
+        "return_1d": None,
+        "bullish_1d": None,
+    }
+
+
+def test_forward_return_label_group_rows_validate_dataset_ids():
+    labels = add_forward_returns([100, 110], [1])
+
+    with pytest.raises(ValueError, match="dataset IDs must be unique"):
+        forward_return_label_group_rows([("train", labels), ("train", labels)])
+    with pytest.raises(ValueError, match="dataset ID must not be blank"):
+        forward_return_label_group_rows([(" ", labels)])
+    with pytest.raises(ValueError, match="dataset ID must be a string"):
+        forward_return_label_group_rows([(123, labels)])  # type: ignore[list-item]
+
+
+def test_forward_return_label_group_rows_skip_empty_label_datasets():
+    labels = add_forward_returns([100, 110], [1])
+
+    rows = forward_return_label_group_rows([("empty", []), ("train", labels)])
+
+    assert [row["dataset_id"] for row in rows] == ["train", "train"]
 
 
 def test_candle_local_extrema_labels_preserve_timestamp_and_asset():

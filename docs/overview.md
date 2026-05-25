@@ -199,6 +199,11 @@ declared forward-return label datasets, such as train/test slices, asset
 subsets, or provider sources. It preserves ordered mapping or pair-sequence
 input, rejects blank or duplicate dataset IDs, and delegates horizon rows to
 the existing multi-horizon helper.
+Use `forward_return_label_group_rows()` when a report needs the raw
+forward-return label rows from several declared datasets in one CSV-safe table.
+It preserves dataset order and row order, requires non-blank unique dataset
+IDs, skips empty datasets, prepends `dataset_id`, and keeps each label row's
+existing keys and values without adding export-specific flattening rules.
 Use `multi_dataset_local_extrema_label_coverage_rows()` when comparing several
 declared retrospective label datasets. It preserves ordered mapping or
 pair-sequence input, rejects blank or duplicate dataset IDs, and delegates

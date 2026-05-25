@@ -47,6 +47,7 @@ from hermetic_alpha.labels import (
     add_forward_returns,
     add_local_extrema_labels,
     forward_return_label_coverage_row,
+    forward_return_label_group_rows,
     local_extrema_label_coverage_row,
     multi_dataset_forward_return_label_coverage_rows,
     multi_dataset_local_extrema_label_coverage_rows,
@@ -231,6 +232,18 @@ def test_csv_accepts_multi_dataset_forward_return_label_coverage_rows():
     )
     assert "\ntrain,1,3,2,1,1,1,,," in text
     assert "\ntest,1,3,2,1,1,1,,," in text
+
+
+def test_csv_accepts_forward_return_label_group_rows():
+    train = add_forward_returns([100, 110], [1])
+    test = add_forward_returns([200, 190], [1])
+
+    text = to_csv(forward_return_label_group_rows([("train", train), ("test", test)]))
+
+    assert text.splitlines()[0] == "dataset_id,return_1d,bullish_1d"
+    assert "\ntrain,0.10000000000000009,True" in text
+    assert "\ntrain,," in text
+    assert "\ntest,-0.050000000000000044,False" in text
 
 
 def test_csv_accepts_local_extrema_label_coverage_rows():

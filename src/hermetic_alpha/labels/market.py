@@ -15,6 +15,7 @@ MultiHorizonForwardReturnCoverageRows = list[ForwardReturnCoverageRow]
 MultiWindowLocalExtremaCoverageRows = list[LocalExtremaCoverageRow]
 MultiDatasetForwardReturnCoverageRows = list[ForwardReturnCoverageRow]
 MultiDatasetLocalExtremaCoverageRows = list[LocalExtremaCoverageRow]
+ForwardReturnLabelGroupRows = list[TimestampedForwardReturnRow]
 
 
 def add_forward_returns(closes: Sequence[float], horizons: Sequence[int]) -> list[dict[str, float | bool | None]]:
@@ -189,6 +190,21 @@ def multi_dataset_forward_return_label_coverage_rows(
             raise ValueError("dataset IDs must be unique")
         seen_dataset_ids.add(dataset_id)
         rows.extend(multi_horizon_forward_return_label_coverage_rows(labels, horizons, dataset_id=dataset_id))
+    return rows
+
+
+def forward_return_label_group_rows(
+    datasets: Mapping[str, Sequence[dict[str, object]]] | Sequence[tuple[str, Sequence[dict[str, object]]]],
+) -> ForwardReturnLabelGroupRows:
+    """Return ordered raw forward-return label rows for several datasets."""
+    rows: ForwardReturnLabelGroupRows = []
+    seen_dataset_ids: set[str] = set()
+    for dataset_id, labels in _iter_named_label_datasets(datasets):
+        _validate_required_dataset_id(dataset_id)
+        if dataset_id in seen_dataset_ids:
+            raise ValueError("dataset IDs must be unique")
+        seen_dataset_ids.add(dataset_id)
+        rows.extend({"dataset_id": dataset_id, **label} for label in labels)
     return rows
 
 

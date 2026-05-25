@@ -46,6 +46,7 @@ from hermetic_alpha.features import (
 from hermetic_alpha.market import candle_dataset_group_rows, candle_dataset_summary_row, candle_dataset_summary_rows
 from hermetic_alpha.labels import (
     forward_return_label_coverage_row,
+    forward_return_label_group_rows,
     local_extrema_label_coverage_row,
     multi_dataset_forward_return_label_coverage_rows,
     multi_dataset_local_extrema_label_coverage_rows,
@@ -100,6 +101,7 @@ def test_public_api_exports_match_documented_entrypoints():
     assert callable(candle_dataset_summary_row)
     assert callable(candle_dataset_summary_rows)
     assert callable(forward_return_label_coverage_row)
+    assert callable(forward_return_label_group_rows)
     assert callable(local_extrema_label_coverage_row)
     assert callable(multi_dataset_forward_return_label_coverage_rows)
     assert callable(multi_dataset_local_extrema_label_coverage_rows)

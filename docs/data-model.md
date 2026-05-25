@@ -98,6 +98,11 @@ table contains several forward-return horizons and reports need one compact row
 per horizon. It preserves caller horizon order, deduplicates repeated horizons,
 and delegates each row to `forward_return_label_coverage_row()` so the
 single-horizon coverage schema remains centralized.
+Use `forward_return_label_group_rows()` when exports need the raw
+forward-return label rows from several named datasets, such as train/test
+slices or provider subsets. It prepends `dataset_id`, preserves each label
+row's existing fields, rejects blank/duplicate/non-string dataset IDs, and skips
+empty datasets so grouped raw-label CSVs do not contain placeholder rows.
 
 Use `add_candle_local_extrema_labels()` when retrospective top/bottom labels are
 derived from ordered `MarketCandle` values. It preserves the candle `timestamp`
