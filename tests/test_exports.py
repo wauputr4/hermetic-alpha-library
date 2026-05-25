@@ -49,6 +49,7 @@ from hermetic_alpha.labels import (
     forward_return_label_coverage_row,
     forward_return_label_group_rows,
     local_extrema_label_coverage_row,
+    local_extrema_label_group_rows,
     multi_dataset_forward_return_label_coverage_rows,
     multi_dataset_local_extrema_label_coverage_rows,
     multi_horizon_forward_return_label_coverage_rows,
@@ -283,6 +284,18 @@ def test_csv_accepts_multi_dataset_local_extrema_label_coverage_rows():
     )
     assert "\ntrain,1,4,2,2,1,1,,," in text
     assert "\ntest,1,4,2,2,1,1,,," in text
+
+
+def test_csv_accepts_local_extrema_label_group_rows():
+    train = add_local_extrema_labels([100, 90, 110], 1)
+    test = add_local_extrema_labels([200, 210, 190], 1)
+
+    text = to_csv(local_extrema_label_group_rows([("train", train), ("test", test)]))
+
+    assert text.splitlines()[0] == "dataset_id,local_top_1d,local_bottom_1d"
+    assert "\ntrain,," in text
+    assert "\ntrain,False,True" in text
+    assert "\ntest,True,False" in text
 
 
 def test_csv_accepts_flat_baseline_comparison_rows():
