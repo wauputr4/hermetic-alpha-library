@@ -96,6 +96,12 @@ Mitigation:
   and delegates row fields to the single-dataset coverage helpers; it is
   multi-dataset audit metadata, not a replacement for inspecting the underlying
   label rows.
+- Use `forward_return_label_group_rows()` when the audit needs those underlying
+  raw forward-return label rows from several declared datasets in one flat
+  table. The helper preserves caller order, rejects blank/duplicate/non-string
+  dataset IDs, skips empty datasets, and prepends `dataset_id` before each
+  label row's existing fields. It does not summarize coverage because the
+  coverage helpers already provide compact label metadata.
 - Supplied label coverage `dataset_id` values must be non-blank strings. Pass
   `None` when a forward-return or local-extrema coverage row should remain
   unnamed.
