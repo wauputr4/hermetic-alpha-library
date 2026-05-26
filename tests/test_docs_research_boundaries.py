@@ -47,3 +47,14 @@ def test_anti_overfitting_guide_covers_required_research_caution(term):
 )
 def test_related_doc_links_to_anti_overfitting_guide(path):
     assert "anti-overfitting" in read_doc(path)
+
+
+def test_overview_documents_grouped_label_csv_export_boundaries():
+    overview = read_doc("docs/overview.md")
+
+    assert "forward_return_label_group_rows" in overview
+    assert "local_extrema_label_group_rows" in overview
+    assert "to_csv" in overview
+    assert "underlying labels" in overview
+    assert "coverage metadata" in overview
+    assert "should not be treated as future-looking prediction targets" in overview
