@@ -198,15 +198,7 @@ def forward_return_label_group_rows(
     datasets: Mapping[str, Sequence[dict[str, object]]] | Sequence[tuple[str, Sequence[dict[str, object]]]],
 ) -> ForwardReturnLabelGroupRows:
     """Return ordered raw forward-return label rows for several datasets."""
-    rows: ForwardReturnLabelGroupRows = []
-    seen_dataset_ids: set[str] = set()
-    for dataset_id, labels in _iter_named_label_datasets(datasets):
-        _validate_required_dataset_id(dataset_id)
-        if dataset_id in seen_dataset_ids:
-            raise ValueError("dataset IDs must be unique")
-        seen_dataset_ids.add(dataset_id)
-        rows.extend({"dataset_id": dataset_id, **label} for label in labels)
-    return rows
+    return _label_group_rows(datasets)
 
 
 def local_extrema_label_coverage_row(
@@ -277,7 +269,14 @@ def local_extrema_label_group_rows(
     datasets: Mapping[str, Sequence[dict[str, object]]] | Sequence[tuple[str, Sequence[dict[str, object]]]],
 ) -> LocalExtremaLabelGroupRows:
     """Return ordered raw local-extrema label rows for several datasets."""
-    rows: LocalExtremaLabelGroupRows = []
+    return _label_group_rows(datasets)
+
+
+def _label_group_rows(
+    datasets: Mapping[str, Sequence[dict[str, object]]] | Sequence[tuple[str, Sequence[dict[str, object]]]],
+) -> list[dict[str, object]]:
+    """Return ordered raw label rows for named datasets."""
+    rows: list[dict[str, object]] = []
     seen_dataset_ids: set[str] = set()
     for dataset_id, labels in _iter_named_label_datasets(datasets):
         _validate_required_dataset_id(dataset_id)
