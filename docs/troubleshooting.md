@@ -128,6 +128,10 @@ Mitigation:
   `dataset_id` before each label row's existing fields. It does not make
   centered local-extrema labels predictive; it only groups raw retrospective
   label rows for export.
+- Forward-return and local-extrema grouped label row helpers share the same
+  private named-dataset assembly path. Keep dataset ID validation, duplicate
+  rejection, empty-dataset skipping, and raw row prepending behavior aligned
+  there instead of changing only one public helper.
 
 ### Local Candle Cache Files
 

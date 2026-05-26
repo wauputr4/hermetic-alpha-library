@@ -338,6 +338,19 @@ def test_forward_return_label_group_rows_skip_empty_label_datasets():
     assert [row["dataset_id"] for row in rows] == ["train", "train"]
 
 
+def test_label_group_row_helpers_share_named_dataset_behavior():
+    forward_labels = add_forward_returns([100, 110], [1])
+    extrema_labels = add_local_extrema_labels([100, 90, 110], 1)
+
+    forward_rows = forward_return_label_group_rows([("empty", []), ("sample", forward_labels)])
+    extrema_rows = local_extrema_label_group_rows([("empty", []), ("sample", extrema_labels)])
+
+    assert [row["dataset_id"] for row in forward_rows] == ["sample", "sample"]
+    assert [row["dataset_id"] for row in extrema_rows] == ["sample", "sample", "sample"]
+    assert forward_rows[0]["return_1d"] == pytest.approx(0.1)
+    assert extrema_rows[1]["local_bottom_1d"] is True
+
+
 def test_candle_local_extrema_labels_preserve_timestamp_and_asset():
     candles = [
         MarketCandle(datetime(2026, 5, day, tzinfo=timezone.utc), "BTC-USD", close, close, close, close)
