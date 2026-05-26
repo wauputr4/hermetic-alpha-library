@@ -216,6 +216,41 @@ unique dataset IDs, skips empty datasets, prepends `dataset_id`, and keeps each
 label row's existing keys and values without changing the retrospective-label
 caveat.
 
+Grouped raw label rows can be passed directly to the dependency-free CSV
+exporter when notebooks or audit jobs need the underlying labels, not compact
+coverage metadata:
+
+```python
+from hermetic_alpha.exports import to_csv
+from hermetic_alpha.labels import (
+    add_forward_returns,
+    add_local_extrema_labels,
+    forward_return_label_group_rows,
+    local_extrema_label_group_rows,
+)
+
+train_forward = add_forward_returns([100, 110, 99], [1])
+test_forward = add_forward_returns([200, 190, 210], [1])
+forward_csv = to_csv(
+    forward_return_label_group_rows(
+        [("train", train_forward), ("test", test_forward)]
+    )
+)
+
+train_extrema = add_local_extrema_labels([100, 90, 110], 1)
+test_extrema = add_local_extrema_labels([200, 210, 190], 1)
+extrema_csv = to_csv(
+    local_extrema_label_group_rows(
+        [("train", train_extrema), ("test", test_extrema)]
+    )
+)
+```
+
+Use the grouped-row helpers for raw label exports and the coverage helpers when
+the report only needs row counts, missing-label counts, and timestamp or asset
+boundaries. Local-extrema grouped rows remain retrospective centered-window
+labels and should not be treated as future-looking prediction targets.
+
 ### `hermetic_alpha.analysis`
 
 Responsible for statistical research workflows.
