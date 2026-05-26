@@ -15,6 +15,13 @@ After each meaningful coding session, update relevant documentation with:
 
 ## Expected Early Issues
 
+### Python Support Metadata
+
+The package metadata advertises only Python versions that CI validates. Keep
+the Python classifiers in `pyproject.toml` aligned with the GitHub Actions
+matrix, and do not broaden the `requires-python` floor beyond tested runtime
+support.
+
 ### Ephemeris Engine Differences
 
 Different astro libraries may produce slightly different outputs due to:
