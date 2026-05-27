@@ -90,7 +90,9 @@ Mitigation:
 - Avoid mixing daily candles from different exchange timezone conventions without recording the source.
 - `YahooFinanceProvider` requests daily candles with UTC period boundaries,
   records `source="yahoo_finance"` and `interval="1d"`, and skips incomplete
-  rows where Yahoo returns missing OHLC values.
+  rows where Yahoo returns missing OHLC values. If every returned row is
+  incomplete, the provider raises `MarketDataProviderError` instead of handing
+  an ambiguous empty candle list to downstream cache writers.
 - `YahooFinanceProvider.fetch_daily()` requires caller-supplied asset symbols
   to be non-blank strings before any network request is built. Validate or
   normalize user-facing input at the interface boundary, then pass an explicit
