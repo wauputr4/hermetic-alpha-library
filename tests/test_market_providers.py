@@ -116,6 +116,17 @@ def test_yahoo_finance_provider_passes_timeout_by_keyword():
     assert provider.fetch_daily_btc("2024-05-08", "2024-05-09")
 
 
+@pytest.mark.parametrize("asset", ["", "   ", "\t\n"])
+def test_yahoo_finance_provider_rejects_blank_asset_symbols_before_network(asset):
+    requests = []
+    provider = YahooFinanceProvider(opener=lambda request, *, timeout: requests.append(request))
+
+    with pytest.raises(ValueError, match="asset must be a non-blank string"):
+        provider.fetch_daily(asset, "2024-05-08", "2024-05-09")
+
+    assert requests == []
+
+
 def test_yahoo_finance_provider_requires_aware_datetimes():
     provider = YahooFinanceProvider(opener=lambda request, *, timeout: FakeResponse(chart_payload()))
 

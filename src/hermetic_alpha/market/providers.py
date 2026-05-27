@@ -35,6 +35,7 @@ class YahooFinanceProvider:
 
     def fetch_daily(self, asset: str, start: date | datetime | str, end: date | datetime | str) -> list[MarketCandle]:
         """Return daily candles for an inclusive UTC date range."""
+        asset = _validate_asset_symbol(asset)
         start_dt = _coerce_utc_midnight(start)
         end_dt = _coerce_utc_midnight(end)
         if end_dt < start_dt:
@@ -64,6 +65,12 @@ class YahooFinanceProvider:
             raise MarketDataProviderError(f"Yahoo Finance request failed for {asset}") from exc
         except json.JSONDecodeError as exc:
             raise MarketDataProviderError(f"Yahoo Finance returned invalid JSON for {asset}") from exc
+
+
+def _validate_asset_symbol(asset: str) -> str:
+    if not isinstance(asset, str) or not asset.strip():
+        raise ValueError("asset must be a non-blank string")
+    return asset
 
 
 def _coerce_utc_midnight(value: date | datetime | str) -> datetime:

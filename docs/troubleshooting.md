@@ -91,6 +91,10 @@ Mitigation:
 - `YahooFinanceProvider` requests daily candles with UTC period boundaries,
   records `source="yahoo_finance"` and `interval="1d"`, and skips incomplete
   rows where Yahoo returns missing OHLC values.
+- `YahooFinanceProvider.fetch_daily()` requires caller-supplied asset symbols
+  to be non-blank strings before any network request is built. Validate or
+  normalize user-facing input at the interface boundary, then pass an explicit
+  provider symbol such as `BTC-USD` into the library.
 - `examples/provider_to_cache.py` is the reference provider-to-cache workflow:
   it fetches normalized BTC daily candles through `YahooFinanceProvider` and
   persists them with `write_candles_json()` without introducing CLI framework
