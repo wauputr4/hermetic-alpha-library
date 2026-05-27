@@ -141,6 +141,9 @@ def _candles_from_chart_result(
             )
         )
 
+    if not candles:
+        raise MarketDataProviderError("Yahoo Finance chart result normalized to zero usable candles")
+
     return candles
 
 

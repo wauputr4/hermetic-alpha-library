@@ -148,3 +148,31 @@ def test_yahoo_finance_provider_reports_empty_quote_arrays():
 
     with pytest.raises(MarketDataProviderError, match="missing timestamps or quotes"):
         provider.fetch_daily_btc("2024-05-08", "2024-05-09")
+
+
+def test_yahoo_finance_provider_reports_all_incomplete_quote_rows():
+    payload = {
+        "chart": {
+            "result": [
+                {
+                    "timestamp": [1715126400, 1715212800],
+                    "indicators": {
+                        "quote": [
+                            {
+                                "open": [None, 63100.0],
+                                "high": [63200.0, None],
+                                "low": [61000.0, 62000.0],
+                                "close": [62900.0, 63500.0],
+                                "volume": [25000000000, 26000000000],
+                            }
+                        ]
+                    },
+                }
+            ],
+            "error": None,
+        }
+    }
+    provider = YahooFinanceProvider(opener=lambda request, *, timeout: FakeResponse(payload))
+
+    with pytest.raises(MarketDataProviderError, match="zero usable candles"):
+        provider.fetch_daily_btc("2024-05-08", "2024-05-09")
