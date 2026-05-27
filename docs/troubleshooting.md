@@ -22,6 +22,13 @@ the Python classifiers in `pyproject.toml` aligned with the GitHub Actions
 matrix, and do not broaden the `requires-python` floor beyond tested runtime
 support.
 
+### Typed Package Marker
+
+The package includes `src/hermetic_alpha/py.typed` so downstream type checkers
+can treat Hermetic Alpha as a PEP 561 typed package. The marker advertises the
+inline type annotations already shipped with the library and does not add a
+runtime dependency or CLI behavior.
+
 ### Ephemeris Engine Differences
 
 Different astro libraries may produce slightly different outputs due to:

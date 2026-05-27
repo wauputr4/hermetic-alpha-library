@@ -31,3 +31,9 @@ def test_advertised_python_classifiers_match_ci_matrix():
     for python_version in ("3.11", "3.12"):
         assert f'"{python_version}"' in ci_workflow
         assert f"Programming Language :: Python :: {python_version}" in classifiers
+
+
+def test_package_includes_pep_561_typed_marker():
+    package_root = Path(__file__).parent.parent / "src" / "hermetic_alpha"
+
+    assert (package_root / "py.typed").is_file()
