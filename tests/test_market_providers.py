@@ -1,10 +1,24 @@
 import json
+import importlib.util
 from datetime import datetime, timezone
+from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 import pytest
 
-from hermetic_alpha.market import MarketDataProviderError, YahooFinanceProvider
+from hermetic_alpha.market import MarketDataProviderError, YahooFinanceProvider, read_candles_json
+
+
+EXAMPLE_PATH = Path(__file__).resolve().parents[1] / "examples" / "provider_to_cache.py"
+
+
+def load_provider_to_cache_example():
+    spec = importlib.util.spec_from_file_location("provider_to_cache_example", EXAMPLE_PATH)
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 class FakeResponse:
@@ -74,6 +88,21 @@ def test_yahoo_finance_provider_fetches_normalized_btc_daily_candles():
     assert parsed.path.endswith("/BTC-USD")
     assert params["interval"] == ["1d"]
     assert params["events"] == ["history"]
+
+
+def test_provider_to_cache_example_writes_candles_without_live_network(tmp_path):
+    example = load_provider_to_cache_example()
+    provider = YahooFinanceProvider(opener=lambda request, *, timeout: FakeResponse(chart_payload()))
+    path = tmp_path / "btc-daily.json"
+
+    result = example.write_btc_daily_cache(path, start="2024-05-08", end="2024-05-09", provider=provider)
+
+    assert result == path
+    candles = read_candles_json(path)
+    assert len(candles) == 1
+    assert candles[0].asset == "BTC-USD"
+    assert candles[0].source == "yahoo_finance"
+    assert candles[0].interval == "1d"
 
 
 def test_yahoo_finance_provider_passes_timeout_by_keyword():
