@@ -108,6 +108,9 @@ The first implemented provider is `YahooFinanceProvider`, which fetches daily
 `MarketCandle` models with `source="yahoo_finance"` and `interval="1d"`.
 Use `write_candles_json()` and `read_candles_json()` when notebooks or examples
 need a small dependency-free local cache of those normalized candles.
+The runnable `examples/provider_to_cache.py` script demonstrates this
+provider-to-cache boundary without adding CLI framework responsibilities to the
+library.
 Use `candle_dataset_summary_row()` when audit tables need compact cache metadata
 such as dataset ID, row count, asset, interval, source, and timestamp
 boundaries. It does not replace exporting the underlying candle rows or the JSON

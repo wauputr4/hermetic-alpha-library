@@ -104,13 +104,14 @@ install is created.
 PYTHONPATH=src python3 examples/basic_event_study.py
 ```
 
-Fetch normalized BTC daily candles through the first market provider:
+Fetch normalized BTC daily candles through the first market provider and write
+the local JSON cache with the library storage helper:
 
-```python
-from hermetic_alpha.market import YahooFinanceProvider
-
-candles = YahooFinanceProvider().fetch_daily_btc("2024-01-01", "2024-01-31")
+```bash
+PYTHONPATH=src python3 examples/provider_to_cache.py data/btc-daily.json --start 2024-01-01 --end 2024-01-31
 ```
+
+Yahoo Finance is a convenient research input, not an audit-grade market feed.
 
 When the development extra is installed:
 

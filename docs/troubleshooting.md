@@ -91,6 +91,10 @@ Mitigation:
 - `YahooFinanceProvider` requests daily candles with UTC period boundaries,
   records `source="yahoo_finance"` and `interval="1d"`, and skips incomplete
   rows where Yahoo returns missing OHLC values.
+- `examples/provider_to_cache.py` is the reference provider-to-cache workflow:
+  it fetches normalized BTC daily candles through `YahooFinanceProvider` and
+  persists them with `write_candles_json()` without introducing CLI framework
+  behavior into the library.
 - Yahoo Finance is an unofficial public data source and can change response
   shape, throttle requests, or revise historical candles. Treat it as a
   convenient research input, not a canonical audit feed.
