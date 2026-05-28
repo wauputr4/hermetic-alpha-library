@@ -16,7 +16,7 @@ def to_csv(rows: Any, *, fieldnames: Sequence[str] | None = None) -> str:
     """Return CSV text for flat mappings or objects with ``to_dict()``."""
 
     normalized_rows = _normalize_rows(rows)
-    header = list(fieldnames) if fieldnames is not None else _fieldnames(normalized_rows)
+    header = _validate_explicit_fieldnames(fieldnames) if fieldnames is not None else _fieldnames(normalized_rows)
 
     output = StringIO()
     writer = csv.DictWriter(output, fieldnames=header, extrasaction="raise", lineterminator="\n")
@@ -67,6 +67,20 @@ def _fieldnames(rows: Sequence[Mapping[str, Any]]) -> list[str]:
                 fieldnames.append(key)
                 seen.add(key)
     return fieldnames
+
+
+def _validate_explicit_fieldnames(fieldnames: Sequence[str]) -> list[str]:
+    header: list[str] = []
+    seen: set[str] = set()
+    for name in fieldnames:
+        normalized = name.strip()
+        if not normalized:
+            raise ValueError("CSV fieldnames must not contain blank names")
+        if normalized in seen:
+            raise ValueError(f"CSV fieldnames must be unique: {normalized}")
+        seen.add(normalized)
+        header.append(normalized)
+    return header
 
 
 def _validate_flat_row(row: Mapping[str, Any]) -> None:
