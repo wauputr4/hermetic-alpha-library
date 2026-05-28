@@ -127,6 +127,17 @@ def test_yahoo_finance_provider_rejects_blank_asset_symbols_before_network(asset
     assert requests == []
 
 
+@pytest.mark.parametrize("asset", [" BTC-USD", "BTC-USD ", "\tBTC-USD\n"])
+def test_yahoo_finance_provider_rejects_whitespace_padded_asset_symbols_before_network(asset):
+    requests = []
+    provider = YahooFinanceProvider(opener=lambda request, *, timeout: requests.append(request))
+
+    with pytest.raises(ValueError, match="leading or trailing whitespace"):
+        provider.fetch_daily(asset, "2024-05-08", "2024-05-09")
+
+    assert requests == []
+
+
 def test_yahoo_finance_provider_requires_aware_datetimes():
     provider = YahooFinanceProvider(opener=lambda request, *, timeout: FakeResponse(chart_payload()))
 
