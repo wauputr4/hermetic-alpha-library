@@ -15,6 +15,14 @@ After each meaningful coding session, update relevant documentation with:
 
 ## Expected Early Issues
 
+### CSV Export Schema Boundaries
+
+`to_csv(..., fieldnames=...)` validates explicit headers before writing output.
+Field names must be strings, are trimmed before use, must not be blank, and must
+remain unique after trimming. Inferred headers still come from normalized row
+keys, while explicit headers are treated as a caller-supplied schema and reject
+unsupported fields in each row.
+
 ### Python Support Metadata
 
 The package metadata advertises only Python versions that CI validates. Keep
