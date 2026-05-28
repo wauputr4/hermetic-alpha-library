@@ -162,7 +162,9 @@ Mitigation:
 `write_candles_json()` and `read_candles_json()` persist normalized
 `MarketCandle` rows as a JSON list. Cache files must contain at least one row,
 must include `timestamp`, `asset`, `open`, `high`, `low`, `close`, and
-`interval`, and timestamps must be timezone-aware ISO datetimes. These files are
+`interval`, string fields must be non-blank after trimming whitespace, and
+timestamps must be timezone-aware ISO datetimes. Optional `source` metadata must
+also be non-blank when present. These files are
 convenience caches for repeatable local research runs, not audit-grade market
 data stores; keep upstream source metadata and regenerate them when provider
 normalization rules change.

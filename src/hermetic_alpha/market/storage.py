@@ -163,7 +163,7 @@ def _parse_timestamp(value: Any, index: int) -> datetime:
 
 
 def _require_string(value: Any, field: str, index: int) -> str:
-    if not isinstance(value, str) or not value:
+    if not isinstance(value, str) or not value.strip():
         raise CandleStorageError(f"candle row {index} field {field} must be a non-empty string")
     return value
 
