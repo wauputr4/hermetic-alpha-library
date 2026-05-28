@@ -170,7 +170,10 @@ Mitigation:
 - Forward-return and local-extrema grouped label row helpers share the same
   private named-dataset assembly path. Keep dataset ID validation, whitespace
   rejection, duplicate rejection, empty-dataset skipping, and raw row prepending
-  behavior aligned there instead of changing only one public helper.
+  behavior aligned there instead of changing only one public helper. Ordered
+  named label dataset inputs must contain explicit two-item `(dataset_id,
+  labels)` pairs; strings, bytes, and malformed tuple/list lengths are rejected
+  before Python tuple unpacking can raise a generic error.
 
 ### Local Candle Cache Files
 

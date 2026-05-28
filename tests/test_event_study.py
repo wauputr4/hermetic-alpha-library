@@ -263,6 +263,15 @@ def test_multi_dataset_forward_return_label_coverage_rows_validates_dataset_ids(
         multi_dataset_forward_return_label_coverage_rows([(123, labels)], [1])  # type: ignore[list-item]
 
 
+def test_multi_dataset_forward_return_label_coverage_rows_rejects_malformed_ordered_entries():
+    labels = add_forward_returns([100, 110], [1])
+
+    with pytest.raises(ValueError, match="two-item"):
+        multi_dataset_forward_return_label_coverage_rows(["train"], [1])  # type: ignore[list-item]
+    with pytest.raises(ValueError, match="two-item"):
+        multi_dataset_forward_return_label_coverage_rows([("train", labels, "extra")], [1])  # type: ignore[list-item]
+
+
 def test_multi_dataset_forward_return_label_coverage_rows_accepts_empty_label_datasets():
     rows = multi_dataset_forward_return_label_coverage_rows({"empty": []}, [1])
 
@@ -337,6 +346,15 @@ def test_forward_return_label_group_rows_validate_dataset_ids():
         forward_return_label_group_rows([("train ", labels)])
     with pytest.raises(ValueError, match="dataset ID must be a string"):
         forward_return_label_group_rows([(123, labels)])  # type: ignore[list-item]
+
+
+def test_forward_return_label_group_rows_rejects_malformed_ordered_entries():
+    labels = add_forward_returns([100, 110], [1])
+
+    with pytest.raises(ValueError, match="two-item"):
+        forward_return_label_group_rows(["train"])  # type: ignore[list-item]
+    with pytest.raises(ValueError, match="two-item"):
+        forward_return_label_group_rows([("train", labels, "extra")])  # type: ignore[list-item]
 
 
 def test_forward_return_label_group_rows_skip_empty_label_datasets():
@@ -558,6 +576,15 @@ def test_multi_dataset_local_extrema_label_coverage_rows_validates_dataset_ids()
         multi_dataset_local_extrema_label_coverage_rows([(123, labels)], 1)  # type: ignore[list-item]
 
 
+def test_multi_dataset_local_extrema_label_coverage_rows_rejects_malformed_ordered_entries():
+    labels = add_local_extrema_labels([100, 90, 110], 1)
+
+    with pytest.raises(ValueError, match="two-item"):
+        multi_dataset_local_extrema_label_coverage_rows(["train"], 1)  # type: ignore[list-item]
+    with pytest.raises(ValueError, match="two-item"):
+        multi_dataset_local_extrema_label_coverage_rows([("train", labels, "extra")], 1)  # type: ignore[list-item]
+
+
 def test_multi_dataset_local_extrema_label_coverage_rows_accepts_empty_label_datasets():
     rows = multi_dataset_local_extrema_label_coverage_rows({"empty": []}, 1)
 
@@ -641,6 +668,15 @@ def test_local_extrema_label_group_rows_validate_dataset_ids():
         local_extrema_label_group_rows([("train ", labels)])
     with pytest.raises(ValueError, match="dataset ID must be a string"):
         local_extrema_label_group_rows([(123, labels)])  # type: ignore[list-item]
+
+
+def test_local_extrema_label_group_rows_rejects_malformed_ordered_entries():
+    labels = add_local_extrema_labels([100, 90, 110], 1)
+
+    with pytest.raises(ValueError, match="two-item"):
+        local_extrema_label_group_rows(["train"])  # type: ignore[list-item]
+    with pytest.raises(ValueError, match="two-item"):
+        local_extrema_label_group_rows([("train", labels, "extra")])  # type: ignore[list-item]
 
 
 def test_local_extrema_label_group_rows_skip_empty_label_datasets():
