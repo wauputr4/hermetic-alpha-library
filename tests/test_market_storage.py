@@ -198,6 +198,13 @@ def test_candle_dataset_summary_rows_rejects_blank_dataset_ids():
         candle_dataset_summary_rows([("   ", candles)])
 
 
+def test_candle_dataset_summary_rows_rejects_whitespace_padded_dataset_ids():
+    candles = [MarketCandle(datetime(2024, 5, 8, tzinfo=timezone.utc), "BTC-USD", 100, 105, 95, 102)]
+
+    with pytest.raises(CandleStorageError, match="leading or trailing whitespace"):
+        candle_dataset_summary_rows([(" btc-daily ", candles)])
+
+
 def test_candle_dataset_summary_rows_rejects_non_string_mapping_dataset_ids():
     candles = [MarketCandle(datetime(2024, 5, 8, tzinfo=timezone.utc), "BTC-USD", 100, 105, 95, 102)]
 
@@ -269,6 +276,13 @@ def test_candle_dataset_group_rows_rejects_blank_dataset_ids():
 
     with pytest.raises(CandleStorageError, match="dataset ID must not be blank"):
         candle_dataset_group_rows([("   ", candles)])
+
+
+def test_candle_dataset_group_rows_rejects_whitespace_padded_dataset_ids():
+    candles = [MarketCandle(datetime(2024, 5, 8, tzinfo=timezone.utc), "BTC-USD", 100, 105, 95, 102)]
+
+    with pytest.raises(CandleStorageError, match="leading or trailing whitespace"):
+        candle_dataset_group_rows([("btc-daily ", candles)])
 
 
 def test_candle_dataset_group_rows_rejects_non_string_dataset_ids():
