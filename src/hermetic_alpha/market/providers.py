@@ -70,6 +70,8 @@ class YahooFinanceProvider:
 def _validate_asset_symbol(asset: str) -> str:
     if not isinstance(asset, str) or not asset.strip():
         raise ValueError("asset must be a non-blank string")
+    if asset != asset.strip():
+        raise ValueError("asset must not contain leading or trailing whitespace")
     return asset
 
 
