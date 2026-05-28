@@ -490,6 +490,9 @@ export. When passing explicit CSV `fieldnames`, every row must fit that header
 exactly apart from missing fields, which are emitted as blank cells. Explicit
 CSV field names are trimmed before output and must be non-blank and unique, so
 notebook and audit exports do not produce ambiguous schema headers.
+`write_json()` and `write_csv()` create missing parent directories before
+writing, matching the market candle cache helper so notebook and future CLI
+export paths can target nested output folders directly.
 
 ## Similarity Encoding
 
