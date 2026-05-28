@@ -177,6 +177,11 @@ def test_forward_return_label_coverage_row_rejects_blank_dataset_id():
         forward_return_label_coverage_row([], 1, dataset_id="   ")
 
 
+def test_forward_return_label_coverage_row_rejects_whitespace_padded_dataset_id():
+    with pytest.raises(ValueError, match="leading or trailing whitespace"):
+        forward_return_label_coverage_row([], 1, dataset_id=" train ")
+
+
 def test_forward_return_label_coverage_row_rejects_non_string_dataset_id():
     with pytest.raises(ValueError, match="dataset ID must be a string"):
         forward_return_label_coverage_row([], 1, dataset_id=123)  # type: ignore[arg-type]
@@ -252,6 +257,8 @@ def test_multi_dataset_forward_return_label_coverage_rows_validates_dataset_ids(
         multi_dataset_forward_return_label_coverage_rows([("train", labels), ("train", labels)], [1])
     with pytest.raises(ValueError, match="dataset ID must not be blank"):
         multi_dataset_forward_return_label_coverage_rows([(" ", labels)], [1])
+    with pytest.raises(ValueError, match="leading or trailing whitespace"):
+        multi_dataset_forward_return_label_coverage_rows([(" train", labels)], [1])
     with pytest.raises(ValueError, match="dataset ID must be a string"):
         multi_dataset_forward_return_label_coverage_rows([(123, labels)], [1])  # type: ignore[list-item]
 
@@ -326,6 +333,8 @@ def test_forward_return_label_group_rows_validate_dataset_ids():
         forward_return_label_group_rows([("train", labels), ("train", labels)])
     with pytest.raises(ValueError, match="dataset ID must not be blank"):
         forward_return_label_group_rows([(" ", labels)])
+    with pytest.raises(ValueError, match="leading or trailing whitespace"):
+        forward_return_label_group_rows([("train ", labels)])
     with pytest.raises(ValueError, match="dataset ID must be a string"):
         forward_return_label_group_rows([(123, labels)])  # type: ignore[list-item]
 
@@ -462,6 +471,11 @@ def test_local_extrema_label_coverage_row_rejects_blank_dataset_id():
         local_extrema_label_coverage_row([], 1, dataset_id="   ")
 
 
+def test_local_extrema_label_coverage_row_rejects_whitespace_padded_dataset_id():
+    with pytest.raises(ValueError, match="leading or trailing whitespace"):
+        local_extrema_label_coverage_row([], 1, dataset_id=" extrema ")
+
+
 def test_local_extrema_label_coverage_row_rejects_non_string_dataset_id():
     with pytest.raises(ValueError, match="dataset ID must be a string"):
         local_extrema_label_coverage_row([], 1, dataset_id=123)  # type: ignore[arg-type]
@@ -538,6 +552,8 @@ def test_multi_dataset_local_extrema_label_coverage_rows_validates_dataset_ids()
         multi_dataset_local_extrema_label_coverage_rows([("train", labels), ("train", labels)], 1)
     with pytest.raises(ValueError, match="dataset ID must not be blank"):
         multi_dataset_local_extrema_label_coverage_rows([(" ", labels)], 1)
+    with pytest.raises(ValueError, match="leading or trailing whitespace"):
+        multi_dataset_local_extrema_label_coverage_rows([(" train", labels)], 1)
     with pytest.raises(ValueError, match="dataset ID must be a string"):
         multi_dataset_local_extrema_label_coverage_rows([(123, labels)], 1)  # type: ignore[list-item]
 
@@ -621,6 +637,8 @@ def test_local_extrema_label_group_rows_validate_dataset_ids():
         local_extrema_label_group_rows([("train", labels), ("train", labels)])
     with pytest.raises(ValueError, match="dataset ID must not be blank"):
         local_extrema_label_group_rows([(" ", labels)])
+    with pytest.raises(ValueError, match="leading or trailing whitespace"):
+        local_extrema_label_group_rows([("train ", labels)])
     with pytest.raises(ValueError, match="dataset ID must be a string"):
         local_extrema_label_group_rows([(123, labels)])  # type: ignore[list-item]
 

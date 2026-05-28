@@ -294,6 +294,8 @@ def _validate_dataset_id(dataset_id: str | None) -> None:
         raise ValueError("dataset ID must be a string")
     if not dataset_id.strip():
         raise ValueError("dataset ID must not be blank")
+    if dataset_id != dataset_id.strip():
+        raise ValueError("dataset ID must not include leading or trailing whitespace")
 
 
 def _validate_required_dataset_id(dataset_id: str) -> None:
@@ -301,6 +303,8 @@ def _validate_required_dataset_id(dataset_id: str) -> None:
         raise ValueError("dataset ID must be a string")
     if not dataset_id.strip():
         raise ValueError("dataset ID must not be blank")
+    if dataset_id != dataset_id.strip():
+        raise ValueError("dataset ID must not include leading or trailing whitespace")
 
 
 def _iter_named_label_datasets(
