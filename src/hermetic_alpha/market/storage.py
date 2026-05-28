@@ -154,6 +154,8 @@ def _validate_required_dataset_id(dataset_id: str) -> None:
         raise CandleStorageError("dataset ID must be a string")
     if not dataset_id.strip():
         raise CandleStorageError("dataset ID must not be blank")
+    if dataset_id != dataset_id.strip():
+        raise CandleStorageError("dataset ID must not include leading or trailing whitespace")
 
 
 def _parse_timestamp(value: Any, index: int) -> datetime:
