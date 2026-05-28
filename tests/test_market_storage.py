@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timezone, timedelta
 
 import pytest
@@ -83,6 +84,26 @@ def test_candle_json_storage_rejects_malformed_rows(tmp_path):
     path.write_text('["not-a-row"]', encoding="utf-8")
 
     with pytest.raises(CandleStorageError, match="row 0 must be an object"):
+        read_candles_json(path)
+
+
+@pytest.mark.parametrize("field", ["asset", "interval", "source"])
+def test_candle_json_storage_rejects_blank_string_fields(tmp_path, field):
+    path = tmp_path / f"blank-{field}.json"
+    row = {
+        "timestamp": "2024-05-08T00:00:00+00:00",
+        "asset": "BTC-USD",
+        "open": 1,
+        "high": 2,
+        "low": 0.5,
+        "close": 1.5,
+        "interval": "1d",
+        "source": "unit_test",
+    }
+    row[field] = "   "
+    path.write_text(json.dumps([row]), encoding="utf-8")
+
+    with pytest.raises(CandleStorageError, match=f"field {field} must be a non-empty string"):
         read_candles_json(path)
 
 
