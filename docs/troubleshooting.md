@@ -176,8 +176,9 @@ unknown sources.
 Use `candle_dataset_summary_rows()` when a report compares several cached
 datasets in one flat table. The helper preserves caller order from mappings or
 ordered `(dataset_id, candles)` pairs, requires supplied dataset IDs to be
-non-blank strings, rejects duplicates, and keeps the same single-dataset
-validation as `candle_dataset_summary_row()`.
+non-blank strings, rejects duplicates, rejects malformed ordered entries before
+tuple unpacking, and keeps the same single-dataset validation as
+`candle_dataset_summary_row()`.
 It is compact cache metadata only, not a replacement for exporting the
 underlying candle rows.
 Use `candle_dataset_group_rows()` when the audit needs those underlying

@@ -140,7 +140,13 @@ def _iter_named_candle_datasets(
     if isinstance(datasets, Mapping):
         yield from datasets.items()
         return
-    yield from datasets
+    for index, entry in enumerate(datasets):
+        if not isinstance(entry, Sequence) or isinstance(entry, (str, bytes)) or len(entry) != 2:
+            raise CandleStorageError(
+                f"named candle dataset entry {index} must be a two-item (dataset_id, candles) pair"
+            )
+        dataset_id, candles = entry
+        yield dataset_id, candles
 
 
 def _validate_required_dataset_id(dataset_id: str) -> None:
