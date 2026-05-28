@@ -212,6 +212,13 @@ def test_candle_dataset_summary_rows_rejects_non_string_pair_dataset_ids():
         candle_dataset_summary_rows([(123, candles)])  # type: ignore[list-item]
 
 
+def test_candle_dataset_summary_rows_rejects_malformed_ordered_pairs():
+    candles = [MarketCandle(datetime(2024, 5, 8, tzinfo=timezone.utc), "BTC-USD", 100, 105, 95, 102)]
+
+    with pytest.raises(CandleStorageError, match="two-item"):
+        candle_dataset_summary_rows([("btc", candles, "extra")])  # type: ignore[list-item]
+
+
 def test_candle_dataset_summary_rows_delegates_dataset_validation():
     candles = [
         MarketCandle(datetime(2024, 5, 8, tzinfo=timezone.utc), "BTC-USD", 100, 105, 95, 102),
@@ -272,3 +279,8 @@ def test_candle_dataset_group_rows_rejects_non_string_dataset_ids():
 
     with pytest.raises(CandleStorageError, match="dataset ID must be a string"):
         candle_dataset_group_rows([(123, candles)])  # type: ignore[list-item]
+
+
+def test_candle_dataset_group_rows_rejects_malformed_ordered_pairs():
+    with pytest.raises(CandleStorageError, match="two-item"):
+        candle_dataset_group_rows(["btc"])  # type: ignore[arg-type]
