@@ -140,6 +140,14 @@ def test_csv_rejects_duplicate_explicit_fieldnames():
         to_csv([{"asset": "BTC-USD"}], fieldnames=["asset", "asset"])
 
 
+def test_csv_rejects_non_string_explicit_fieldnames():
+    with pytest.raises(TypeError, match="fieldnames must be strings, got int"):
+        to_csv([{"asset": "BTC-USD"}], fieldnames=["asset", 1])
+
+    with pytest.raises(TypeError, match="fieldnames must be strings, got NoneType"):
+        to_csv([{"asset": "BTC-USD"}], fieldnames=[None])
+
+
 def test_csv_preserves_valid_explicit_fieldname_order():
     text = to_csv([{"asset": "BTC-USD", "close": 100.0}], fieldnames=["close", "asset"])
 

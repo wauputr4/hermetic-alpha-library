@@ -73,6 +73,8 @@ def _validate_explicit_fieldnames(fieldnames: Sequence[str]) -> list[str]:
     header: list[str] = []
     seen: set[str] = set()
     for name in fieldnames:
+        if not isinstance(name, str):
+            raise TypeError(f"CSV fieldnames must be strings, got {type(name).__name__}")
         normalized = name.strip()
         if not normalized:
             raise ValueError("CSV fieldnames must not contain blank names")
