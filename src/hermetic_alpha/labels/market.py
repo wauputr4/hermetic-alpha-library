@@ -299,12 +299,7 @@ def _validate_dataset_id(dataset_id: str | None) -> None:
 
 
 def _validate_required_dataset_id(dataset_id: str) -> None:
-    if not isinstance(dataset_id, str):
-        raise ValueError("dataset ID must be a string")
-    if not dataset_id.strip():
-        raise ValueError("dataset ID must not be blank")
-    if dataset_id != dataset_id.strip():
-        raise ValueError("dataset ID must not include leading or trailing whitespace")
+    _validate_dataset_id(dataset_id)
 
 
 def _iter_named_label_datasets(
@@ -313,4 +308,8 @@ def _iter_named_label_datasets(
     if isinstance(datasets, Mapping):
         yield from datasets.items()
         return
-    yield from datasets
+    for entry in datasets:
+        if isinstance(entry, str | bytes) or not isinstance(entry, Sequence) or len(entry) != 2:
+            raise ValueError("named label datasets must be two-item (dataset_id, labels) pairs")
+        dataset_id, labels = entry
+        yield dataset_id, labels
