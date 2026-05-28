@@ -128,8 +128,9 @@ Mitigation:
   label rows.
 - Use `multi_dataset_forward_return_label_coverage_rows()` when forward-return
   coverage needs one audit table across several named label datasets. The helper
-  preserves dataset and horizon order, rejects blank or duplicate dataset IDs,
-  and delegates row fields to the single-dataset coverage helpers; it is
+  preserves dataset and horizon order, rejects blank, whitespace-padded, or
+  duplicate dataset IDs, and delegates row fields to the single-dataset coverage
+  helpers; it is
   multi-dataset audit metadata, not a replacement for inspecting the underlying
   label rows.
 - Use `forward_return_label_group_rows()` when the audit needs those underlying
@@ -140,7 +141,8 @@ Mitigation:
   coverage helpers already provide compact label metadata.
 - Supplied label coverage `dataset_id` values must be non-blank strings. Pass
   `None` when a forward-return or local-extrema coverage row should remain
-  unnamed.
+  unnamed. Dataset IDs are never trimmed implicitly; leading or trailing
+  whitespace is rejected so exported identifiers stay explicit.
 - Use `local_extrema_label_coverage_row()` before exporting retrospective
   top/bottom labels when the edge-row footprint needs to be visible. Centered
   local-extrema windows intentionally leave rows near the start and end
@@ -153,9 +155,10 @@ Mitigation:
   caveat as `local_extrema_label_coverage_row()`.
 - Use `multi_dataset_local_extrema_label_coverage_rows()` when retrospective
   label coverage needs one audit table across several named datasets. The
-  helper preserves dataset and window order, rejects blank or duplicate dataset
-  IDs, and delegates row fields to the existing local-extrema coverage helpers;
-  it is multi-dataset audit metadata, not a replacement for inspecting the
+  helper preserves dataset and window order, rejects blank, whitespace-padded,
+  or duplicate dataset IDs, and delegates row fields to the existing
+  local-extrema coverage helpers; it is multi-dataset audit metadata, not a
+  replacement for inspecting the
   underlying label rows.
 - Use `local_extrema_label_group_rows()` when the audit needs those underlying
   raw retrospective local-extrema label rows from several declared datasets in
@@ -165,9 +168,9 @@ Mitigation:
   centered local-extrema labels predictive; it only groups raw retrospective
   label rows for export.
 - Forward-return and local-extrema grouped label row helpers share the same
-  private named-dataset assembly path. Keep dataset ID validation, duplicate
-  rejection, empty-dataset skipping, and raw row prepending behavior aligned
-  there instead of changing only one public helper.
+  private named-dataset assembly path. Keep dataset ID validation, whitespace
+  rejection, duplicate rejection, empty-dataset skipping, and raw row prepending
+  behavior aligned there instead of changing only one public helper.
 
 ### Local Candle Cache Files
 
