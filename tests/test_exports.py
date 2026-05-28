@@ -100,6 +100,14 @@ def test_json_exports_native_dates():
     assert '"date": "2026-05-17"' in text
 
 
+def test_json_writer_creates_missing_parent_directories(tmp_path):
+    path = tmp_path / "nested" / "exports" / "result.json"
+
+    write_json({"asset": "BTC-USD"}, path)
+
+    assert path.read_text(encoding="utf-8") == '{\n  "asset": "BTC-USD"\n}\n'
+
+
 def test_csv_exports_model_rows_with_stable_header(tmp_path):
     ts = datetime(2026, 5, 6, tzinfo=timezone.utc)
     rows = [
@@ -115,6 +123,24 @@ def test_csv_exports_model_rows_with_stable_header(tmp_path):
     path = tmp_path / "rows.csv"
     write_csv(rows, path)
     assert path.read_text(encoding="utf-8") == text
+
+
+def test_csv_writer_creates_missing_parent_directories(tmp_path):
+    path = tmp_path / "nested" / "exports" / "rows.csv"
+
+    write_csv([{"asset": "BTC-USD"}], path)
+
+    assert path.read_text(encoding="utf-8") == "asset\nBTC-USD\n"
+
+
+def test_csv_writer_does_not_truncate_existing_file_when_rows_are_invalid(tmp_path):
+    path = tmp_path / "rows.csv"
+    path.write_text("existing\ncontent\n", encoding="utf-8")
+
+    with pytest.raises(TypeError, match="unsupported nested value"):
+        write_csv([{"asset": "BTC-USD", "nested": {"close": 1.0}}], path)
+
+    assert path.read_text(encoding="utf-8") == "existing\ncontent\n"
 
 
 def test_csv_exports_native_dates():

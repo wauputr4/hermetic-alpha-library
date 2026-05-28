@@ -32,8 +32,11 @@ def to_csv(rows: Any, *, fieldnames: Sequence[str] | None = None) -> str:
 def write_csv(rows: Any, path: str | PathLike[str], *, fieldnames: Sequence[str] | None = None) -> None:
     """Write CSV text to ``path``."""
 
-    with Path(path).open("w", encoding="utf-8", newline="") as file:
-        file.write(to_csv(rows, fieldnames=fieldnames))
+    text = to_csv(rows, fieldnames=fieldnames)
+    destination = Path(path)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    with destination.open("w", encoding="utf-8", newline="") as file:
+        file.write(text)
 
 
 def _normalize_rows(rows: Any) -> list[dict[str, Any]]:

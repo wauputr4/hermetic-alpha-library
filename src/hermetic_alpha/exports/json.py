@@ -26,7 +26,9 @@ def write_json(
 ) -> None:
     """Write deterministic JSON to ``path``."""
 
-    Path(path).write_text(to_json(data, indent=indent, sort_keys=sort_keys) + "\n", encoding="utf-8")
+    destination = Path(path)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(to_json(data, indent=indent, sort_keys=sort_keys) + "\n", encoding="utf-8")
 
 
 def _normalize(value: ExportValue) -> ExportValue:
