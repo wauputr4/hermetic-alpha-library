@@ -130,6 +130,28 @@ def test_csv_empty_inputs_and_explicit_header():
     assert to_csv([], fieldnames=["asset", "close"]) == "asset,close\n"
 
 
+def test_csv_rejects_blank_explicit_fieldnames():
+    with pytest.raises(ValueError, match="blank names"):
+        to_csv([{"asset": "BTC-USD"}], fieldnames=["asset", "   "])
+
+
+def test_csv_rejects_duplicate_explicit_fieldnames():
+    with pytest.raises(ValueError, match="must be unique: asset"):
+        to_csv([{"asset": "BTC-USD"}], fieldnames=["asset", "asset"])
+
+
+def test_csv_preserves_valid_explicit_fieldname_order():
+    text = to_csv([{"asset": "BTC-USD", "close": 100.0}], fieldnames=["close", "asset"])
+
+    assert text.splitlines() == ["close,asset", "100.0,BTC-USD"]
+
+
+def test_csv_trims_valid_explicit_fieldnames():
+    text = to_csv([{"asset": "BTC-USD"}], fieldnames=[" asset "])
+
+    assert text.splitlines() == ["asset", "BTC-USD"]
+
+
 def test_csv_rejects_nested_values():
     with pytest.raises(TypeError, match="unsupported nested value"):
         to_csv([{"asset": "BTC-USD", "nested": {"close": 1.0}}])

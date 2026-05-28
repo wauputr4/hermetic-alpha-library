@@ -475,7 +475,9 @@ JSON and CSV export helpers normalize native `date` and `datetime` values to
 ISO strings before serialization. CSV helpers are intentionally limited to flat
 rows; nested mappings or sequences should be flattened by the caller before
 export. When passing explicit CSV `fieldnames`, every row must fit that header
-exactly apart from missing fields, which are emitted as blank cells.
+exactly apart from missing fields, which are emitted as blank cells. Explicit
+CSV field names are trimmed before output and must be non-blank and unique, so
+notebook and audit exports do not produce ambiguous schema headers.
 
 ## Similarity Encoding
 
@@ -538,9 +540,10 @@ serialization of mappings, sequences, and model objects with `to_dict()`.
 
 Use `to_csv()` or `write_csv()` only for flat row data. CSV export writes a
 stable header based on first-seen field order unless `fieldnames=` is supplied,
-and it raises `TypeError` for nested dictionaries, lists, tuples, or other
-structured values. Flatten nested research outputs explicitly before exporting
-them to CSV so column names remain auditable.
+and it trims explicit field names before rejecting blank or duplicate names. It
+raises `TypeError` for nested dictionaries, lists, tuples, or other structured
+values. Flatten nested research outputs explicitly before exporting them to CSV
+so column names remain auditable.
 
 `aspect_event_feature_rows()` is the preferred flattening helper for
 `AspectEvent` rows. It preserves input ordering, leaves missing timestamps as
