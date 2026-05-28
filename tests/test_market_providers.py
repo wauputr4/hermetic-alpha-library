@@ -176,3 +176,21 @@ def test_yahoo_finance_provider_reports_all_incomplete_quote_rows():
 
     with pytest.raises(MarketDataProviderError, match="zero usable candles"):
         provider.fetch_daily_btc("2024-05-08", "2024-05-09")
+
+
+def test_yahoo_finance_provider_wraps_malformed_timestamp_values():
+    payload = chart_payload()
+    payload["chart"]["result"][0]["timestamp"][0] = "not-a-timestamp"
+    provider = YahooFinanceProvider(opener=lambda request, *, timeout: FakeResponse(payload))
+
+    with pytest.raises(MarketDataProviderError, match="row 0 has malformed timestamp"):
+        provider.fetch_daily_btc("2024-05-08", "2024-05-09")
+
+
+def test_yahoo_finance_provider_wraps_malformed_volume_values():
+    payload = chart_payload()
+    payload["chart"]["result"][0]["indicators"]["quote"][0]["volume"][0] = "not-volume"
+    provider = YahooFinanceProvider(opener=lambda request, *, timeout: FakeResponse(payload))
+
+    with pytest.raises(MarketDataProviderError, match="row 0 has malformed volume value"):
+        provider.fetch_daily_btc("2024-05-08", "2024-05-09")

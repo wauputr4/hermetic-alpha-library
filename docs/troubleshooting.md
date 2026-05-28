@@ -93,6 +93,9 @@ Mitigation:
   rows where Yahoo returns missing OHLC values. If every returned row is
   incomplete, the provider raises `MarketDataProviderError` instead of handing
   an ambiguous empty candle list to downstream cache writers.
+- Malformed Yahoo per-row numeric values, including timestamps, OHLC values, and
+  optional volume, are wrapped in `MarketDataProviderError` with the candle row
+  index. Missing OHLC values are still treated as incomplete rows and skipped.
 - `YahooFinanceProvider.fetch_daily()` requires caller-supplied asset symbols
   to be non-blank strings before any network request is built. Validate or
   normalize user-facing input at the interface boundary, then pass an explicit

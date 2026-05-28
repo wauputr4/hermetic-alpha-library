@@ -129,13 +129,13 @@ def _candles_from_chart_result(
 
         candles.append(
             MarketCandle(
-                timestamp=datetime.fromtimestamp(int(timestamp), tz=timezone.utc),
+                timestamp=_timestamp_from_yahoo_value(timestamp, index),
                 asset=asset,
-                open=float(open_value),
-                high=float(high_value),
-                low=float(low_value),
-                close=float(close_value),
-                volume=_optional_float(_list_value(volumes, index)),
+                open=_required_float(open_value, index, "open"),
+                high=_required_float(high_value, index, "high"),
+                low=_required_float(low_value, index, "low"),
+                close=_required_float(close_value, index, "close"),
+                volume=_optional_float(_list_value(volumes, index), index),
                 interval=interval,
                 source=source,
             )
@@ -153,7 +153,24 @@ def _list_value(values: Any, index: int) -> Any:
     return None
 
 
-def _optional_float(value: Any) -> float | None:
+def _timestamp_from_yahoo_value(value: Any, index: int) -> datetime:
+    try:
+        return datetime.fromtimestamp(int(value), tz=timezone.utc)
+    except (TypeError, ValueError, OSError, OverflowError) as exc:
+        raise MarketDataProviderError(f"Yahoo Finance candle row {index} has malformed timestamp") from exc
+
+
+def _required_float(value: Any, index: int, field: str) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError) as exc:
+        raise MarketDataProviderError(f"Yahoo Finance candle row {index} has malformed {field} value") from exc
+
+
+def _optional_float(value: Any, index: int) -> float | None:
     if value is None:
         return None
-    return float(value)
+    try:
+        return float(value)
+    except (TypeError, ValueError) as exc:
+        raise MarketDataProviderError(f"Yahoo Finance candle row {index} has malformed volume value") from exc
