@@ -135,6 +135,16 @@ def test_aspect_event_feature_group_rows_rejects_non_string_group_ids():
         aspect_event_feature_group_rows([(123, events)])  # type: ignore[list-item]
 
 
+def test_aspect_event_feature_group_rows_rejects_malformed_ordered_entries():
+    events = [_aspect_event("sun", "jupiter", "conjunction", None)]
+
+    with pytest.raises(ValueError, match="named feature matrix entries must be two-item"):
+        aspect_event_feature_group_rows(["train"])  # type: ignore[list-item]
+
+    with pytest.raises(ValueError, match="named feature matrix entries must be two-item"):
+        aspect_event_feature_group_rows([("train", events, "extra")])  # type: ignore[list-item]
+
+
 def test_aspect_event_feature_group_rows_reuses_event_component_validation():
     with pytest.raises(ValueError, match="aspect feature components must be non-blank strings"):
         aspect_event_feature_group_rows([("train", [_aspect_event("sun", "   ", "conjunction", None)])])
@@ -482,6 +492,16 @@ def test_aspect_event_feature_matrix_summary_rows_rejects_whitespace_padded_matr
 def test_aspect_event_feature_matrix_summary_rows_rejects_non_string_matrix_ids():
     with pytest.raises(ValueError, match="matrix ID must be a non-blank string"):
         aspect_event_feature_matrix_summary_rows([(42, [])])
+
+
+def test_aspect_event_feature_matrix_summary_rows_rejects_malformed_ordered_entries():
+    events = [_aspect_event("sun", "jupiter", "conjunction", None)]
+
+    with pytest.raises(ValueError, match="named feature matrix entries must be two-item"):
+        aspect_event_feature_matrix_summary_rows(["train"])  # type: ignore[list-item]
+
+    with pytest.raises(ValueError, match="named feature matrix entries must be two-item"):
+        aspect_event_feature_matrix_summary_rows([("train", events, "extra")])  # type: ignore[list-item]
 
 
 def test_aspect_event_feature_matrix_summary_rows_accepts_shared_configured_feature_keys():
