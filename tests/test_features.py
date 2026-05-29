@@ -117,6 +117,14 @@ def test_aspect_event_feature_group_rows_rejects_blank_group_ids():
         aspect_event_feature_group_rows([("   ", [])])
 
 
+def test_aspect_event_feature_group_rows_rejects_whitespace_padded_group_ids():
+    with pytest.raises(ValueError, match="group ID must not include leading or trailing whitespace"):
+        aspect_event_feature_group_rows([(" train", [])])
+
+    with pytest.raises(ValueError, match="group ID must not include leading or trailing whitespace"):
+        aspect_event_feature_group_rows([("test ", [])])
+
+
 def test_aspect_event_feature_group_rows_rejects_non_string_group_ids():
     events = [_aspect_event("sun", "jupiter", "conjunction", None)]
 
@@ -463,6 +471,14 @@ def test_aspect_event_feature_matrix_summary_rows_rejects_blank_matrix_ids():
         aspect_event_feature_matrix_summary_rows([("   ", [])])
 
 
+def test_aspect_event_feature_matrix_summary_rows_rejects_whitespace_padded_matrix_ids():
+    with pytest.raises(ValueError, match="matrix ID must not include leading or trailing whitespace"):
+        aspect_event_feature_matrix_summary_rows([(" train", [])])
+
+    with pytest.raises(ValueError, match="matrix ID must not include leading or trailing whitespace"):
+        aspect_event_feature_matrix_summary_rows([("test ", [])])
+
+
 def test_aspect_event_feature_matrix_summary_rows_rejects_non_string_matrix_ids():
     with pytest.raises(ValueError, match="matrix ID must be a non-blank string"):
         aspect_event_feature_matrix_summary_rows([(42, [])])
@@ -522,6 +538,17 @@ def test_aspect_event_feature_matrix_summary_rows_rejects_blank_configured_matri
         aspect_event_feature_matrix_summary_rows(
             [("train", [])],
             [("   ", ["sun_jupiter_conjunction"])],
+        )
+
+
+def test_aspect_event_feature_matrix_summary_rows_rejects_whitespace_padded_configured_matrix_ids():
+    with pytest.raises(
+        ValueError,
+        match="configured matrix ID must not include leading or trailing whitespace",
+    ):
+        aspect_event_feature_matrix_summary_rows(
+            [("train", [])],
+            [(" train", ["sun_jupiter_conjunction"])],
         )
 
 

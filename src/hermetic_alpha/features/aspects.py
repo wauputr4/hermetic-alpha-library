@@ -307,6 +307,8 @@ def _normalize_feature_key_part(value: object) -> str:
 def _validate_matrix_id(matrix_id: object, label: str) -> None:
     if not isinstance(matrix_id, str) or not matrix_id.strip():
         raise ValueError(f"{label} must be a non-blank string")
+    if matrix_id != matrix_id.strip():
+        raise ValueError(f"{label} must not include leading or trailing whitespace")
 
 
 def _duplicate_values(values: Sequence[str]) -> list[str]:
