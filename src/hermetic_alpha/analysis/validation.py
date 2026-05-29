@@ -471,6 +471,8 @@ def _validate_report_id(identifier: object, *, singular_name: str) -> None:
         raise ValueError(f"{singular_name} must be a string")
     if not identifier.strip():
         raise ValueError(f"{singular_name} must not be blank")
+    if identifier != identifier.strip():
+        raise ValueError(f"{singular_name} must not include leading or trailing whitespace")
 
 
 def _iter_named_distributions(
