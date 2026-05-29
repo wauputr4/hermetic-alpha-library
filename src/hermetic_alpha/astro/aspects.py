@@ -266,3 +266,5 @@ def _iter_named_aspect_scans(
 def _validate_scan_id(scan_id: object) -> None:
     if not isinstance(scan_id, str) or not scan_id.strip():
         raise ValueError("scan ID must be a non-blank string")
+    if scan_id != scan_id.strip():
+        raise ValueError("scan ID must not include leading or trailing whitespace")

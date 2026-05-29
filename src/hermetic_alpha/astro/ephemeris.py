@@ -136,6 +136,8 @@ def _validate_series_id(series_id: Any) -> None:
         raise ValueError("series ID must be a string")
     if not series_id.strip():
         raise ValueError("series ID must not be blank")
+    if series_id != series_id.strip():
+        raise ValueError("series ID must not include leading or trailing whitespace")
 
 
 def _import_swisseph() -> ModuleType:
