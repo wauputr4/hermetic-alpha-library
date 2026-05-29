@@ -578,10 +578,10 @@ keys are produced.
 Use `aspect_event_feature_group_rows()` when several declared event groups need
 one raw feature-row export. It preserves caller group order and event order,
 rejects blank/duplicate/non-string or whitespace-padded group IDs, skips empty
-groups, prepends `group_id`, and reuses `aspect_event_feature_rows()` so
-malformed aspect components keep the same validation behavior. Use matrix
-helpers only when the report needs timestamp-level pivoted feature columns or
-matrix metadata.
+groups, rejects malformed ordered entries before tuple unpacking, prepends
+`group_id`, and reuses `aspect_event_feature_rows()` so malformed aspect
+components keep the same validation behavior. Use matrix helpers only when the
+report needs timestamp-level pivoted feature columns or matrix metadata.
 
 Use `aspect_event_feature_matrix_rows()` when downstream code needs one row per
 timestamp with deterministic aspect indicator columns. It rejects untimestamped
@@ -614,12 +614,13 @@ Use `aspect_event_feature_matrix_summary_rows()` when batch feature-matrix
 audits need one flat table across named matrices. It preserves caller order from
 ordered mappings or `(matrix_id, events)` pairs, requires matrix IDs to be
 non-blank strings without leading or trailing whitespace, rejects duplicates,
-supports shared or per-matrix configured feature keys, and keeps the same
-metadata-only role as the single-row helper. When configured feature keys are
-supplied per matrix, each configured matrix ID must also be a non-blank string
-without leading or trailing whitespace and match a declared matrix ID so
-notebook and CLI audit setup mistakes fail early. Shared and per-matrix
-configured feature keys must also be non-blank strings.
+rejects malformed ordered entries before tuple unpacking, supports shared or
+per-matrix configured feature keys, and keeps the same metadata-only role as
+the single-row helper. When configured feature keys are supplied per matrix,
+each configured matrix ID must also be a non-blank string without leading or
+trailing whitespace and match a declared matrix ID so notebook and CLI audit
+setup mistakes fail early. Shared and per-matrix configured feature keys must
+also be non-blank strings.
 
 `event_study_baseline_comparison_row()` is the preferred flat row helper when
 reports need probability deltas and relative lift. It leaves derived fields as

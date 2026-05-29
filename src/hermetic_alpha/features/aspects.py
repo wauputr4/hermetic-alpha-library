@@ -232,7 +232,11 @@ def _iter_named_feature_matrices(
     if isinstance(matrices, Mapping):
         yield from matrices.items()
         return
-    yield from matrices
+    for item in matrices:
+        if isinstance(item, (str, bytes)) or not isinstance(item, Sequence) or len(item) != 2:
+            raise ValueError("named feature matrix entries must be two-item (id, events) pairs")
+        matrix_id, events = item
+        yield matrix_id, events
 
 
 def _configured_feature_keys_by_matrix(
