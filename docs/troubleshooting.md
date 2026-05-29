@@ -644,6 +644,10 @@ raw `EventStudyResult` values for statistical interpretation and deeper review.
 Validated event-study report groups and timestamp-join summary IDs follow the
 same identifier boundary: callers must pass explicit, already-normalized IDs
 instead of relying on export helpers to trim ambiguous whitespace.
+Validation report helpers use the same boundary for permutation scenario IDs,
+random-baseline IDs, bootstrap statistic names, and walk-forward split group
+IDs. Rejecting whitespace-padded identifiers keeps downstream CSV and notebook
+joins explicit instead of mixing visually similar report labels.
 
 ## Reliable test verification (local + CI)
 

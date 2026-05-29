@@ -516,6 +516,16 @@ def test_walk_forward_split_group_rows_reject_duplicate_and_blank_group_ids():
         walk_forward_split_group_rows([("   ", [split])])
 
 
+def test_walk_forward_split_group_rows_reject_whitespace_padded_group_ids():
+    split = WalkForwardSplit(("d1",), ("d2",), 0, 1, 1, 2)
+
+    with pytest.raises(ValueError, match="split group ID must not include leading or trailing whitespace"):
+        walk_forward_split_group_rows([(" daily", [split])])
+
+    with pytest.raises(ValueError, match="split group ID must not include leading or trailing whitespace"):
+        walk_forward_split_group_rows([("daily ", [split])])
+
+
 def test_walk_forward_splits_validate_inputs():
     with pytest.raises(ValueError, match="observations must be"):
         walk_forward_splits([], train_size=1, test_size=1)
@@ -573,6 +583,12 @@ def test_validation_helpers_validate_inputs():
     with pytest.raises(ValueError, match="baseline ID must not be blank"):
         random_baseline_distribution_rows([("   ", [0.1])])
 
+    with pytest.raises(ValueError, match="baseline ID must not include leading or trailing whitespace"):
+        random_baseline_distribution_rows([(" baseline", [0.1])])
+
+    with pytest.raises(ValueError, match="baseline ID must not include leading or trailing whitespace"):
+        random_baseline_distribution_rows([("baseline ", [0.1])])
+
     with pytest.raises(ValueError, match="baseline ID must be a string"):
         random_baseline_distribution_rows({123: [0.1]})  # type: ignore[dict-item]
 
@@ -597,6 +613,12 @@ def test_validation_helpers_validate_inputs():
     with pytest.raises(ValueError, match="statistic name must not be blank"):
         bootstrap_interval_rows([("   ", (0.1, 0.2))])
 
+    with pytest.raises(ValueError, match="statistic name must not include leading or trailing whitespace"):
+        bootstrap_interval_rows([(" mean", (0.1, 0.2))])
+
+    with pytest.raises(ValueError, match="statistic name must not include leading or trailing whitespace"):
+        bootstrap_interval_rows([("mean ", (0.1, 0.2))])
+
     with pytest.raises(ValueError, match="statistic name must be a string"):
         bootstrap_interval_rows({123: (0.1, 0.2)})  # type: ignore[dict-item]
 
@@ -620,6 +642,12 @@ def test_validation_helpers_validate_inputs():
 
     with pytest.raises(ValueError, match="scenario ID must not be blank"):
         permutation_test_result_rows([("   ", result)])
+
+    with pytest.raises(ValueError, match="scenario ID must not include leading or trailing whitespace"):
+        permutation_test_result_rows([(" scenario", result)])
+
+    with pytest.raises(ValueError, match="scenario ID must not include leading or trailing whitespace"):
+        permutation_test_result_rows([("scenario ", result)])
 
     with pytest.raises(ValueError, match="scenario ID must be a string"):
         permutation_test_result_rows({123: result})  # type: ignore[dict-item]
