@@ -128,7 +128,14 @@ def _iter_named_position_series(
     if isinstance(series, Mapping):
         yield from series.items()
         return
-    yield from series
+    for index, entry in enumerate(series):
+        if isinstance(entry, str | bytes) or not isinstance(entry, Sequence) or len(entry) != 2:
+            raise ValueError(
+                f"named planet-position series entry {index} must be a two-item "
+                "(series_id, positions) pair"
+            )
+        series_id, positions = entry
+        yield series_id, positions
 
 
 def _validate_series_id(series_id: Any) -> None:

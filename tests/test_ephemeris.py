@@ -286,6 +286,19 @@ def test_planet_position_series_summary_rows_rejects_non_string_series_ids():
         planet_position_series_summary_rows([(123, positions)])
 
 
+@pytest.mark.parametrize(
+    "series",
+    [
+        ["daily"],
+        [("daily",)],
+        [("daily", [], "extra")],
+    ],
+)
+def test_planet_position_series_summary_rows_rejects_malformed_ordered_entries(series):
+    with pytest.raises(ValueError, match="two-item \\(series_id, positions\\) pair"):
+        planet_position_series_summary_rows(series)
+
+
 def test_swiss_ephemeris_adapter_returns_normalized_planet_position():
     backend = FakeSwissEph()
     adapter = SwissEphemerisAdapter(ephemeris_path="/tmp/ephe", backend=backend)

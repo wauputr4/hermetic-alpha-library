@@ -320,6 +320,19 @@ def test_aspect_scan_summary_rows_rejects_non_string_scan_ids():
         aspect_scan_summary_rows([(42, events)])
 
 
+@pytest.mark.parametrize(
+    "scans",
+    [
+        ["scan-a"],
+        [("scan-a",)],
+        [("scan-a", [], "extra")],
+    ],
+)
+def test_aspect_scan_summary_rows_rejects_malformed_ordered_entries(scans):
+    with pytest.raises(ValueError, match="two-item \\(scan_id, events\\) pair"):
+        aspect_scan_summary_rows(scans)
+
+
 def test_aspect_scan_event_group_rows_preserves_ordered_mapping_order():
     ts1 = datetime(2026, 5, 6, tzinfo=timezone.utc)
     ts2 = datetime(2026, 5, 7, tzinfo=timezone.utc)
@@ -384,3 +397,16 @@ def test_aspect_scan_event_group_rows_rejects_non_string_scan_ids():
 
     with pytest.raises(ValueError, match="scan ID must be a non-blank string"):
         aspect_scan_event_group_rows([(42, events)])
+
+
+@pytest.mark.parametrize(
+    "scans",
+    [
+        ["scan-a"],
+        [("scan-a",)],
+        [("scan-a", [], "extra")],
+    ],
+)
+def test_aspect_scan_event_group_rows_rejects_malformed_ordered_entries(scans):
+    with pytest.raises(ValueError, match="two-item \\(scan_id, events\\) pair"):
+        aspect_scan_event_group_rows(scans)
