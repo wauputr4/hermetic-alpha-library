@@ -637,10 +637,13 @@ empty list for empty input.
 Use `multi_horizon_baseline_comparison_group_rows()` when combining several
 declared baseline-comparison result sets into one audit table. The helper
 accepts an ordered mapping or ordered `(comparison_group_id, results)` pairs,
-prepends `comparison_group_id`, requires group IDs to be non-blank strings,
-rejects duplicates, and emits no rows for empty groups. It is multi-scenario
-audit metadata only; keep the
+prepends `comparison_group_id`, requires group IDs to be non-blank strings
+without leading or trailing whitespace, rejects duplicates, and emits no rows
+for empty groups. It is multi-scenario audit metadata only; keep the
 raw `EventStudyResult` values for statistical interpretation and deeper review.
+Validated event-study report groups and timestamp-join summary IDs follow the
+same identifier boundary: callers must pass explicit, already-normalized IDs
+instead of relying on export helpers to trim ambiguous whitespace.
 
 ## Reliable test verification (local + CI)
 

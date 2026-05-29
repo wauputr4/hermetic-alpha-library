@@ -1018,6 +1018,14 @@ def test_validated_multi_horizon_event_study_report_group_rows_reject_blank_grou
         validated_multi_horizon_event_study_report_group_rows([("   ", [])])
 
 
+def test_validated_multi_horizon_event_study_report_group_rows_reject_whitespace_padded_group_ids():
+    with pytest.raises(ValueError, match="report group ID must not include leading or trailing whitespace"):
+        validated_multi_horizon_event_study_report_group_rows([(" train", [])])
+
+    with pytest.raises(ValueError, match="report group ID must not include leading or trailing whitespace"):
+        validated_multi_horizon_event_study_report_group_rows([("test ", [])])
+
+
 def test_validated_multi_horizon_event_study_report_group_rows_reject_non_string_group_ids():
     with pytest.raises(ValueError, match="report group ID must be a string"):
         validated_multi_horizon_event_study_report_group_rows({123: []})  # type: ignore[dict-item]
@@ -1132,6 +1140,14 @@ def test_multi_horizon_baseline_comparison_group_rows_reject_duplicate_group_ids
 def test_multi_horizon_baseline_comparison_group_rows_reject_blank_group_ids():
     with pytest.raises(ValueError, match="comparison group ID must not be blank"):
         multi_horizon_baseline_comparison_group_rows([("   ", [])])
+
+
+def test_multi_horizon_baseline_comparison_group_rows_reject_whitespace_padded_group_ids():
+    with pytest.raises(ValueError, match="comparison group ID must not include leading or trailing whitespace"):
+        multi_horizon_baseline_comparison_group_rows([(" train", [])])
+
+    with pytest.raises(ValueError, match="comparison group ID must not include leading or trailing whitespace"):
+        multi_horizon_baseline_comparison_group_rows([("test ", [])])
 
 
 def test_multi_horizon_baseline_comparison_group_rows_reject_non_string_group_ids():
@@ -1317,6 +1333,16 @@ def test_timestamp_join_summary_rows_rejects_duplicate_and_blank_join_ids():
 
     with pytest.raises(ValueError, match="join ID must not be blank"):
         timestamp_join_summary_rows([(" ", empty)])
+
+
+def test_timestamp_join_summary_rows_rejects_whitespace_padded_join_ids():
+    empty = join_aspect_events_to_market_labels([], [])
+
+    with pytest.raises(ValueError, match="join ID must not include leading or trailing whitespace"):
+        timestamp_join_summary_rows([(" train", empty)])
+
+    with pytest.raises(ValueError, match="join ID must not include leading or trailing whitespace"):
+        timestamp_join_summary_rows([("test ", empty)])
 
 
 def test_timestamp_join_summary_rows_rejects_non_string_join_ids():
