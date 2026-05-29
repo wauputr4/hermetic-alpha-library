@@ -54,7 +54,19 @@ def _normalize_row(row: Any) -> dict[str, Any]:
         row = row.to_dict()
     if not isinstance(row, Mapping):
         raise TypeError("CSV rows must be mappings or objects with to_dict()")
-    return {str(key): _normalize_flat_value(value) for key, value in row.items()}
+    return {_normalize_row_key(key): _normalize_flat_value(value) for key, value in row.items()}
+
+
+def _normalize_row_key(key: Any) -> str:
+    normalized = str(key)
+    stripped = normalized.strip()
+    if not stripped:
+        raise ValueError("CSV row keys must not be blank")
+    if normalized != stripped:
+        raise ValueError(
+            f"CSV row keys must not contain leading or trailing whitespace: {normalized!r}"
+        )
+    return normalized
 
 
 def _is_row(value: Any) -> bool:
