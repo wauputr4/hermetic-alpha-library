@@ -119,7 +119,14 @@ def _iter_named_charts(
     if isinstance(charts, Mapping):
         yield from charts.items()
         return
-    yield from charts
+    for index, entry in enumerate(charts):
+        if isinstance(entry, str | bytes) or not isinstance(entry, Sequence) or len(entry) != 2:
+            raise ValueError(
+                f"named chart entry {index} must be a two-item "
+                "(chart_id, positions) pair"
+            )
+        chart_id, positions = entry
+        yield chart_id, positions
 
 
 def _validate_chart_id(chart_id: str) -> None:

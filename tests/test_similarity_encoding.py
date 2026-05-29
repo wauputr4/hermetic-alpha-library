@@ -179,6 +179,19 @@ def test_planet_position_encoding_group_rows_rejects_non_string_chart_ids():
         planet_position_encoding_group_rows([(123, [])])
 
 
+@pytest.mark.parametrize(
+    "charts",
+    [
+        ["chart-a"],
+        [("chart-a",)],
+        [("chart-a", [], "extra")],
+    ],
+)
+def test_planet_position_encoding_group_rows_rejects_malformed_ordered_entries(charts):
+    with pytest.raises(ValueError, match="two-item \\(chart_id, positions\\) pair"):
+        planet_position_encoding_group_rows(charts)
+
+
 def test_planet_position_encoding_group_rows_are_csv_compatible():
     ts = datetime(2026, 5, 17, 0, 0, tzinfo=timezone.utc)
 
@@ -284,6 +297,19 @@ def test_planet_position_vector_summary_rows_rejects_whitespace_padded_chart_ids
 def test_planet_position_vector_summary_rows_rejects_non_string_chart_ids():
     with pytest.raises(ValueError, match="chart ID must be a string"):
         planet_position_vector_summary_rows([(123, [])])
+
+
+@pytest.mark.parametrize(
+    "charts",
+    [
+        ["chart-a"],
+        [("chart-a",)],
+        [("chart-a", [], "extra")],
+    ],
+)
+def test_planet_position_vector_summary_rows_rejects_malformed_ordered_entries(charts):
+    with pytest.raises(ValueError, match="two-item \\(chart_id, positions\\) pair"):
+        planet_position_vector_summary_rows(charts)
 
 
 def test_planet_position_vector_summary_rows_are_csv_compatible():
@@ -532,6 +558,19 @@ def test_nearest_neighbor_group_rows_rejects_non_string_search_ids():
         nearest_neighbor_group_rows([(123, [])])
 
 
+@pytest.mark.parametrize(
+    "searches",
+    [
+        ["search-a"],
+        [("search-a",)],
+        [("search-a", [], "extra")],
+    ],
+)
+def test_nearest_neighbor_group_rows_rejects_malformed_ordered_entries(searches):
+    with pytest.raises(ValueError, match="two-item \\(search_id, results\\) pair"):
+        nearest_neighbor_group_rows(searches)
+
+
 def test_nearest_neighbor_group_rows_rejects_blank_payload_field_names():
     with pytest.raises(ValueError, match="payload field names must be non-blank strings"):
         nearest_neighbor_group_rows([("empty-search", [])], payload_fields=["asset", ""])
@@ -687,6 +726,19 @@ def test_nearest_neighbor_summary_rows_rejects_non_string_search_ids():
         nearest_neighbor_summary_rows([(123, [])])
 
 
+@pytest.mark.parametrize(
+    "searches",
+    [
+        ["search-a"],
+        [("search-a",)],
+        [("search-a", [], "extra")],
+    ],
+)
+def test_nearest_neighbor_summary_rows_rejects_malformed_ordered_entries(searches):
+    with pytest.raises(ValueError, match="two-item \\(search_id, results\\) pair"):
+        nearest_neighbor_summary_rows(searches)
+
+
 def test_nearest_neighbor_summary_rows_rejects_duplicate_metadata_ids():
     with pytest.raises(ValueError, match="query ID search IDs must be unique"):
         nearest_neighbor_summary_rows(
@@ -731,6 +783,19 @@ def test_nearest_neighbor_summary_rows_rejects_unknown_metadata_ids():
 
     with pytest.raises(ValueError, match="limit search IDs must match declared searches"):
         nearest_neighbor_summary_rows(searches, limits={"unknown": 3})
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "message"),
+    [
+        ({"query_ids": ["search"]}, "query ID metadata entry 0"),
+        ({"metrics": [("search",)]}, "metric metadata entry 0"),
+        ({"limits": [("search", 3, "extra")]}, "limit metadata entry 0"),
+    ],
+)
+def test_nearest_neighbor_summary_rows_rejects_malformed_metadata_entries(kwargs, message):
+    with pytest.raises(ValueError, match=message):
+        nearest_neighbor_summary_rows({"search": []}, **kwargs)
 
 
 def test_nearest_neighbor_summary_rows_is_csv_compatible():

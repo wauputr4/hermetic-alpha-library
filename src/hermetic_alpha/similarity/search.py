@@ -201,7 +201,14 @@ def _iter_named_searches(
     if isinstance(searches, Mapping):
         yield from searches.items()
         return
-    yield from searches
+    for index, entry in enumerate(searches):
+        if isinstance(entry, str | bytes) or not isinstance(entry, Sequence) or len(entry) != 2:
+            raise ValueError(
+                f"named search entry {index} must be a two-item "
+                "(search_id, results) pair"
+            )
+        search_id, results = entry
+        yield search_id, results
 
 
 def _optional_metadata_by_search(
@@ -212,13 +219,27 @@ def _optional_metadata_by_search(
         return {}
 
     metadata: dict[str, Any] = {}
-    items = values.items() if isinstance(values, Mapping) else values
+    items = values.items() if isinstance(values, Mapping) else _iter_named_metadata(values, label)
     for search_id, value in items:
         _validate_search_id(search_id, f"{label} search ID")
         if search_id in metadata:
             raise ValueError(f"{label} search IDs must be unique")
         metadata[search_id] = value
     return metadata
+
+
+def _iter_named_metadata(
+    values: Sequence[tuple[str, Any]],
+    label: str,
+) -> Iterable[tuple[str, Any]]:
+    for index, entry in enumerate(values):
+        if isinstance(entry, str | bytes) or not isinstance(entry, Sequence) or len(entry) != 2:
+            raise ValueError(
+                f"{label} metadata entry {index} must be a two-item "
+                "(search_id, value) pair"
+            )
+        search_id, value = entry
+        yield search_id, value
 
 
 def _validate_search_id(search_id: Any, label: str) -> None:

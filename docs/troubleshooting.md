@@ -332,8 +332,9 @@ Use `nearest_neighbor_group_rows()` when a report needs one ranked-neighbor
 audit table across several declared similarity searches. It rejects blank or
 duplicate search IDs, requires supplied search IDs to be strings without
 leading or trailing whitespace, skips empty result groups, prepends `search_id`,
-and delegates rank and payload columns to `nearest_neighbor_rows()`; keep the
-raw `NearestNeighbor` objects for deeper payload inspection.
+rejects malformed ordered entries before tuple unpacking, and delegates rank
+and payload columns to `nearest_neighbor_rows()`; keep the raw
+`NearestNeighbor` objects for deeper payload inspection.
 Use `nearest_neighbor_summary_row()` when reports need one compact row per
 similarity search run. It keeps payload inspection out of the summary, uses the
 first ranked result as the top neighbor, reports min/max score and distance
@@ -345,7 +346,9 @@ duplicate search IDs, prepends `search_id`, and can attach per-search
 `query_id`, `metric`, and `limit` metadata while reusing the single-search
 summary schema. Those optional metadata mappings must use declared non-blank
 string search IDs without leading or trailing whitespace; unknown metadata IDs
-are rejected so typos do not silently disappear from audit reports. Keep
+are rejected so typos do not silently disappear from audit reports. Ordered
+search inputs and optional metadata inputs must contain explicit two-item pairs
+and are rejected before Python tuple unpacking can raise a generic error. Keep
 `nearest_neighbor_rows()` or the raw `NearestNeighbor` values for
 ranked neighbor and payload inspection.
 
@@ -404,15 +407,17 @@ must be inspected.
 Use `planet_position_encoding_group_rows()` when reports need one per-position
 encoding audit table for several named chart states. It prepends `chart_id`,
 skips empty groups, requires chart IDs to be non-blank strings without leading
-or trailing whitespace, rejects duplicates, and delegates each non-empty group to
+or trailing whitespace, rejects duplicates, rejects malformed ordered entries
+before tuple unpacking, and delegates each non-empty group to
 `planet_position_encoding_rows()`. Keep raw
 `PlanetPosition` objects and numeric vectors for deeper inspection or
 similarity search.
 Use `planet_position_vector_summary_rows()` when audit reports compare several
 named chart states in one flat table. It preserves caller order from mappings or
 `(chart_id, positions)` pairs, requires chart IDs to be non-blank strings
-without leading or trailing whitespace, rejects duplicates, and keeps the same
-metadata-only role as the single-chart helper.
+without leading or trailing whitespace, rejects duplicates, rejects malformed
+ordered entries before tuple unpacking, and keeps the same metadata-only role as
+the single-chart helper.
 
 ### Aspect Phase Classification
 
