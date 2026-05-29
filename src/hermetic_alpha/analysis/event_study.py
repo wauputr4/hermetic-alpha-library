@@ -258,6 +258,8 @@ def _validate_required_id(identifier: str, label: str) -> None:
         raise ValueError(f"{label} must be a string")
     if not identifier.strip():
         raise ValueError(f"{label} must not be blank")
+    if identifier != identifier.strip():
+        raise ValueError(f"{label} must not include leading or trailing whitespace")
 
 
 def _iter_named_comparison_groups(
