@@ -86,7 +86,9 @@ Mitigation:
   non-blank strings without leading or trailing whitespace, rejects duplicates,
   and reuses the single-series summary schema for each row; it is
   multi-series audit metadata, not a replacement for raw `PlanetPosition` rows
-  or encoded similarity vectors.
+  or encoded similarity vectors. Ordered named inputs must contain explicit
+  two-item `(series_id, positions)` pairs; malformed entries are rejected before
+  Python tuple unpacking can raise a generic error.
 
 ### Timezone and Candle Alignment
 
@@ -380,7 +382,9 @@ rejects scan IDs that are not non-blank strings or include leading/trailing
 whitespace, rejects duplicates, skips empty scan groups, and delegates event
 columns to `AspectEvent.to_dict()`. Keep `AspectEvent` objects for inspection,
 feature-row helpers for model inputs, and summary rows for compact scan
-metadata.
+metadata. Ordered named scan inputs must contain explicit two-item `(scan_id,
+events)` pairs; malformed entries are rejected before Python tuple unpacking
+can raise a generic error.
 
 ### Planet-Position Encoding Reports
 

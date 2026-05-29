@@ -260,7 +260,14 @@ def _iter_named_aspect_scans(
     if isinstance(scans, Mapping):
         yield from scans.items()
         return
-    yield from scans
+    for index, entry in enumerate(scans):
+        if isinstance(entry, str | bytes) or not isinstance(entry, Sequence) or len(entry) != 2:
+            raise ValueError(
+                f"named aspect scan entry {index} must be a two-item "
+                "(scan_id, events) pair"
+            )
+        scan_id, events = entry
+        yield scan_id, events
 
 
 def _validate_scan_id(scan_id: object) -> None:
