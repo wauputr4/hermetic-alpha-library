@@ -127,6 +127,8 @@ def _validate_chart_id(chart_id: str) -> None:
         raise ValueError("chart ID must be a string")
     if not chart_id.strip():
         raise ValueError("chart ID must not be blank")
+    if chart_id != chart_id.strip():
+        raise ValueError("chart ID must not include leading or trailing whitespace")
 
 
 def _position_sort_key(position: PlanetPosition) -> tuple[datetime, str, str]:

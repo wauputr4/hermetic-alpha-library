@@ -166,6 +166,14 @@ def test_planet_position_encoding_group_rows_rejects_blank_chart_ids():
         planet_position_encoding_group_rows([("   ", [])])
 
 
+def test_planet_position_encoding_group_rows_rejects_whitespace_padded_chart_ids():
+    with pytest.raises(ValueError, match="chart ID must not include leading or trailing whitespace"):
+        planet_position_encoding_group_rows([("train ", [])])
+
+    with pytest.raises(ValueError, match="chart ID must not include leading or trailing whitespace"):
+        planet_position_encoding_group_rows([(" train", [])])
+
+
 def test_planet_position_encoding_group_rows_rejects_non_string_chart_ids():
     with pytest.raises(ValueError, match="chart ID must be a string"):
         planet_position_encoding_group_rows([(123, [])])
@@ -263,6 +271,14 @@ def test_planet_position_vector_summary_rows_rejects_duplicate_chart_ids():
 def test_planet_position_vector_summary_rows_rejects_blank_chart_ids():
     with pytest.raises(ValueError, match="chart ID must not be blank"):
         planet_position_vector_summary_rows([("   ", [])])
+
+
+def test_planet_position_vector_summary_rows_rejects_whitespace_padded_chart_ids():
+    with pytest.raises(ValueError, match="chart ID must not include leading or trailing whitespace"):
+        planet_position_vector_summary_rows([(" train", [])])
+
+    with pytest.raises(ValueError, match="chart ID must not include leading or trailing whitespace"):
+        planet_position_vector_summary_rows([("train ", [])])
 
 
 def test_planet_position_vector_summary_rows_rejects_non_string_chart_ids():
@@ -500,6 +516,14 @@ def test_nearest_neighbor_group_rows_rejects_duplicate_and_blank_search_ids():
         nearest_neighbor_group_rows([(" ", [])])
 
 
+def test_nearest_neighbor_group_rows_rejects_whitespace_padded_search_ids():
+    with pytest.raises(ValueError, match="search ID must not include leading or trailing whitespace"):
+        nearest_neighbor_group_rows([(" train", [])])
+
+    with pytest.raises(ValueError, match="search ID must not include leading or trailing whitespace"):
+        nearest_neighbor_group_rows([("train ", [])])
+
+
 def test_nearest_neighbor_group_rows_rejects_non_string_search_ids():
     with pytest.raises(ValueError, match="search ID must be a string"):
         nearest_neighbor_group_rows({123: []})
@@ -647,6 +671,14 @@ def test_nearest_neighbor_summary_rows_rejects_duplicate_and_blank_search_ids():
         nearest_neighbor_summary_rows([(" ", [])])
 
 
+def test_nearest_neighbor_summary_rows_rejects_whitespace_padded_search_ids():
+    with pytest.raises(ValueError, match="search ID must not include leading or trailing whitespace"):
+        nearest_neighbor_summary_rows([(" train", [])])
+
+    with pytest.raises(ValueError, match="search ID must not include leading or trailing whitespace"):
+        nearest_neighbor_summary_rows([("train ", [])])
+
+
 def test_nearest_neighbor_summary_rows_rejects_non_string_search_ids():
     with pytest.raises(ValueError, match="search ID must be a string"):
         nearest_neighbor_summary_rows({123: []})
@@ -664,6 +696,17 @@ def test_nearest_neighbor_summary_rows_rejects_duplicate_metadata_ids():
 
     with pytest.raises(ValueError, match="metric search ID must not be blank"):
         nearest_neighbor_summary_rows({"search": []}, metrics=[(" ", "cosine")])
+
+
+def test_nearest_neighbor_summary_rows_rejects_whitespace_padded_metadata_ids():
+    with pytest.raises(ValueError, match="query ID search ID must not include leading or trailing whitespace"):
+        nearest_neighbor_summary_rows({"search": []}, query_ids=[(" search", "query")])
+
+    with pytest.raises(ValueError, match="metric search ID must not include leading or trailing whitespace"):
+        nearest_neighbor_summary_rows({"search": []}, metrics=[("search ", "cosine")])
+
+    with pytest.raises(ValueError, match="limit search ID must not include leading or trailing whitespace"):
+        nearest_neighbor_summary_rows({"search": []}, limits={" search": 3})
 
 
 def test_nearest_neighbor_summary_rows_rejects_non_string_metadata_ids():
