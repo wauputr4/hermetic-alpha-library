@@ -156,6 +156,19 @@ def test_csv_empty_inputs_and_explicit_header():
     assert to_csv([], fieldnames=["asset", "close"]) == "asset,close\n"
 
 
+def test_csv_rejects_blank_row_keys():
+    with pytest.raises(ValueError, match="row keys must not be blank"):
+        to_csv([{" ": "BTC-USD"}])
+
+
+def test_csv_rejects_whitespace_padded_row_keys():
+    with pytest.raises(ValueError, match="leading or trailing whitespace"):
+        to_csv([{" asset": "BTC-USD"}])
+
+    with pytest.raises(ValueError, match="leading or trailing whitespace"):
+        to_csv([{"asset ": "BTC-USD"}])
+
+
 def test_csv_rejects_blank_explicit_fieldnames():
     with pytest.raises(ValueError, match="blank names"):
         to_csv([{"asset": "BTC-USD"}], fieldnames=["asset", "   "])

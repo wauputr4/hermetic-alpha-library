@@ -20,8 +20,9 @@ After each meaningful coding session, update relevant documentation with:
 `to_csv(..., fieldnames=...)` validates explicit headers before writing output.
 Field names must be strings, are trimmed before use, must not be blank, and must
 remain unique after trimming. Inferred headers still come from normalized row
-keys, while explicit headers are treated as a caller-supplied schema and reject
-unsupported fields in each row.
+keys, but row keys must not be blank or contain leading/trailing whitespace
+after string conversion. Explicit headers are treated as a caller-supplied
+schema and reject unsupported fields in each row.
 
 ### Python Support Metadata
 
@@ -565,10 +566,11 @@ serialization of mappings, sequences, and model objects with `to_dict()`.
 
 Use `to_csv()` or `write_csv()` only for flat row data. CSV export writes a
 stable header based on first-seen field order unless `fieldnames=` is supplied,
-and it trims explicit field names before rejecting blank or duplicate names. It
-raises `TypeError` for nested dictionaries, lists, tuples, or other structured
-values. Flatten nested research outputs explicitly before exporting them to CSV
-so column names remain auditable.
+and it rejects blank or whitespace-padded row keys before inferring that header.
+It trims explicit field names before rejecting blank or duplicate names. It raises
+`TypeError` for nested dictionaries, lists, tuples, or other structured values.
+Flatten nested research outputs explicitly before exporting them to CSV so
+column names remain auditable.
 
 `aspect_event_feature_rows()` is the preferred flattening helper for
 `AspectEvent` rows. It preserves input ordering, leaves missing timestamps as
