@@ -266,6 +266,16 @@ def test_planet_position_series_summary_rows_rejects_blank_series_ids():
         planet_position_series_summary_rows([("   ", positions)])
 
 
+def test_planet_position_series_summary_rows_rejects_whitespace_padded_series_ids():
+    positions = [PlanetPosition(datetime(2026, 5, 8, tzinfo=timezone.utc), "sun", 10)]
+
+    with pytest.raises(ValueError, match="series ID must not include leading or trailing whitespace"):
+        planet_position_series_summary_rows([(" train", positions)])
+
+    with pytest.raises(ValueError, match="series ID must not include leading or trailing whitespace"):
+        planet_position_series_summary_rows([("train ", positions)])
+
+
 def test_planet_position_series_summary_rows_rejects_non_string_series_ids():
     positions = [PlanetPosition(datetime(2026, 5, 8, tzinfo=timezone.utc), "sun", 10)]
 

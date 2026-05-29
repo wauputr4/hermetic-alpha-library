@@ -303,6 +303,16 @@ def test_aspect_scan_summary_rows_rejects_blank_scan_ids():
         aspect_scan_summary_rows([("   ", events)])
 
 
+def test_aspect_scan_summary_rows_rejects_whitespace_padded_scan_ids():
+    events = find_aspects({"sun": 0, "jupiter": 1}, {"conjunction": 3})
+
+    with pytest.raises(ValueError, match="scan ID must not include leading or trailing whitespace"):
+        aspect_scan_summary_rows([("train ", events)])
+
+    with pytest.raises(ValueError, match="scan ID must not include leading or trailing whitespace"):
+        aspect_scan_summary_rows([(" train", events)])
+
+
 def test_aspect_scan_summary_rows_rejects_non_string_scan_ids():
     events = find_aspects({"sun": 0, "jupiter": 1}, {"conjunction": 3})
 
@@ -357,6 +367,16 @@ def test_aspect_scan_event_group_rows_rejects_blank_scan_ids():
 
     with pytest.raises(ValueError, match="scan ID must be a non-blank string"):
         aspect_scan_event_group_rows([("   ", events)])
+
+
+def test_aspect_scan_event_group_rows_rejects_whitespace_padded_scan_ids():
+    events = find_aspects({"sun": 0, "jupiter": 1}, {"conjunction": 3})
+
+    with pytest.raises(ValueError, match="scan ID must not include leading or trailing whitespace"):
+        aspect_scan_event_group_rows([(" train", events)])
+
+    with pytest.raises(ValueError, match="scan ID must not include leading or trailing whitespace"):
+        aspect_scan_event_group_rows([("train ", events)])
 
 
 def test_aspect_scan_event_group_rows_rejects_non_string_scan_ids():
