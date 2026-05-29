@@ -562,7 +562,9 @@ with `workflow` scope; otherwise GitHub rejects pushes that create files under
 ## Export Helpers
 
 Use `hermetic_alpha.exports.to_json()` or `write_json()` for deterministic JSON
-serialization of mappings, sequences, and model objects with `to_dict()`.
+serialization of mappings, sequences, and model objects with `to_dict()`. JSON
+object keys must be strings, must not be blank, and must not contain leading or
+trailing whitespace at any nesting level.
 
 Use `to_csv()` or `write_csv()` only for flat row data. CSV export writes a
 stable header based on first-seen field order unless `fieldnames=` is supplied,

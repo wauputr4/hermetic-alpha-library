@@ -108,6 +108,21 @@ def test_json_writer_creates_missing_parent_directories(tmp_path):
     assert path.read_text(encoding="utf-8") == '{\n  "asset": "BTC-USD"\n}\n'
 
 
+def test_json_rejects_non_string_object_keys():
+    with pytest.raises(TypeError, match="object keys must be strings, got int"):
+        to_json({1: "x"})
+
+
+def test_json_rejects_blank_object_keys():
+    with pytest.raises(ValueError, match="object keys must not be blank"):
+        to_json({" ": "x"})
+
+
+def test_json_rejects_whitespace_padded_nested_object_keys():
+    with pytest.raises(ValueError, match="leading or trailing whitespace"):
+        to_json({"outer": {" inner": "x"}})
+
+
 def test_csv_exports_model_rows_with_stable_header(tmp_path):
     ts = datetime(2026, 5, 6, tzinfo=timezone.utc)
     rows = [
