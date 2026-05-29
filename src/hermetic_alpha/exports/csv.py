@@ -59,9 +59,10 @@ def _normalize_row(row: Any) -> dict[str, Any]:
 
 def _normalize_row_key(key: Any) -> str:
     normalized = str(key)
-    if not normalized.strip():
+    stripped = normalized.strip()
+    if not stripped:
         raise ValueError("CSV row keys must not be blank")
-    if normalized != normalized.strip():
+    if normalized != stripped:
         raise ValueError(
             f"CSV row keys must not contain leading or trailing whitespace: {normalized!r}"
         )
