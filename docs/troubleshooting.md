@@ -327,10 +327,10 @@ payload fields raise `TypeError` instead of letting the generic CSV exporter
 fail later with an unclear schema.
 Use `nearest_neighbor_group_rows()` when a report needs one ranked-neighbor
 audit table across several declared similarity searches. It rejects blank or
-duplicate search IDs, requires supplied search IDs to be strings, skips empty
-result groups, prepends `search_id`, and delegates rank and payload columns to
-`nearest_neighbor_rows()`; keep the raw `NearestNeighbor` objects for deeper
-payload inspection.
+duplicate search IDs, requires supplied search IDs to be strings without
+leading or trailing whitespace, skips empty result groups, prepends `search_id`,
+and delegates rank and payload columns to `nearest_neighbor_rows()`; keep the
+raw `NearestNeighbor` objects for deeper payload inspection.
 Use `nearest_neighbor_summary_row()` when reports need one compact row per
 similarity search run. It keeps payload inspection out of the summary, uses the
 first ranked result as the top neighbor, reports min/max score and distance
@@ -338,11 +338,12 @@ boundaries across the supplied results, and emits `None` boundary fields for
 empty result sets.
 Use `nearest_neighbor_summary_rows()` when a report compares several predeclared
 similarity searches. The helper preserves caller order, rejects blank or
-duplicate search IDs, prepends `search_id`, and can attach per-search `query_id`,
-`metric`, and `limit` metadata while reusing the single-search summary schema.
-Those optional metadata mappings must use declared non-blank string search IDs;
-unknown metadata IDs are rejected so typos do not silently disappear from audit
-reports. Keep `nearest_neighbor_rows()` or the raw `NearestNeighbor` values for
+duplicate search IDs, prepends `search_id`, and can attach per-search
+`query_id`, `metric`, and `limit` metadata while reusing the single-search
+summary schema. Those optional metadata mappings must use declared non-blank
+string search IDs without leading or trailing whitespace; unknown metadata IDs
+are rejected so typos do not silently disappear from audit reports. Keep
+`nearest_neighbor_rows()` or the raw `NearestNeighbor` values for
 ranked neighbor and payload inspection.
 
 ### Exact-Orb Aspect Queries
@@ -397,16 +398,16 @@ and `planet_position_encoding_rows()` when individual sine/cosine components
 must be inspected.
 Use `planet_position_encoding_group_rows()` when reports need one per-position
 encoding audit table for several named chart states. It prepends `chart_id`,
-skips empty groups, requires chart IDs to be non-blank strings, rejects
-duplicates, and delegates each non-empty group to
+skips empty groups, requires chart IDs to be non-blank strings without leading
+or trailing whitespace, rejects duplicates, and delegates each non-empty group to
 `planet_position_encoding_rows()`. Keep raw
 `PlanetPosition` objects and numeric vectors for deeper inspection or
 similarity search.
 Use `planet_position_vector_summary_rows()` when audit reports compare several
 named chart states in one flat table. It preserves caller order from mappings or
-`(chart_id, positions)` pairs, requires chart IDs to be non-blank strings,
-rejects duplicates, and keeps the same metadata-only role as the single-chart
-helper.
+`(chart_id, positions)` pairs, requires chart IDs to be non-blank strings
+without leading or trailing whitespace, rejects duplicates, and keeps the same
+metadata-only role as the single-chart helper.
 
 ### Aspect Phase Classification
 

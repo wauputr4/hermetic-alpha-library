@@ -226,6 +226,8 @@ def _validate_search_id(search_id: Any, label: str) -> None:
         raise ValueError(f"{label} must be a string")
     if not search_id.strip():
         raise ValueError(f"{label} must not be blank")
+    if search_id != search_id.strip():
+        raise ValueError(f"{label} must not include leading or trailing whitespace")
 
 
 def _reject_unknown_metadata_search_ids(
