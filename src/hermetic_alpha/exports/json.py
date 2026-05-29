@@ -39,7 +39,20 @@ def _normalize(value: ExportValue) -> ExportValue:
     if isinstance(value, date):
         return value.isoformat()
     if isinstance(value, Mapping):
-        return {str(key): _normalize(item) for key, item in value.items()}
+        return {_normalize_object_key(key): _normalize(item) for key, item in value.items()}
     if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
         return [_normalize(item) for item in value]
     return value
+
+
+def _normalize_object_key(key: Any) -> str:
+    if not isinstance(key, str):
+        raise TypeError(f"JSON object keys must be strings, got {type(key).__name__}")
+    stripped = key.strip()
+    if not stripped:
+        raise ValueError("JSON object keys must not be blank")
+    if key != stripped:
+        raise ValueError(
+            f"JSON object keys must not contain leading or trailing whitespace: {key!r}"
+        )
+    return key
