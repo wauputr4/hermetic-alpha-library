@@ -547,6 +547,15 @@ def test_walk_forward_split_group_rows_reject_whitespace_padded_group_ids():
         walk_forward_split_group_rows([("daily ", [split])])
 
 
+@pytest.mark.parametrize("item", ["daily", ("daily",), ("daily", [], "extra")])
+def test_walk_forward_split_group_rows_reject_malformed_ordered_entries(item):
+    with pytest.raises(
+        ValueError,
+        match="split groups must be an ordered mapping or sequence of split group ID and splits pairs",
+    ):
+        walk_forward_split_group_rows([item])  # type: ignore[list-item]
+
+
 def test_walk_forward_splits_validate_inputs():
     with pytest.raises(ValueError, match="observations must be"):
         walk_forward_splits([], train_size=1, test_size=1)
