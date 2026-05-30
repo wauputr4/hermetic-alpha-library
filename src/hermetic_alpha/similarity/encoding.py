@@ -27,7 +27,7 @@ def encode_planet_positions(positions: Sequence[PlanetPosition]) -> list[float]:
     """
 
     vector: list[float] = []
-    for position in sorted(positions, key=_position_sort_key):
+    for position in _ordered_positions(positions):
         vector.extend(encode_longitude(position.longitude))
     return vector
 
@@ -36,7 +36,7 @@ def planet_position_encoding_rows(positions: Sequence[PlanetPosition]) -> list[d
     """Return flat inspectable rows for encoded planet-position components."""
 
     rows: list[dict[str, EncodingScalar]] = []
-    for position_index, position in enumerate(sorted(positions, key=_position_sort_key)):
+    for position_index, position in enumerate(_ordered_positions(positions)):
         longitude_sin, longitude_cos = encode_longitude(position.longitude)
         rows.append(
             {
@@ -81,7 +81,7 @@ def planet_position_vector_summary_row(
 ) -> dict[str, EncodingScalar]:
     """Return compact chart-state vector metadata for CSV-friendly audits."""
 
-    ordered_positions = sorted(positions, key=_position_sort_key)
+    ordered_positions = _ordered_positions(positions)
     first_position = ordered_positions[0] if ordered_positions else None
     last_position = ordered_positions[-1] if ordered_positions else None
     return {
@@ -136,6 +136,16 @@ def _validate_chart_id(chart_id: str) -> None:
         raise ValueError("chart ID must not be blank")
     if chart_id != chart_id.strip():
         raise ValueError("chart ID must not include leading or trailing whitespace")
+
+
+def _ordered_positions(positions: Sequence[PlanetPosition]) -> list[PlanetPosition]:
+    for index, position in enumerate(positions):
+        if not isinstance(position, PlanetPosition):
+            raise ValueError(
+                f"planet positions must contain PlanetPosition values; "
+                f"item {index} is {type(position).__name__}"
+            )
+    return sorted(positions, key=_position_sort_key)
 
 
 def _position_sort_key(position: PlanetPosition) -> tuple[datetime, str, str]:

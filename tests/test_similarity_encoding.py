@@ -75,6 +75,11 @@ def test_encode_planet_positions_compares_aware_timestamps_chronologically():
     ]
 
 
+def test_encode_planet_positions_rejects_malformed_position_values():
+    with pytest.raises(ValueError, match="PlanetPosition values"):
+        encode_planet_positions([object()])
+
+
 def test_planet_position_encoding_rows_match_vector_component_order():
     early = datetime(2026, 5, 17, 0, 0, tzinfo=timezone.utc)
     later = datetime(2026, 5, 18, 0, 0, tzinfo=timezone.utc)
@@ -115,6 +120,11 @@ def test_planet_position_encoding_rows_keep_circular_components_inspectable():
     assert sun_row["longitude"] == 359
     assert moon_row["longitude_sin"] == pytest.approx(sun_row["longitude_sin"])
     assert moon_row["longitude_cos"] == pytest.approx(sun_row["longitude_cos"])
+
+
+def test_planet_position_encoding_rows_rejects_malformed_position_values():
+    with pytest.raises(ValueError, match="PlanetPosition values"):
+        planet_position_encoding_rows([object()])
 
 
 def test_planet_position_encoding_group_rows_preserves_ordered_mapping_order():
@@ -192,6 +202,11 @@ def test_planet_position_encoding_group_rows_rejects_malformed_ordered_entries(c
         planet_position_encoding_group_rows(charts)
 
 
+def test_planet_position_encoding_group_rows_rejects_malformed_position_values():
+    with pytest.raises(ValueError, match="PlanetPosition values"):
+        planet_position_encoding_group_rows([("query", [object()])])
+
+
 def test_planet_position_encoding_group_rows_are_csv_compatible():
     ts = datetime(2026, 5, 17, 0, 0, tzinfo=timezone.utc)
 
@@ -246,6 +261,11 @@ def test_planet_position_vector_summary_row_handles_empty_positions():
         "last_body": None,
         "last_zodiac": None,
     }
+
+
+def test_planet_position_vector_summary_row_rejects_malformed_position_values():
+    with pytest.raises(ValueError, match="PlanetPosition values"):
+        planet_position_vector_summary_row([object()])
 
 
 def test_planet_position_vector_summary_rows_preserves_ordered_mapping_order():
@@ -310,6 +330,11 @@ def test_planet_position_vector_summary_rows_rejects_non_string_chart_ids():
 def test_planet_position_vector_summary_rows_rejects_malformed_ordered_entries(charts):
     with pytest.raises(ValueError, match="two-item \\(chart_id, positions\\) pair"):
         planet_position_vector_summary_rows(charts)
+
+
+def test_planet_position_vector_summary_rows_rejects_malformed_position_values():
+    with pytest.raises(ValueError, match="PlanetPosition values"):
+        planet_position_vector_summary_rows([("query", [object()])])
 
 
 def test_planet_position_vector_summary_rows_are_csv_compatible():
