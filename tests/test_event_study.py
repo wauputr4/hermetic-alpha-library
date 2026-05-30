@@ -1302,6 +1302,11 @@ def test_timestamp_join_summary_row_handles_empty_matched_and_unmatched_edges():
     }
 
 
+def test_timestamp_join_summary_row_rejects_malformed_join_result_values():
+    with pytest.raises(ValueError, match="TimestampJoinResult values"):
+        timestamp_join_summary_row(object())  # type: ignore[arg-type]
+
+
 def test_timestamp_join_summary_rows_preserves_ordered_mapping_input():
     ts1 = datetime(2026, 5, 6, tzinfo=timezone.utc)
     ts2 = datetime(2026, 5, 7, tzinfo=timezone.utc)
@@ -1396,6 +1401,11 @@ def test_timestamp_join_summary_rows_rejects_malformed_ordered_entries():
         timestamp_join_summary_rows(["train"])  # type: ignore[list-item]
     with pytest.raises(ValueError, match="two-item"):
         timestamp_join_summary_rows([("train", empty, "extra")])  # type: ignore[list-item]
+
+
+def test_timestamp_join_summary_rows_rejects_malformed_join_result_values():
+    with pytest.raises(ValueError, match="TimestampJoinResult values"):
+        timestamp_join_summary_rows([("exact", object())])  # type: ignore[list-item]
 
 
 def test_join_aspect_events_to_market_labels_rejects_duplicate_label_timestamps():

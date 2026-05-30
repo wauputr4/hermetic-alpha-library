@@ -459,14 +459,16 @@ Use `timestamp_join_summary_row()` before CSV export when notebooks or future
 CLIs need only compact join audit metadata. The summary row intentionally keeps
 the nested joined records and full unmatched-event detail in
 `TimestampJoinResult.to_dict()` so researchers can inspect the full join when a
-count looks suspicious.
+count looks suspicious. Malformed join result values are rejected before
+attribute access can leak implementation-detail errors.
 Use `timestamp_join_summary_rows()` when several predeclared exact joins need
 one compact CSV-safe audit table. The helper preserves caller order, requires
 join IDs to be non-blank strings, rejects duplicates, prepends `join_id`, and
 reuses the single-join summary fields; inspect `TimestampJoinResult.joined`
 when row counts look suspicious. Ordered named join inputs must contain explicit
 two-item `(join_id, result)` pairs; strings, bytes, and malformed tuple/list
-lengths are rejected before Python tuple unpacking can raise a generic error.
+lengths are rejected before Python tuple unpacking can raise a generic error,
+and malformed join result values are rejected before row flattening.
 
 Use `add_candle_forward_returns()` instead of the bare close-list helper when an
 event-study workflow starts from `MarketCandle` rows. It preserves candle
