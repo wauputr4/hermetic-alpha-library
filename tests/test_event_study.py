@@ -899,6 +899,11 @@ def test_validated_event_study_report_row_uses_none_for_missing_interval_bounds(
     assert row["average_return"] is None
 
 
+def test_validated_event_study_report_row_rejects_malformed_report_values():
+    with pytest.raises(ValueError, match="ValidatedEventStudyReport values"):
+        validated_event_study_report_row(object())  # type: ignore[arg-type]
+
+
 def test_validated_multi_horizon_event_study_report_rows_flatten_mapping_in_order():
     labels = add_forward_returns([100, 110, 99, 120, 126], [1, 2])
     reports = summarize_validated_multi_horizon_event_study(
@@ -1041,6 +1046,11 @@ def test_validated_multi_horizon_event_study_report_group_rows_reject_malformed_
         validated_multi_horizon_event_study_report_group_rows([("train", [], "extra")])  # type: ignore[list-item]
 
 
+def test_validated_multi_horizon_event_study_report_group_rows_reject_malformed_report_values():
+    with pytest.raises(ValueError, match="ValidatedEventStudyReport values"):
+        validated_multi_horizon_event_study_report_group_rows([("train", [object()])])  # type: ignore[list-item]
+
+
 def test_event_study_baseline_comparison_row_calculates_delta_and_lift():
     result = summarize_event_study(add_forward_returns([100, 110, 99, 120], [1]), [0, 1], 1)
 
@@ -1076,6 +1086,11 @@ def test_event_study_baseline_comparison_row_uses_none_for_zero_baseline_lift():
     assert row["conditional_bullish_probability"] == 0
     assert row["probability_delta"] == 0
     assert row["relative_lift"] is None
+
+
+def test_event_study_baseline_comparison_row_rejects_malformed_result_values():
+    with pytest.raises(ValueError, match="EventStudyResult values"):
+        event_study_baseline_comparison_row(object())  # type: ignore[arg-type]
 
 
 def test_multi_horizon_baseline_comparison_rows_preserve_mapping_order():
@@ -1170,6 +1185,11 @@ def test_multi_horizon_baseline_comparison_group_rows_reject_malformed_ordered_e
         multi_horizon_baseline_comparison_group_rows(["train"])  # type: ignore[list-item]
     with pytest.raises(ValueError, match="two-item"):
         multi_horizon_baseline_comparison_group_rows([("train", [], "extra")])  # type: ignore[list-item]
+
+
+def test_multi_horizon_baseline_comparison_group_rows_reject_malformed_result_values():
+    with pytest.raises(ValueError, match="EventStudyResult values"):
+        multi_horizon_baseline_comparison_group_rows([("train", [object()])])  # type: ignore[list-item]
 
 
 def test_join_aspect_events_to_market_labels_orders_matches_by_event_timestamp():

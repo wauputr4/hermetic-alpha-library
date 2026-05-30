@@ -247,7 +247,8 @@ Mitigation:
 - Use `validated_event_study_report_row()` before CSV export. `to_csv()` is
   intentionally generic and rejects nested values, while validated reports keep
   their JSON representation nested; the flat row helper bridges those two
-  formats and emits `None` for missing interval bounds.
+  formats, emits `None` for missing interval bounds, and rejects malformed
+  report values before attribute access can leak implementation-detail errors.
 - Use `validated_multi_horizon_event_study_report_rows()` before CSV export
   when `summarize_validated_multi_horizon_event_study()` produced several
   reports. The helper preserves mapping or sequence order and reuses the
@@ -258,8 +259,8 @@ Mitigation:
   ordered mappings or `(report_group_id, reports)` pairs, requires group IDs to
   be non-blank strings, rejects duplicates, skips empty groups, and prepends
   `report_group_id`; malformed ordered entries are rejected before tuple
-  unpacking. Keep the original `ValidatedEventStudyReport` objects for detailed
-  inspection.
+  unpacking, and malformed report values are rejected before row flattening.
+  Keep the original `ValidatedEventStudyReport` objects for detailed inspection.
 
 ### Permutation Test Interpretation
 
@@ -650,7 +651,9 @@ also be non-blank strings.
 `event_study_baseline_comparison_row()` is the preferred flat row helper when
 reports need probability deltas and relative lift. It leaves derived fields as
 `None` if either probability is missing, and leaves `relative_lift` as `None`
-when baseline probability is zero to avoid division-by-zero ambiguity.
+when baseline probability is zero to avoid division-by-zero ambiguity. Malformed
+result values are rejected before attribute access can leak implementation-detail
+errors.
 Use `multi_horizon_baseline_comparison_rows()` when the same baseline comparison
 columns are needed for ordered multi-horizon summaries. It accepts the mapping
 returned by `summarize_multi_horizon_event_study()` or an already ordered
@@ -661,9 +664,10 @@ declared baseline-comparison result sets into one audit table. The helper
 accepts an ordered mapping or ordered `(comparison_group_id, results)` pairs,
 prepends `comparison_group_id`, requires group IDs to be non-blank strings
 without leading or trailing whitespace, rejects duplicates, rejects malformed
-ordered entries before tuple unpacking, and emits no rows for empty groups. It
-is multi-scenario audit metadata only; keep the raw `EventStudyResult` values
-for statistical interpretation and deeper review.
+ordered entries before tuple unpacking, rejects malformed result values before
+row flattening, and emits no rows for empty groups. It is multi-scenario audit
+metadata only; keep the raw `EventStudyResult` values for statistical
+interpretation and deeper review.
 Validated event-study report groups and timestamp-join summary IDs follow the
 same identifier boundary: callers must pass explicit, already-normalized IDs
 instead of relying on export helpers to trim ambiguous whitespace.
