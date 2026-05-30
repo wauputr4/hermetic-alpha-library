@@ -219,6 +219,8 @@ def multi_horizon_baseline_comparison_group_rows(
 
 def timestamp_join_summary_row(result: TimestampJoinResult) -> dict[str, object]:
     """Return flat exact-join audit fields for CSV-friendly export."""
+    if not isinstance(result, TimestampJoinResult):
+        raise ValueError("timestamp join summary rows require TimestampJoinResult values")
 
     matched_event_indexes = [record.event_index for record in result.joined]
     unmatched_event_indexes = result.unmatched_event_indexes
