@@ -256,8 +256,9 @@ Mitigation:
   several declared validated-report scenarios into one audit table. It preserves
   ordered mappings or `(report_group_id, reports)` pairs, requires group IDs to
   be non-blank strings, rejects duplicates, skips empty groups, and prepends
-  `report_group_id`; keep the original `ValidatedEventStudyReport` objects for
-  detailed inspection.
+  `report_group_id`; malformed ordered entries are rejected before tuple
+  unpacking. Keep the original `ValidatedEventStudyReport` objects for detailed
+  inspection.
 
 ### Permutation Test Interpretation
 
@@ -653,9 +654,10 @@ Use `multi_horizon_baseline_comparison_group_rows()` when combining several
 declared baseline-comparison result sets into one audit table. The helper
 accepts an ordered mapping or ordered `(comparison_group_id, results)` pairs,
 prepends `comparison_group_id`, requires group IDs to be non-blank strings
-without leading or trailing whitespace, rejects duplicates, and emits no rows
-for empty groups. It is multi-scenario audit metadata only; keep the
-raw `EventStudyResult` values for statistical interpretation and deeper review.
+without leading or trailing whitespace, rejects duplicates, rejects malformed
+ordered entries before tuple unpacking, and emits no rows for empty groups. It
+is multi-scenario audit metadata only; keep the raw `EventStudyResult` values
+for statistical interpretation and deeper review.
 Validated event-study report groups and timestamp-join summary IDs follow the
 same identifier boundary: callers must pass explicit, already-normalized IDs
 instead of relying on export helpers to trim ambiguous whitespace.
