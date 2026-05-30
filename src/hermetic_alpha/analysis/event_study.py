@@ -250,7 +250,11 @@ def _iter_named_joins(
     if isinstance(joins, Mapping):
         yield from joins.items()
         return
-    yield from joins
+    for entry in joins:
+        if isinstance(entry, str | bytes) or not isinstance(entry, Sequence) or len(entry) != 2:
+            raise ValueError("named timestamp joins must be two-item (join_id, result) pairs")
+        join_id, result = entry
+        yield join_id, result
 
 
 def _validate_required_id(identifier: str, label: str) -> None:

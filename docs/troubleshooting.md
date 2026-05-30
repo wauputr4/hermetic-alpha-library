@@ -456,7 +456,9 @@ Use `timestamp_join_summary_rows()` when several predeclared exact joins need
 one compact CSV-safe audit table. The helper preserves caller order, requires
 join IDs to be non-blank strings, rejects duplicates, prepends `join_id`, and
 reuses the single-join summary fields; inspect `TimestampJoinResult.joined`
-when row counts look suspicious.
+when row counts look suspicious. Ordered named join inputs must contain explicit
+two-item `(join_id, result)` pairs; strings, bytes, and malformed tuple/list
+lengths are rejected before Python tuple unpacking can raise a generic error.
 
 Use `add_candle_forward_returns()` instead of the bare close-list helper when an
 event-study workflow starts from `MarketCandle` rows. It preserves candle

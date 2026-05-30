@@ -1355,6 +1355,15 @@ def test_timestamp_join_summary_rows_rejects_non_string_join_ids():
         timestamp_join_summary_rows([(123, empty)])  # type: ignore[list-item]
 
 
+def test_timestamp_join_summary_rows_rejects_malformed_ordered_entries():
+    empty = join_aspect_events_to_market_labels([], [])
+
+    with pytest.raises(ValueError, match="two-item"):
+        timestamp_join_summary_rows(["train"])  # type: ignore[list-item]
+    with pytest.raises(ValueError, match="two-item"):
+        timestamp_join_summary_rows([("train", empty, "extra")])  # type: ignore[list-item]
+
+
 def test_join_aspect_events_to_market_labels_rejects_duplicate_label_timestamps():
     ts = datetime(2026, 5, 6, tzinfo=timezone.utc)
 
