@@ -396,6 +396,10 @@ feature-row helpers for model inputs, and summary rows for compact scan
 metadata. Ordered named scan inputs must contain explicit two-item `(scan_id,
 events)` pairs; malformed entries are rejected before Python tuple unpacking
 can raise a generic error.
+Aspect scan summary and grouped event helpers require every supplied scan event
+value to be an `AspectEvent`. Malformed event values are rejected with a clear
+validation error before summary counts, timestamp boundaries, or raw event row
+construction read event attributes.
 
 ### Planet-Position Encoding Reports
 

@@ -178,6 +178,7 @@ def aspect_scan_summary_row(events: Sequence[AspectEvent]) -> dict[str, object]:
     event-study joins. It does not replace exporting individual aspect events
     or feature rows.
     """
+    event_values = _validated_aspect_events(events)
     timestamps: list[datetime] = []
     aspects = set[str]()
     body_pairs = set[tuple[str, str]]()
@@ -189,7 +190,7 @@ def aspect_scan_summary_row(events: Sequence[AspectEvent]) -> dict[str, object]:
     }
     missing_timestamp_count = 0
 
-    for event in events:
+    for event in event_values:
         aspects.add(event.aspect)
         body_pairs.add((event.body_a, event.body_b))
         phase_counts[event.phase] = phase_counts.get(event.phase, 0) + 1
@@ -201,7 +202,7 @@ def aspect_scan_summary_row(events: Sequence[AspectEvent]) -> dict[str, object]:
     timestamp_count = len(set(timestamps))
 
     return {
-        "event_count": len(events),
+        "event_count": len(event_values),
         "timestamp_count": timestamp_count,
         "unique_aspect_count": len(aspects),
         "unique_body_pair_count": len(body_pairs),
@@ -249,7 +250,7 @@ def aspect_scan_event_group_rows(
                 "scan_id": scan_id,
                 **event.to_dict(),
             }
-            for event in events
+            for event in _validated_aspect_events(events)
         )
     return rows
 
@@ -275,3 +276,14 @@ def _validate_scan_id(scan_id: object) -> None:
         raise ValueError("scan ID must be a non-blank string")
     if scan_id != scan_id.strip():
         raise ValueError("scan ID must not include leading or trailing whitespace")
+
+
+def _validated_aspect_events(events: Sequence[AspectEvent]) -> list[AspectEvent]:
+    event_values = list(events)
+    for index, event in enumerate(event_values):
+        if not isinstance(event, AspectEvent):
+            raise ValueError(
+                f"aspect scan events must contain AspectEvent values; "
+                f"item {index} is {type(event).__name__}"
+            )
+    return event_values
