@@ -75,6 +75,24 @@ def test_encode_planet_positions_compares_aware_timestamps_chronologically():
     ]
 
 
+def test_encode_planet_positions_accepts_one_shot_iterables_without_losing_values():
+    timestamp = datetime(2026, 5, 17, 0, 0, tzinfo=timezone.utc)
+    positions = (
+        position
+        for position in [
+            PlanetPosition(timestamp, "sun", 90),
+            PlanetPosition(timestamp, "jupiter", 0),
+        ]
+    )
+
+    vector = encode_planet_positions(positions)
+
+    assert vector == [
+        *encode_longitude(0),
+        *encode_longitude(90),
+    ]
+
+
 def test_encode_planet_positions_rejects_malformed_position_values():
     with pytest.raises(ValueError, match="PlanetPosition values"):
         encode_planet_positions([object()])

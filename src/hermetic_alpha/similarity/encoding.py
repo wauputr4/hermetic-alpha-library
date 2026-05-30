@@ -139,13 +139,14 @@ def _validate_chart_id(chart_id: str) -> None:
 
 
 def _ordered_positions(positions: Sequence[PlanetPosition]) -> list[PlanetPosition]:
-    for index, position in enumerate(positions):
+    position_values = list(positions)
+    for index, position in enumerate(position_values):
         if not isinstance(position, PlanetPosition):
             raise ValueError(
                 f"planet positions must contain PlanetPosition values; "
                 f"item {index} is {type(position).__name__}"
             )
-    return sorted(positions, key=_position_sort_key)
+    return sorted(position_values, key=_position_sort_key)
 
 
 def _position_sort_key(position: PlanetPosition) -> tuple[datetime, str, str]:
