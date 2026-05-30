@@ -105,6 +105,8 @@ def random_baseline_distribution_row(
 ) -> dict[str, float | int | None]:
     """Return a compact CSV-compatible summary row for random baselines."""
 
+    if not isinstance(distribution, Sequence) or isinstance(distribution, str | bytes):
+        raise ValueError("distribution must be a sequence of finite numeric values")
     values = [_evaluate_distribution_value(value) for value in distribution]
     return {
         "distribution_count": len(values),
@@ -495,7 +497,7 @@ def _iter_named_distributions(
 
 
 def _coerce_interval_bounds(interval: Sequence[float]) -> tuple[float, float]:
-    if isinstance(interval, str | bytes):
+    if not isinstance(interval, Sequence) or isinstance(interval, str | bytes):
         raise ValueError("interval must contain exactly two finite numeric bounds")
     if len(interval) != 2:
         raise ValueError("interval must contain exactly two finite numeric bounds")

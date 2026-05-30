@@ -625,6 +625,9 @@ def test_validation_helpers_validate_inputs():
     with pytest.raises(ValueError, match="distribution values must be finite numeric values"):
         random_baseline_distribution_rows({"all_windows": [float("nan")]})
 
+    with pytest.raises(ValueError, match="distribution must be a sequence of finite numeric values"):
+        random_baseline_distribution_rows([("all_windows", object())])  # type: ignore[list-item]
+
     with pytest.raises(ValueError, match="interval must contain exactly two finite numeric bounds"):
         bootstrap_interval_row((0.1,))
 
@@ -654,6 +657,9 @@ def test_validation_helpers_validate_inputs():
 
     with pytest.raises(ValueError, match="interval must contain exactly two finite numeric bounds"):
         bootstrap_interval_rows({"mean_return": (0.1,)})
+
+    with pytest.raises(ValueError, match="interval must contain exactly two finite numeric bounds"):
+        bootstrap_interval_rows([("mean_return", object())])  # type: ignore[list-item]
 
     result = PermutationTestResult(
         observed_statistic=0.5,
