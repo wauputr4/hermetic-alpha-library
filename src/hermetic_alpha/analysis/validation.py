@@ -198,8 +198,14 @@ def bootstrap_interval_rows(
 
 def walk_forward_split_rows(splits: Sequence[WalkForwardSplit]) -> list[dict[str, ReportScalar]]:
     """Return flat CSV-compatible rows for walk-forward split boundaries."""
-    return [
-        {
+    if not isinstance(splits, Sequence) or isinstance(splits, str | bytes):
+        raise ValueError("splits must be a sequence of WalkForwardSplit values")
+
+    rows: list[dict[str, ReportScalar]] = []
+    for split_index, split in enumerate(splits):
+        if not isinstance(split, WalkForwardSplit):
+            raise ValueError("splits must contain WalkForwardSplit values")
+        rows.append({
             "split_index": split_index,
             "train_start_index": split.train_start_index,
             "train_end_index": split.train_end_index,
@@ -211,9 +217,8 @@ def walk_forward_split_rows(splits: Sequence[WalkForwardSplit]) -> list[dict[str
             "train_last": _csv_safe_endpoint(split.train[-1]) if split.train else None,
             "test_first": _csv_safe_endpoint(split.test[0]) if split.test else None,
             "test_last": _csv_safe_endpoint(split.test[-1]) if split.test else None,
-        }
-        for split_index, split in enumerate(splits)
-    ]
+        })
+    return rows
 
 
 def walk_forward_split_group_rows(

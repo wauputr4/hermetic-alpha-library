@@ -315,14 +315,15 @@ exporter. `WalkForwardSplit.to_dict()` intentionally keeps the full train/test
 windows for JSON inspection, while the row helper emits compact boundary,
 window-size, and endpoint fields. Endpoint values are included only when they
 are CSV-safe scalars; nested observations such as mappings or lists are emitted
-as `None` in the endpoint columns.
+as `None` in the endpoint columns. Malformed split values are rejected as clear
+validation errors before attribute access.
 Use `walk_forward_split_group_rows()` when a report compares several declared
 split configurations, such as train/test sizes, step sizes, or asset subsets.
 It preserves mapping or pair-sequence order, rejects split group IDs that are
 not non-blank strings, rejects duplicates, prepends `split_group_id`, and emits
 no rows for empty groups. Malformed ordered entries are rejected before tuple
-unpacking. Keep the original `WalkForwardSplit` objects for inspecting full
-train/test windows.
+unpacking, and malformed split values are rejected before row flattening. Keep
+the original `WalkForwardSplit` objects for inspecting full train/test windows.
 
 ### Nearest-Neighbor Report Rows
 

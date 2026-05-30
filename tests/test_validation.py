@@ -556,6 +556,16 @@ def test_walk_forward_split_group_rows_reject_malformed_ordered_entries(item):
         walk_forward_split_group_rows([item])  # type: ignore[list-item]
 
 
+def test_walk_forward_split_rows_reject_invalid_split_values():
+    with pytest.raises(ValueError, match="splits must contain WalkForwardSplit values"):
+        walk_forward_split_rows([object()])  # type: ignore[list-item]
+
+
+def test_walk_forward_split_group_rows_reject_invalid_split_values():
+    with pytest.raises(ValueError, match="splits must contain WalkForwardSplit values"):
+        walk_forward_split_group_rows([("daily", [object()])])  # type: ignore[list-item]
+
+
 def test_walk_forward_splits_validate_inputs():
     with pytest.raises(ValueError, match="observations must be"):
         walk_forward_splits([], train_size=1, test_size=1)
