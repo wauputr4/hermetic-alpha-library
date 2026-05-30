@@ -257,6 +257,11 @@ def test_aspect_scan_summary_row_counts_missing_timestamps_from_raw_longitudes()
     assert row["last_timestamp"] is None
 
 
+def test_aspect_scan_summary_row_rejects_malformed_event_values():
+    with pytest.raises(ValueError, match="AspectEvent values"):
+        aspect_scan_summary_row([object()])
+
+
 def test_aspect_scan_summary_rows_preserves_ordered_mapping_order():
     ts1 = datetime(2026, 5, 6, tzinfo=timezone.utc)
     ts2 = datetime(2026, 5, 7, tzinfo=timezone.utc)
@@ -331,6 +336,11 @@ def test_aspect_scan_summary_rows_rejects_non_string_scan_ids():
 def test_aspect_scan_summary_rows_rejects_malformed_ordered_entries(scans):
     with pytest.raises(ValueError, match="two-item \\(scan_id, events\\) pair"):
         aspect_scan_summary_rows(scans)
+
+
+def test_aspect_scan_summary_rows_rejects_malformed_event_values():
+    with pytest.raises(ValueError, match="AspectEvent values"):
+        aspect_scan_summary_rows([("daily", [object()])])
 
 
 def test_aspect_scan_event_group_rows_preserves_ordered_mapping_order():
@@ -410,3 +420,8 @@ def test_aspect_scan_event_group_rows_rejects_non_string_scan_ids():
 def test_aspect_scan_event_group_rows_rejects_malformed_ordered_entries(scans):
     with pytest.raises(ValueError, match="two-item \\(scan_id, events\\) pair"):
         aspect_scan_event_group_rows(scans)
+
+
+def test_aspect_scan_event_group_rows_rejects_malformed_event_values():
+    with pytest.raises(ValueError, match="AspectEvent values"):
+        aspect_scan_event_group_rows([("daily", [object()])])
