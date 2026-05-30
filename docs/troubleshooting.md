@@ -426,6 +426,11 @@ named chart states in one flat table. It preserves caller order from mappings or
 without leading or trailing whitespace, rejects duplicates, rejects malformed
 ordered entries before tuple unpacking, and keeps the same metadata-only role as
 the single-chart helper.
+Similarity position encoding and vector summary helpers require every supplied
+position value to be a `PlanetPosition`. Malformed position values are rejected
+with a clear validation error before sorting, longitude encoding, or metadata
+field access so caller mistakes do not surface as implementation-detail
+attribute errors.
 
 ### Aspect Phase Classification
 
