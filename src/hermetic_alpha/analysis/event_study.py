@@ -85,6 +85,9 @@ class ValidatedEventStudyReport:
 
 def validated_event_study_report_row(report: ValidatedEventStudyReport) -> dict[str, object]:
     """Return a flat scalar row for CSV-friendly validated report export."""
+    if not isinstance(report, ValidatedEventStudyReport):
+        raise ValueError("validated event-study report rows require ValidatedEventStudyReport values")
+
     interval_lower: float | None = None
     interval_upper: float | None = None
     if report.return_confidence_interval is not None:
@@ -151,6 +154,8 @@ def validated_multi_horizon_event_study_report_group_rows(
 
 def event_study_baseline_comparison_row(result: EventStudyResult) -> dict[str, object]:
     """Return flat baseline comparison fields for an event-study result."""
+    if not isinstance(result, EventStudyResult):
+        raise ValueError("event-study baseline comparison rows require EventStudyResult values")
 
     baseline = result.baseline_bullish_probability
     conditional = result.conditional_bullish_probability
