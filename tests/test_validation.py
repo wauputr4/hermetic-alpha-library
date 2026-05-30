@@ -113,6 +113,12 @@ def test_bootstrap_interval_rows_preserve_sequence_order():
     assert rows[1]["interval_upper"] == 0.05
 
 
+@pytest.mark.parametrize("item", ["mean_return", ("mean_return",), ("mean_return", (0.1, 0.2), "extra")])
+def test_bootstrap_interval_rows_reject_malformed_ordered_entries(item):
+    with pytest.raises(ValueError, match="intervals must be an ordered mapping or sequence of name and interval pairs"):
+        bootstrap_interval_rows([item])  # type: ignore[list-item]
+
+
 def test_random_baseline_distribution_is_deterministic_with_seed():
     first = random_baseline_distribution([1.0, 2.0, 3.0, 4.0], 2, samples=5, seed=11)
     second = random_baseline_distribution([1.0, 2.0, 3.0, 4.0], 2, samples=5, seed=11)
@@ -207,6 +213,15 @@ def test_random_baseline_distribution_rows_preserve_sequence_order_and_empty_dis
     assert rows[0]["distribution_count"] == 0
     assert rows[0]["distribution_min"] is None
     assert rows[1]["distribution_mean"] == 2.0
+
+
+@pytest.mark.parametrize("item", ["same_month", ("same_month",), ("same_month", [1.0], "extra")])
+def test_random_baseline_distribution_rows_reject_malformed_ordered_entries(item):
+    with pytest.raises(
+        ValueError,
+        match="distributions must be an ordered mapping or sequence of baseline ID and distribution pairs",
+    ):
+        random_baseline_distribution_rows([item])  # type: ignore[list-item]
 
 
 def test_permutation_test_is_seeded_and_inspectable():
@@ -361,6 +376,12 @@ def test_permutation_test_result_rows_preserve_sequence_order():
     assert [row["scenario_id"] for row in rows] == ["mean_return_30d", "bullish_1d"]
     assert rows[0]["observed_statistic"] == 0.5
     assert rows[1]["alternative"] == "less"
+
+
+@pytest.mark.parametrize("item", ["bullish_7d", ("bullish_7d",), ("bullish_7d", object(), "extra")])
+def test_permutation_test_result_rows_reject_malformed_ordered_entries(item):
+    with pytest.raises(ValueError, match="results must be an ordered mapping or sequence of scenario ID and result pairs"):
+        permutation_test_result_rows([item])  # type: ignore[list-item]
 
 
 def test_walk_forward_splits_generate_chronological_windows():

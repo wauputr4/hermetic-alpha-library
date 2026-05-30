@@ -231,8 +231,8 @@ Mitigation:
   predeclared bootstrap intervals. It accepts an ordered mapping or ordered
   `(statistic_name, interval)` pairs, requires statistic names to be non-blank
   strings, rejects duplicates, and reuses `bootstrap_interval_row()` for each
-  interval; it does not replace the raw bootstrap distribution or the
-  single-interval helper.
+  interval; malformed ordered entries are rejected before tuple unpacking. It
+  does not replace the raw bootstrap distribution or the single-interval helper.
 - Seed `permutation_test()` and report its `alternative`, `permutations`, and
   p-value correction behavior when using permutation p-values in research notes.
 - Use `summarize_validated_event_study()` when a report should carry the core
@@ -282,6 +282,8 @@ Use `permutation_test_result_rows()` for compact multi-scenario permutation
 metadata tables. It preserves ordered mapping or pair-sequence input, rejects
 scenario IDs that are not non-blank strings, rejects duplicates, and prepends
 `scenario_id` while keeping full null distributions out of CSV output.
+Malformed ordered entries are rejected before tuple unpacking so caller shape
+errors stay explicit.
 
 Use `random_baseline_distribution_row()` when random-baseline results need the
 same compact CSV treatment. `random_baseline_distribution()` intentionally
@@ -294,8 +296,9 @@ Use `random_baseline_distribution_rows()` for compact multi-scenario baseline
 tables. It accepts an ordered mapping or ordered `(baseline_id, distribution)`
 pairs, rejects baseline IDs that are not non-blank strings, rejects duplicates,
 prepends `baseline_id`, and reuses the single-distribution row helper for
-summary fields. It is for audit metadata, not a replacement for inspecting or
-plotting full distributions.
+summary fields. Malformed ordered entries are rejected before tuple unpacking.
+It is for audit metadata, not a replacement for inspecting or plotting full
+distributions.
 
 ### Walk-Forward Split Boundaries
 
