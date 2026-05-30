@@ -1034,6 +1034,13 @@ def test_validated_multi_horizon_event_study_report_group_rows_reject_non_string
         validated_multi_horizon_event_study_report_group_rows([(123, [])])  # type: ignore[list-item]
 
 
+def test_validated_multi_horizon_event_study_report_group_rows_reject_malformed_ordered_entries():
+    with pytest.raises(ValueError, match="two-item"):
+        validated_multi_horizon_event_study_report_group_rows(["train"])  # type: ignore[list-item]
+    with pytest.raises(ValueError, match="two-item"):
+        validated_multi_horizon_event_study_report_group_rows([("train", [], "extra")])  # type: ignore[list-item]
+
+
 def test_event_study_baseline_comparison_row_calculates_delta_and_lift():
     result = summarize_event_study(add_forward_returns([100, 110, 99, 120], [1]), [0, 1], 1)
 
@@ -1156,6 +1163,13 @@ def test_multi_horizon_baseline_comparison_group_rows_reject_non_string_group_id
 
     with pytest.raises(ValueError, match="comparison group ID must be a string"):
         multi_horizon_baseline_comparison_group_rows([(123, [])])  # type: ignore[list-item]
+
+
+def test_multi_horizon_baseline_comparison_group_rows_reject_malformed_ordered_entries():
+    with pytest.raises(ValueError, match="two-item"):
+        multi_horizon_baseline_comparison_group_rows(["train"])  # type: ignore[list-item]
+    with pytest.raises(ValueError, match="two-item"):
+        multi_horizon_baseline_comparison_group_rows([("train", [], "extra")])  # type: ignore[list-item]
 
 
 def test_join_aspect_events_to_market_labels_orders_matches_by_event_timestamp():

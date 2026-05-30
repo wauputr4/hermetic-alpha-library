@@ -273,7 +273,11 @@ def _iter_named_comparison_groups(
     if isinstance(comparison_groups, Mapping):
         yield from comparison_groups.items()
         return
-    yield from comparison_groups
+    for entry in comparison_groups:
+        if isinstance(entry, str | bytes) or not isinstance(entry, Sequence) or len(entry) != 2:
+            raise ValueError("named comparison groups must be two-item (comparison_group_id, results) pairs")
+        comparison_group_id, results = entry
+        yield comparison_group_id, results
 
 
 def _iter_named_validated_report_groups(
@@ -283,7 +287,11 @@ def _iter_named_validated_report_groups(
     if isinstance(report_groups, Mapping):
         yield from report_groups.items()
         return
-    yield from report_groups
+    for entry in report_groups:
+        if isinstance(entry, str | bytes) or not isinstance(entry, Sequence) or len(entry) != 2:
+            raise ValueError("named validated report groups must be two-item (report_group_id, reports) pairs")
+        report_group_id, reports = entry
+        yield report_group_id, reports
 
 
 def aspect_event_study(
