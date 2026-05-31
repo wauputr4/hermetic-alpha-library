@@ -324,7 +324,11 @@ def join_aspect_events_to_market_labels(
     ``unmatched_event_indexes``. Duplicate market-label timestamps fail because
     event-study selection would otherwise be ambiguous.
     """
-    normalized_labels = [_normalize_market_label(label) for label in market_labels]
+    event_values = _validated_aspect_events(events)
+    normalized_labels = [
+        _normalize_market_label(label, index)
+        for index, label in enumerate(market_labels)
+    ]
     label_index_by_timestamp: dict[datetime, int] = {}
     for index, label in enumerate(normalized_labels):
         timestamp = _label_timestamp(label, index)
@@ -334,7 +338,7 @@ def join_aspect_events_to_market_labels(
 
     matched: list[AspectMarketJoin] = []
     unmatched_event_indexes: list[int] = []
-    for event_index, event in sorted(enumerate(events), key=_event_sort_key):
+    for event_index, event in sorted(enumerate(event_values), key=_event_sort_key):
         if event.timestamp is None:
             raise ValueError(f"aspect event at index {event_index} is missing a timestamp")
         label_index = label_index_by_timestamp.get(event.timestamp)
@@ -469,7 +473,19 @@ def _event_sort_key(indexed_event: tuple[int, AspectEvent]) -> tuple[datetime, i
     return event.timestamp, index
 
 
-def _normalize_market_label(label: MarketLabelInput) -> EventStudyLabelRow:
+def _validated_aspect_events(events: Sequence[AspectEvent]) -> list[AspectEvent]:
+    event_values: list[AspectEvent] = []
+    for index, event in enumerate(events):
+        if not isinstance(event, AspectEvent):
+            raise ValueError(
+                "exact timestamp joins require AspectEvent values; "
+                f"event at index {index} has type {type(event).__name__}"
+            )
+        event_values.append(event)
+    return event_values
+
+
+def _normalize_market_label(label: MarketLabelInput, index: int) -> EventStudyLabelRow:
     if isinstance(label, MarketLabel):
         row: EventStudyLabelRow = {
             "timestamp": label.timestamp,
@@ -480,6 +496,11 @@ def _normalize_market_label(label: MarketLabelInput) -> EventStudyLabelRow:
             f"local_bottom_{label.horizon}d": label.local_bottom,
         }
         return row
+    if not isinstance(label, Mapping):
+        raise ValueError(
+            "exact timestamp joins require market label rows or MarketLabel values; "
+            f"label at index {index} has type {type(label).__name__}"
+        )
     return dict(label)
 
 
