@@ -478,6 +478,10 @@ timestamped `AspectEvent` values and market label rows. It does not resample,
 round, or fuzzy-match timestamps. Duplicate market-label timestamps raise
 `ValueError`, because the event-study label index would be ambiguous. Aspect
 events without timestamps also raise `ValueError`.
+Event and label sequences are validated before timestamp sorting or label
+normalization reads fields, so malformed inputs are reported as analysis-domain
+errors that mention the expected `AspectEvent`, mapping row, or `MarketLabel`
+value.
 
 Unmatched events are skipped from `event_indexes` and reported through
 `unmatched_event_indexes` and `unmatched_events`. Review those counts before

@@ -1459,6 +1459,16 @@ def test_join_aspect_events_to_market_labels_rejects_events_without_timestamps()
         )
 
 
+def test_join_aspect_events_to_market_labels_rejects_malformed_event_values():
+    with pytest.raises(ValueError, match="AspectEvent values"):
+        join_aspect_events_to_market_labels([object()], [])  # type: ignore[list-item]
+
+
+def test_join_aspect_events_to_market_labels_rejects_malformed_label_values():
+    with pytest.raises(ValueError, match="market label rows or MarketLabel values"):
+        join_aspect_events_to_market_labels([], [object()])  # type: ignore[list-item]
+
+
 def test_join_aspect_events_to_market_labels_supports_market_label_models_for_event_study():
     ts1 = datetime(2026, 5, 6, tzinfo=timezone.utc)
     ts2 = datetime(2026, 5, 7, tzinfo=timezone.utc)
