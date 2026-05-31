@@ -492,6 +492,10 @@ baseline probabilities, event returns, or validated bootstrap intervals read
 horizon fields. Malformed label rows are rejected with an analysis-domain
 validation error instead of leaking implementation-detail `.get()` or indexing
 errors.
+Event indexes supplied to summary helpers must be integers. Non-integer values
+are rejected before bounds checks run, while integer indexes outside the label
+range continue to be skipped so joined event-study results can tolerate
+unmatched or stale selections.
 
 Use `timestamp_join_summary_row()` before CSV export when notebooks or future
 CLIs need only compact join audit metadata. The summary row intentionally keeps
