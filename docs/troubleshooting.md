@@ -210,6 +210,11 @@ whitespace-padded dataset IDs, skips empty datasets, and prepends `dataset_id`
 before the existing `MarketCandle.to_dict()` fields. It does not enforce
 single-asset or single-interval datasets because it exports raw grouped rows
 rather than cache metadata.
+Storage writers and candle dataset report helpers require supplied candle
+sequences to contain `MarketCandle` values. Malformed values are rejected before
+serialization, timestamp sorting, summary metadata access, or grouped row
+construction so callers receive `CandleStorageError` instead of attribute or
+sort-key implementation errors.
 
 ### Small Sample Size
 

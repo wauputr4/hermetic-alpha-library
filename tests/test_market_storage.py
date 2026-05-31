@@ -48,6 +48,13 @@ def test_candle_json_storage_rejects_empty_datasets(tmp_path):
         read_candles_json(path)
 
 
+def test_candle_json_storage_rejects_malformed_candle_values(tmp_path):
+    path = tmp_path / "malformed-candle-value.json"
+
+    with pytest.raises(CandleStorageError, match="candle value 0 must be a MarketCandle"):
+        write_candles_json(path, [object()])  # type: ignore[list-item]
+
+
 def test_candle_json_storage_rejects_missing_required_fields(tmp_path):
     path = tmp_path / "missing.json"
     path.write_text('[{"timestamp": "2024-05-08T00:00:00+00:00", "asset": "BTC-USD"}]', encoding="utf-8")
@@ -145,6 +152,11 @@ def test_candle_dataset_summary_row_rejects_empty_input():
         candle_dataset_summary_row([])
 
 
+def test_candle_dataset_summary_row_rejects_malformed_candle_values():
+    with pytest.raises(CandleStorageError, match="candle value 0 must be a MarketCandle"):
+        candle_dataset_summary_row([object()])  # type: ignore[list-item]
+
+
 def test_candle_dataset_summary_row_rejects_mixed_assets_and_intervals():
     ts = datetime(2024, 5, 8, tzinfo=timezone.utc)
 
@@ -239,6 +251,11 @@ def test_candle_dataset_summary_rows_delegates_dataset_validation():
         candle_dataset_summary_rows([("empty", [])])
 
 
+def test_candle_dataset_summary_rows_rejects_malformed_candle_values():
+    with pytest.raises(CandleStorageError, match="candle value 0 must be a MarketCandle"):
+        candle_dataset_summary_rows([("btc-daily", [object()])])  # type: ignore[list-item]
+
+
 def test_candle_dataset_group_rows_preserves_dataset_and_candle_order():
     first = MarketCandle(datetime(2024, 5, 8, tzinfo=timezone.utc), "BTC-USD", 100, 105, 95, 102)
     second = MarketCandle(datetime(2024, 5, 9, tzinfo=timezone.utc), "BTC-USD", 102, 106, 99, 104)
@@ -298,3 +315,8 @@ def test_candle_dataset_group_rows_rejects_non_string_dataset_ids():
 def test_candle_dataset_group_rows_rejects_malformed_ordered_pairs():
     with pytest.raises(CandleStorageError, match="two-item"):
         candle_dataset_group_rows(["btc"])  # type: ignore[arg-type]
+
+
+def test_candle_dataset_group_rows_rejects_malformed_candle_values():
+    with pytest.raises(CandleStorageError, match="candle value 0 must be a MarketCandle"):
+        candle_dataset_group_rows([("btc-daily", [object()])])  # type: ignore[list-item]
