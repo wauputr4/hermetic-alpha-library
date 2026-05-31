@@ -413,6 +413,12 @@ def test_find_nearest_breaks_exact_ties_by_candidate_id():
     assert [result.id for result in results] == ["a", "b"]
 
 
+@pytest.mark.parametrize("metric", ["cosine", "euclidean"])
+def test_find_nearest_rejects_malformed_candidate_values(metric):
+    with pytest.raises(ValueError, match="SimilarityCandidate values"):
+        find_nearest([1.0], [object()], metric=metric)
+
+
 def test_find_nearest_accepts_encoded_planet_position_vectors():
     timestamp = datetime(2026, 5, 17, 0, 0, tzinfo=timezone.utc)
     query = encode_planet_positions(
