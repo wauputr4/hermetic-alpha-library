@@ -94,7 +94,7 @@ def nearest_neighbor_rows(
 
     validated_payload_fields = _validate_payload_fields(payload_fields)
     rows: list[dict[str, ReportScalar]] = []
-    for rank, result in enumerate(results, start=1):
+    for rank, result in enumerate(_validated_nearest_neighbors(results), start=1):
         row: dict[str, ReportScalar] = {
             "rank": rank,
             "id": result.id,
@@ -139,15 +139,16 @@ def nearest_neighbor_summary_row(
 ) -> dict[str, ReportScalar]:
     """Return compact metadata for a nearest-neighbor search run."""
 
-    scores = [result.score for result in results]
-    distances = [result.distance for result in results]
-    top = results[0] if results else None
+    result_values = _validated_nearest_neighbors(results)
+    scores = [result.score for result in result_values]
+    distances = [result.distance for result in result_values]
+    top = result_values[0] if result_values else None
 
     return {
         "query_id": query_id,
         "metric": metric,
         "limit": limit,
-        "result_count": len(results),
+        "result_count": len(result_values),
         "top_id": top.id if top is not None else None,
         "top_score": top.score if top is not None else None,
         "top_distance": top.distance if top is not None else None,
@@ -209,6 +210,18 @@ def _iter_named_searches(
             )
         search_id, results = entry
         yield search_id, results
+
+
+def _validated_nearest_neighbors(results: Sequence[NearestNeighbor]) -> list[NearestNeighbor]:
+    result_values: list[NearestNeighbor] = []
+    for index, result in enumerate(results):
+        if not isinstance(result, NearestNeighbor):
+            raise ValueError(
+                "nearest-neighbor results must contain NearestNeighbor values; "
+                f"result at index {index} has type {type(result).__name__}"
+            )
+        result_values.append(result)
+    return result_values
 
 
 def _optional_metadata_by_search(
