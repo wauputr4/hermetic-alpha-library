@@ -487,6 +487,11 @@ Unmatched events are skipped from `event_indexes` and reported through
 `unmatched_event_indexes` and `unmatched_events`. Review those counts before
 interpreting event-study summaries; a high unmatched count usually means the
 ephemeris sampling cadence and candle/label timestamps are misaligned.
+Event-study summary helpers require label rows to be mapping-like before
+baseline probabilities, event returns, or validated bootstrap intervals read
+horizon fields. Malformed label rows are rejected with an analysis-domain
+validation error instead of leaking implementation-detail `.get()` or indexing
+errors.
 
 Use `timestamp_join_summary_row()` before CSV export when notebooks or future
 CLIs need only compact join audit metadata. The summary row intentionally keeps

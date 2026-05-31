@@ -368,11 +368,12 @@ def summarize_event_study(
     horizon: int,
 ) -> EventStudyResult:
     """Summarize forward market behavior after selected event indexes."""
+    label_rows = _validated_event_study_label_rows(all_labels)
     return_key = f"return_{horizon}d"
     bullish_key = f"bullish_{horizon}d"
 
-    baseline_values = [row[bullish_key] for row in all_labels if row.get(bullish_key) is not None]
-    event_rows = [all_labels[index] for index in event_indexes if 0 <= index < len(all_labels)]
+    baseline_values = [row[bullish_key] for row in label_rows if row.get(bullish_key) is not None]
+    event_rows = [label_rows[index] for index in event_indexes if 0 <= index < len(label_rows)]
     event_returns = [row[return_key] for row in event_rows if row.get(return_key) is not None]
     event_bullish = [row[bullish_key] for row in event_rows if row.get(bullish_key) is not None]
 
@@ -455,15 +456,30 @@ def _event_return_values(
     event_indexes: Sequence[int],
     horizon: int,
 ) -> list[float]:
+    label_rows = _validated_event_study_label_rows(all_labels)
     return_key = f"return_{horizon}d"
     values: list[float] = []
     for index in event_indexes:
-        if index < 0 or index >= len(all_labels):
+        if index < 0 or index >= len(label_rows):
             continue
-        value = all_labels[index].get(return_key)
+        value = label_rows[index].get(return_key)
         if value is not None:
             values.append(float(value))
     return values
+
+
+def _validated_event_study_label_rows(
+    all_labels: Sequence[dict[str, float | bool | None]],
+) -> list[Mapping[str, object]]:
+    label_rows: list[Mapping[str, object]] = []
+    for index, row in enumerate(all_labels):
+        if not isinstance(row, Mapping):
+            raise ValueError(
+                "event-study label rows must be mapping-like; "
+                f"label at index {index} has type {type(row).__name__}"
+            )
+        label_rows.append(row)
+    return label_rows
 
 
 def _event_sort_key(indexed_event: tuple[int, AspectEvent]) -> tuple[datetime, int]:
