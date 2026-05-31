@@ -71,7 +71,7 @@ def find_nearest(
 
     neighbors = [
         _rank_candidate(query_vector, candidate, metric)
-        for candidate in candidates
+        for candidate in _validated_similarity_candidates(candidates)
     ]
     if metric == "cosine":
         neighbors.sort(key=lambda neighbor: (-neighbor.score, neighbor.distance, neighbor.id))
@@ -222,6 +222,20 @@ def _validated_nearest_neighbors(results: Sequence[NearestNeighbor]) -> list[Nea
             )
         result_values.append(result)
     return result_values
+
+
+def _validated_similarity_candidates(
+    candidates: Sequence[SimilarityCandidate],
+) -> list[SimilarityCandidate]:
+    candidate_values: list[SimilarityCandidate] = []
+    for index, candidate in enumerate(candidates):
+        if not isinstance(candidate, SimilarityCandidate):
+            raise ValueError(
+                "nearest-neighbor candidates must contain SimilarityCandidate values; "
+                f"candidate at index {index} has type {type(candidate).__name__}"
+            )
+        candidate_values.append(candidate)
+    return candidate_values
 
 
 def _optional_metadata_by_search(

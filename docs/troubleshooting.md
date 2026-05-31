@@ -573,6 +573,9 @@ because their direction is undefined; use Euclidean distance only when magnitude
 differences are meaningful for the research question. Exact score ties are
 ordered by candidate ID, so choose stable IDs when reports need reproducible
 ordering.
+Candidate sequences are validated before scoring, so malformed values are
+reported as similarity-domain input errors before vector, ID, or payload
+attributes are read.
 
 ## Python Development Environment
 
