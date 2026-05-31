@@ -20,7 +20,8 @@ class CandleStorageError(ValueError):
 
 def write_candles_json(path: str | Path, candles: Iterable[MarketCandle]) -> None:
     """Write non-empty market candles to a local JSON file."""
-    rows = [candle.to_dict() for candle in candles]
+    validated_candles = _require_market_candles(candles)
+    rows = [candle.to_dict() for candle in validated_candles]
     if not rows:
         raise CandleStorageError("cannot write an empty candle dataset")
 
@@ -57,19 +58,21 @@ def candle_dataset_summary_row(
     if not candles:
         raise CandleStorageError("cannot summarize an empty candle dataset")
 
-    assets = {candle.asset for candle in candles}
+    validated_candles = _require_market_candles(candles)
+
+    assets = {candle.asset for candle in validated_candles}
     if len(assets) != 1:
         raise CandleStorageError("candle dataset summary requires a single asset")
 
-    intervals = {candle.interval for candle in candles}
+    intervals = {candle.interval for candle in validated_candles}
     if len(intervals) != 1:
         raise CandleStorageError("candle dataset summary requires a single interval")
 
-    sources = {candle.source for candle in candles}
-    ordered = sorted(candles, key=lambda candle: candle.timestamp)
+    sources = {candle.source for candle in validated_candles}
+    ordered = sorted(validated_candles, key=lambda candle: candle.timestamp)
     return {
         "dataset_id": dataset_id,
-        "candle_count": len(candles),
+        "candle_count": len(validated_candles),
         "asset": ordered[0].asset,
         "interval": ordered[0].interval,
         "source": ordered[0].source if len(sources) == 1 else None,
@@ -106,7 +109,7 @@ def candle_dataset_group_rows(
         if dataset_id in seen_dataset_ids:
             raise CandleStorageError("dataset IDs must be unique")
         seen_dataset_ids.add(dataset_id)
-        for candle in candles:
+        for candle in _require_market_candles(candles):
             rows.append({"dataset_id": dataset_id, **candle.to_dict()})
     return rows
 
@@ -147,6 +150,14 @@ def _iter_named_candle_datasets(
             )
         dataset_id, candles = entry
         yield dataset_id, candles
+
+
+def _require_market_candles(candles: Iterable[MarketCandle]) -> list[MarketCandle]:
+    values = list(candles)
+    for index, candle in enumerate(values):
+        if not isinstance(candle, MarketCandle):
+            raise CandleStorageError(f"candle value {index} must be a MarketCandle")
+    return values
 
 
 def _validate_required_dataset_id(dataset_id: str) -> None:
