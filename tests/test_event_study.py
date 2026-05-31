@@ -108,6 +108,11 @@ def test_candle_forward_returns_reject_mixed_assets():
         add_candle_forward_returns(candles, [1])
 
 
+def test_candle_forward_returns_reject_malformed_candle_values():
+    with pytest.raises(ValueError, match="MarketCandle values"):
+        add_candle_forward_returns([object()], [1])  # type: ignore[list-item]
+
+
 def test_forward_return_label_coverage_row_summarizes_timestamped_candle_labels():
     candles = [
         MarketCandle(datetime(2026, 5, day, tzinfo=timezone.utc), "BTC-USD", close, close, close, close)
@@ -715,6 +720,11 @@ def test_candle_local_extrema_labels_reject_mixed_assets():
 
     with pytest.raises(ValueError, match="single asset"):
         add_candle_local_extrema_labels(candles, 1)
+
+
+def test_candle_local_extrema_labels_reject_malformed_candle_values():
+    with pytest.raises(ValueError, match="MarketCandle values"):
+        add_candle_local_extrema_labels([object()], 1)  # type: ignore[list-item]
 
 
 def test_local_extrema_labels_mark_top_bottom_and_neutral_cases():

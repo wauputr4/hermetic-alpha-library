@@ -182,6 +182,11 @@ Mitigation:
   coverage metadata reads `.get()` fields or grouped row construction unpacks
   mappings, so callers receive a clear label-row validation error instead of an
   implementation-detail attribute or mapping error.
+- Candle-derived label helpers require supplied candle sequences to contain
+  `MarketCandle` values. Malformed values are rejected before single-asset
+  checks, close extraction, timestamp preservation, or label-row construction so
+  callers receive a clear label-domain validation error instead of an internal
+  attribute error.
 
 ### Local Candle Cache Files
 
