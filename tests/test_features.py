@@ -77,6 +77,11 @@ def test_aspect_event_feature_rows_reject_blank_feature_components():
         aspect_event_feature_rows([_aspect_event("sun", "   ", "conjunction", None)])
 
 
+def test_aspect_event_feature_rows_reject_malformed_event_values():
+    with pytest.raises(ValueError, match="AspectEvent values"):
+        aspect_event_feature_rows([object()])  # type: ignore[list-item]
+
+
 def test_aspect_event_feature_group_rows_preserves_group_and_event_order():
     ts = datetime(2026, 5, 18, tzinfo=timezone.utc)
     train = [
@@ -148,6 +153,11 @@ def test_aspect_event_feature_group_rows_rejects_malformed_ordered_entries():
 def test_aspect_event_feature_group_rows_reuses_event_component_validation():
     with pytest.raises(ValueError, match="aspect feature components must be non-blank strings"):
         aspect_event_feature_group_rows([("train", [_aspect_event("sun", "   ", "conjunction", None)])])
+
+
+def test_aspect_event_feature_group_rows_rejects_malformed_event_values():
+    with pytest.raises(ValueError, match="AspectEvent values"):
+        aspect_event_feature_group_rows([("train", [object()])])  # type: ignore[list-item]
 
 
 def test_aspect_event_feature_matrix_rows_group_events_by_timestamp():
@@ -225,6 +235,11 @@ def test_aspect_event_feature_matrix_rows_reject_blank_feature_components():
 
     with pytest.raises(ValueError, match="aspect feature components must be non-blank strings"):
         aspect_event_feature_matrix_rows([_aspect_event("sun", "jupiter", "   ", ts)])
+
+
+def test_aspect_event_feature_matrix_rows_reject_malformed_event_values():
+    with pytest.raises(ValueError, match="AspectEvent values"):
+        aspect_event_feature_matrix_rows([object()])  # type: ignore[list-item]
 
 
 def test_aspect_event_feature_matrix_rows_with_schema_keeps_train_test_columns_stable():
@@ -321,6 +336,14 @@ def test_aspect_event_feature_matrix_rows_with_schema_rejects_non_string_observe
     with pytest.raises(ValueError, match="aspect feature components must be non-blank strings"):
         aspect_event_feature_matrix_rows_with_schema(
             [_aspect_event("sun", "jupiter", 42, ts)],
+            ["sun_jupiter_conjunction"],
+        )
+
+
+def test_aspect_event_feature_matrix_rows_with_schema_rejects_malformed_event_values():
+    with pytest.raises(ValueError, match="AspectEvent values"):
+        aspect_event_feature_matrix_rows_with_schema(
+            [object()],  # type: ignore[list-item]
             ["sun_jupiter_conjunction"],
         )
 
@@ -422,6 +445,11 @@ def test_aspect_event_feature_matrix_summary_row_rejects_non_string_observed_com
             [_aspect_event("sun", "jupiter", 42, None)],
             ["sun_jupiter_conjunction"],
         )
+
+
+def test_aspect_event_feature_matrix_summary_row_rejects_malformed_event_values():
+    with pytest.raises(ValueError, match="AspectEvent values"):
+        aspect_event_feature_matrix_summary_row([object()])  # type: ignore[list-item]
 
 
 def test_aspect_event_feature_matrix_summary_row_is_csv_compatible():

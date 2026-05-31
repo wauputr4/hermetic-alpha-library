@@ -627,6 +627,11 @@ aspect event; it does not pivot absent aspects into false indicator columns.
 Aspect feature row builders require `body_a`, `body_b`, and `aspect` values to
 be non-blank strings so malformed external events fail before ambiguous column
 keys are produced.
+Feature row, group, matrix, schema, and summary helpers require supplied event
+sequences to contain `AspectEvent` values. Malformed values are rejected before
+row construction, timestamp grouping, configured-schema checks against observed
+features, or summary metadata access so callers receive a clear feature-domain
+validation error instead of an attribute access failure.
 Use `aspect_event_feature_group_rows()` when several declared event groups need
 one raw feature-row export. It preserves caller group order and event order,
 rejects blank/duplicate/non-string or whitespace-padded group IDs, skips empty

@@ -15,7 +15,7 @@ def aspect_event_feature_rows(events: Sequence[AspectEvent]) -> list[dict[str, o
     directly compatible with ``hermetic_alpha.exports.to_csv()``.
     """
 
-    return [_aspect_event_feature_row(event) for event in events]
+    return [_aspect_event_feature_row(event) for event in _validated_aspect_events(events)]
 
 
 def aspect_event_feature_group_rows(
@@ -45,7 +45,7 @@ def aspect_event_feature_matrix_rows(events: Sequence[AspectEvent]) -> list[dict
     grouped: dict[datetime, dict[str, AspectEvent]] = {}
     feature_keys = set[str]()
 
-    for index, event in enumerate(events):
+    for index, event in enumerate(_validated_aspect_events(events)):
         if event.timestamp is None:
             raise ValueError(f"aspect event at index {index} is missing a timestamp")
         feature_key = _feature_key(event)
@@ -88,7 +88,9 @@ def aspect_event_feature_matrix_summary_row(
     observed_keys = set[str]()
     missing_timestamp_count = 0
 
-    for event in events:
+    event_values = _validated_aspect_events(events)
+
+    for event in event_values:
         observed_keys.add(_feature_key(event))
         if event.timestamp is None:
             missing_timestamp_count += 1
@@ -112,7 +114,7 @@ def aspect_event_feature_matrix_summary_row(
         "configured_feature_count": configured_count,
         "duplicate_configured_feature_count": duplicate_configured_count,
         "missing_timestamp_count": missing_timestamp_count,
-        "event_count": len(events),
+        "event_count": len(event_values),
         "first_timestamp": min(timestamps) if timestamps else None,
         "last_timestamp": max(timestamps) if timestamps else None,
     }
@@ -168,7 +170,7 @@ def aspect_event_feature_matrix_rows_with_schema(
     observed_keys = set[str]()
     configured_key_set = set(ordered_configured_keys)
 
-    for index, event in enumerate(events):
+    for index, event in enumerate(_validated_aspect_events(events)):
         if event.timestamp is None:
             raise ValueError(f"aspect event at index {index} is missing a timestamp")
         feature_key = _feature_key(event)
@@ -224,6 +226,18 @@ def _feature_key(event: AspectEvent) -> str:
     body_b = _normalize_feature_key_part(event.body_b)
     aspect = _normalize_feature_key_part(event.aspect)
     return f"{body_a}_{body_b}_{aspect}"
+
+
+def _validated_aspect_events(events: Sequence[AspectEvent]) -> list[AspectEvent]:
+    event_values: list[AspectEvent] = []
+    for index, event in enumerate(events):
+        if not isinstance(event, AspectEvent):
+            raise ValueError(
+                "aspect feature events must contain AspectEvent values; "
+                f"event at index {index} has type {type(event).__name__}"
+            )
+        event_values.append(event)
+    return event_values
 
 
 def _iter_named_feature_matrices(
