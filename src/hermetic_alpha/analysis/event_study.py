@@ -369,11 +369,12 @@ def summarize_event_study(
 ) -> EventStudyResult:
     """Summarize forward market behavior after selected event indexes."""
     label_rows = _validated_event_study_label_rows(all_labels)
+    selected_indexes = _validated_event_indexes(event_indexes)
     return_key = f"return_{horizon}d"
     bullish_key = f"bullish_{horizon}d"
 
     baseline_values = [row[bullish_key] for row in label_rows if row.get(bullish_key) is not None]
-    event_rows = [label_rows[index] for index in event_indexes if 0 <= index < len(label_rows)]
+    event_rows = [label_rows[index] for index in selected_indexes if 0 <= index < len(label_rows)]
     event_returns = [row[return_key] for row in event_rows if row.get(return_key) is not None]
     event_bullish = [row[bullish_key] for row in event_rows if row.get(bullish_key) is not None]
 
@@ -457,9 +458,10 @@ def _event_return_values(
     horizon: int,
 ) -> list[float]:
     label_rows = _validated_event_study_label_rows(all_labels)
+    selected_indexes = _validated_event_indexes(event_indexes)
     return_key = f"return_{horizon}d"
     values: list[float] = []
-    for index in event_indexes:
+    for index in selected_indexes:
         if index < 0 or index >= len(label_rows):
             continue
         value = label_rows[index].get(return_key)
@@ -480,6 +482,18 @@ def _validated_event_study_label_rows(
             )
         label_rows.append(row)
     return label_rows
+
+
+def _validated_event_indexes(event_indexes: Sequence[int]) -> list[int]:
+    selected_indexes: list[int] = []
+    for position, index in enumerate(event_indexes):
+        if type(index) is not int:
+            raise ValueError(
+                "event indexes must be integers; "
+                f"event index at position {position} has type {type(index).__name__}"
+            )
+        selected_indexes.append(index)
+    return selected_indexes
 
 
 def _event_sort_key(indexed_event: tuple[int, AspectEvent]) -> tuple[datetime, int]:

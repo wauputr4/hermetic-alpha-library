@@ -771,6 +771,13 @@ def test_event_study_summary_rejects_malformed_label_rows():
         summarize_event_study([object()], [], 1)  # type: ignore[list-item]
 
 
+def test_event_study_summary_rejects_malformed_event_indexes():
+    labels = add_forward_returns([100, 110], [1])
+
+    with pytest.raises(ValueError, match="event indexes must be integers"):
+        summarize_event_study(labels, [object()], 1)  # type: ignore[list-item]
+
+
 def test_multi_horizon_event_study_summary():
     labels = add_forward_returns([100, 110, 121, 90], [1, 2])
     results = summarize_multi_horizon_event_study(labels, [0, 1, 99], [1, 2, 1])
@@ -781,6 +788,13 @@ def test_multi_horizon_event_study_summary():
     assert results[2].events == 2
     assert results[2].conditional_bullish_probability == 1 / 2
     assert round(results[2].average_return, 4) == 0.0141
+
+
+def test_multi_horizon_event_study_summary_rejects_malformed_event_indexes():
+    labels = add_forward_returns([100, 110], [1])
+
+    with pytest.raises(ValueError, match="event indexes must be integers"):
+        summarize_multi_horizon_event_study(labels, [object()], [1])  # type: ignore[list-item]
 
 
 def test_validated_event_study_report_is_seeded_and_warns_on_low_samples():
@@ -826,6 +840,13 @@ def test_validated_event_study_report_skips_interval_when_returns_are_missing():
 def test_validated_event_study_report_rejects_malformed_label_rows():
     with pytest.raises(ValueError, match="event-study label rows"):
         summarize_validated_event_study([object()], [], 1)  # type: ignore[list-item]
+
+
+def test_validated_event_study_report_rejects_malformed_event_indexes():
+    labels = add_forward_returns([100, 110], [1])
+
+    with pytest.raises(ValueError, match="event indexes must be integers"):
+        summarize_validated_event_study(labels, [object()], 1)  # type: ignore[list-item]
 
 
 def test_validated_multi_horizon_event_study_reports_preserve_order_and_settings():
