@@ -177,6 +177,11 @@ Mitigation:
   named label dataset inputs must contain explicit two-item `(dataset_id,
   labels)` pairs; strings, bytes, and malformed tuple/list lengths are rejected
   before Python tuple unpacking can raise a generic error.
+- Label coverage and grouped raw-label report helpers require each supplied
+  label row to be mapping-like. Malformed row values are rejected before
+  coverage metadata reads `.get()` fields or grouped row construction unpacks
+  mappings, so callers receive a clear label-row validation error instead of an
+  implementation-detail attribute or mapping error.
 
 ### Local Candle Cache Files
 

@@ -142,6 +142,7 @@ def forward_return_label_coverage_row(
     if horizon <= 0:
         raise ValueError("horizon must be a positive integer")
     _validate_dataset_id(dataset_id)
+    _validate_label_rows(labels)
 
     return_key = f"return_{horizon}d"
     bullish_key = f"bullish_{horizon}d"
@@ -211,6 +212,7 @@ def local_extrema_label_coverage_row(
     if window <= 0:
         raise ValueError("window must be a positive integer")
     _validate_dataset_id(dataset_id)
+    _validate_label_rows(labels)
 
     top_key = f"local_top_{window}d"
     bottom_key = f"local_bottom_{window}d"
@@ -283,8 +285,15 @@ def _label_group_rows(
         if dataset_id in seen_dataset_ids:
             raise ValueError("dataset IDs must be unique")
         seen_dataset_ids.add(dataset_id)
+        _validate_label_rows(labels)
         rows.extend({"dataset_id": dataset_id, **label} for label in labels)
     return rows
+
+
+def _validate_label_rows(labels: Sequence[dict[str, object]]) -> None:
+    for label in labels:
+        if not isinstance(label, Mapping):
+            raise ValueError("label rows must be mappings")
 
 
 def _validate_dataset_id(dataset_id: str | None) -> None:

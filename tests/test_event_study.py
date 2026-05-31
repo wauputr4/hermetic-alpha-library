@@ -187,6 +187,11 @@ def test_forward_return_label_coverage_row_rejects_non_string_dataset_id():
         forward_return_label_coverage_row([], 1, dataset_id=123)  # type: ignore[arg-type]
 
 
+def test_forward_return_label_coverage_row_rejects_malformed_label_rows():
+    with pytest.raises(ValueError, match="label rows"):
+        forward_return_label_coverage_row([object()], 1)  # type: ignore[list-item]
+
+
 def test_multi_horizon_forward_return_label_coverage_rows_preserve_order_and_deduplicate():
     labels = add_forward_returns([100, 110, 99, 120], [1, 2])
 
@@ -357,6 +362,11 @@ def test_forward_return_label_group_rows_rejects_malformed_ordered_entries():
         forward_return_label_group_rows([("train", labels, "extra")])  # type: ignore[list-item]
 
 
+def test_forward_return_label_group_rows_rejects_malformed_label_rows():
+    with pytest.raises(ValueError, match="label rows"):
+        forward_return_label_group_rows([("train", [object()])])  # type: ignore[list-item]
+
+
 def test_forward_return_label_group_rows_skip_empty_label_datasets():
     labels = add_forward_returns([100, 110], [1])
 
@@ -497,6 +507,11 @@ def test_local_extrema_label_coverage_row_rejects_whitespace_padded_dataset_id()
 def test_local_extrema_label_coverage_row_rejects_non_string_dataset_id():
     with pytest.raises(ValueError, match="dataset ID must be a string"):
         local_extrema_label_coverage_row([], 1, dataset_id=123)  # type: ignore[arg-type]
+
+
+def test_local_extrema_label_coverage_row_rejects_malformed_label_rows():
+    with pytest.raises(ValueError, match="label rows"):
+        local_extrema_label_coverage_row([object()], 1)  # type: ignore[list-item]
 
 
 def test_multi_window_local_extrema_label_coverage_rows_preserve_order_and_deduplicate():
@@ -677,6 +692,11 @@ def test_local_extrema_label_group_rows_rejects_malformed_ordered_entries():
         local_extrema_label_group_rows(["train"])  # type: ignore[list-item]
     with pytest.raises(ValueError, match="two-item"):
         local_extrema_label_group_rows([("train", labels, "extra")])  # type: ignore[list-item]
+
+
+def test_local_extrema_label_group_rows_rejects_malformed_label_rows():
+    with pytest.raises(ValueError, match="label rows"):
+        local_extrema_label_group_rows([("train", [object()])])  # type: ignore[list-item]
 
 
 def test_local_extrema_label_group_rows_skip_empty_label_datasets():
