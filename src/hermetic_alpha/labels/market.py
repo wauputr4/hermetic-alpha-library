@@ -54,6 +54,7 @@ def add_candle_forward_returns(
     horizons: Sequence[int],
 ) -> list[TimestampedForwardReturnRow]:
     """Create timestamped forward-return labels from ordered market candles."""
+    _validate_label_candles(candles)
     _validate_single_asset(candles)
     labels = add_forward_returns([candle.close for candle in candles], horizons)
     rows: list[TimestampedForwardReturnRow] = []
@@ -67,6 +68,7 @@ def add_candle_local_extrema_labels(
     windows: int | Sequence[int],
 ) -> list[TimestampedLocalExtremaRow]:
     """Create timestamped local top/bottom labels from ordered market candles."""
+    _validate_label_candles(candles)
     _validate_single_asset(candles)
     labels = add_local_extrema_labels([candle.close for candle in candles], windows)
     rows: list[TimestampedLocalExtremaRow] = []
@@ -79,6 +81,12 @@ def _validate_single_asset(candles: Sequence[MarketCandle]) -> None:
     assets = {candle.asset for candle in candles}
     if len(assets) > 1:
         raise ValueError("candle labels require a single asset")
+
+
+def _validate_label_candles(candles: Sequence[MarketCandle]) -> None:
+    for candle in candles:
+        if not isinstance(candle, MarketCandle):
+            raise ValueError("candle label helpers require MarketCandle values")
 
 
 def _normalize_windows(windows: int | Sequence[int]) -> list[int]:
