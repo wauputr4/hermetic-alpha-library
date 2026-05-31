@@ -532,6 +532,11 @@ def test_nearest_neighbor_rows_requires_mapping_payload_for_payload_fields():
         nearest_neighbor_rows(results, payload_fields=["asset"])
 
 
+def test_nearest_neighbor_rows_rejects_malformed_result_values():
+    with pytest.raises(ValueError, match="NearestNeighbor values"):
+        nearest_neighbor_rows([object()])  # type: ignore[list-item]
+
+
 def test_nearest_neighbor_group_rows_preserves_ordered_mapping_input():
     search_a = find_nearest(
         [1.0, 0.0],
@@ -619,6 +624,11 @@ def test_nearest_neighbor_group_rows_rejects_blank_payload_field_names():
         nearest_neighbor_group_rows([("empty-search", [])], payload_fields=["asset", ""])
 
 
+def test_nearest_neighbor_group_rows_rejects_malformed_result_values():
+    with pytest.raises(ValueError, match="NearestNeighbor values"):
+        nearest_neighbor_group_rows([("query-a", [object()])])  # type: ignore[list-item]
+
+
 def test_nearest_neighbor_summary_row_reports_ranked_result_boundaries():
     results = find_nearest(
         [1.0, 0.0],
@@ -663,6 +673,11 @@ def test_nearest_neighbor_summary_row_handles_empty_results():
         "min_distance": None,
         "max_distance": None,
     }
+
+
+def test_nearest_neighbor_summary_row_rejects_malformed_result_values():
+    with pytest.raises(ValueError, match="NearestNeighbor values"):
+        nearest_neighbor_summary_row([object()])  # type: ignore[list-item]
 
 
 def test_nearest_neighbor_summary_row_is_csv_compatible():
@@ -780,6 +795,11 @@ def test_nearest_neighbor_summary_rows_rejects_non_string_search_ids():
 def test_nearest_neighbor_summary_rows_rejects_malformed_ordered_entries(searches):
     with pytest.raises(ValueError, match="two-item \\(search_id, results\\) pair"):
         nearest_neighbor_summary_rows(searches)
+
+
+def test_nearest_neighbor_summary_rows_rejects_malformed_result_values():
+    with pytest.raises(ValueError, match="NearestNeighbor values"):
+        nearest_neighbor_summary_rows([("query-a", [object()])])  # type: ignore[list-item]
 
 
 def test_nearest_neighbor_summary_rows_rejects_duplicate_metadata_ids():

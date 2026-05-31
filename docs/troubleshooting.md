@@ -358,6 +358,11 @@ leading or trailing whitespace, skips empty result groups, prepends `search_id`,
 rejects malformed ordered entries before tuple unpacking, and delegates rank
 and payload columns to `nearest_neighbor_rows()`; keep the raw
 `NearestNeighbor` objects for deeper payload inspection.
+Nearest-neighbor row, group, summary, and multi-summary helpers require result
+sequences to contain `NearestNeighbor` values. Malformed values are rejected
+before rank construction, payload extraction, or summary boundary access so
+callers receive a similarity-report validation error instead of an attribute
+access failure.
 Use `nearest_neighbor_summary_row()` when reports need one compact row per
 similarity search run. It keeps payload inspection out of the summary, uses the
 first ranked result as the top neighbor, reports min/max score and distance
