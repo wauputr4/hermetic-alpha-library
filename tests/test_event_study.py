@@ -787,6 +787,23 @@ def test_event_study_summary_rejects_malformed_horizons():
         summarize_event_study(labels, [0], object())  # type: ignore[arg-type]
 
 
+def test_event_study_summary_rejects_malformed_outcome_field_values():
+    with pytest.raises(ValueError, match="event-study label field values"):
+        summarize_event_study([{"return_1d": object(), "bullish_1d": True}], [0], 1)  # type: ignore[list-item]
+    with pytest.raises(ValueError, match="event-study label field values"):
+        summarize_event_study([{"return_1d": 0.1, "bullish_1d": object()}], [0], 1)  # type: ignore[list-item]
+
+
+def test_event_study_summary_preserves_missing_outcome_field_behavior():
+    labels = [{"return_1d": None, "bullish_1d": None}, {}]
+
+    result = summarize_event_study(labels, [0, 1], 1)
+
+    assert result.events == 0
+    assert result.baseline_bullish_probability is None
+    assert result.average_return is None
+
+
 def test_multi_horizon_event_study_summary():
     labels = add_forward_returns([100, 110, 121, 90], [1, 2])
     results = summarize_multi_horizon_event_study(labels, [0, 1, 99], [1, 2, 1])
@@ -874,6 +891,23 @@ def test_validated_event_study_report_rejects_malformed_horizons():
         summarize_validated_event_study(labels, [0], 0)
     with pytest.raises(ValueError, match="event-study horizons must be positive integers"):
         summarize_validated_event_study(labels, [0], object())  # type: ignore[arg-type]
+
+
+def test_validated_event_study_report_rejects_malformed_outcome_field_values():
+    with pytest.raises(ValueError, match="event-study label field values"):
+        summarize_validated_event_study(
+            [{"return_1d": object(), "bullish_1d": True}],  # type: ignore[list-item]
+            [0],
+            1,
+            bootstrap_samples=10,
+        )
+    with pytest.raises(ValueError, match="event-study label field values"):
+        summarize_validated_event_study(
+            [{"return_1d": 0.1, "bullish_1d": object()}],  # type: ignore[list-item]
+            [0],
+            1,
+            bootstrap_samples=10,
+        )
 
 
 def test_validated_multi_horizon_event_study_reports_preserve_order_and_settings():

@@ -501,6 +501,11 @@ helpers must be positive integers. Invalid horizon values are rejected before
 `return_<horizon>d` or `bullish_<horizon>d` field names are constructed, so
 callers receive a clear analysis-domain validation error instead of confusing
 missing-label behavior from stringified or non-positive keys.
+Non-null event-study outcome fields must also match their expected domain:
+return fields must be numeric and bullish fields must be booleans. Missing
+fields and `None` values still count as missing labels, but malformed non-null
+values are rejected before mean, median, probability, or bootstrap calculations
+consume them.
 
 Use `timestamp_join_summary_row()` before CSV export when notebooks or future
 CLIs need only compact join audit metadata. The summary row intentionally keeps
