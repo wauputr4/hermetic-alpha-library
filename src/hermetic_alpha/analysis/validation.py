@@ -269,17 +269,16 @@ def bootstrap_percentile_interval(
     statistic: Statistic = _default_statistic,
 ) -> tuple[float, float]:
     """Return a bootstrap percentile confidence interval for a statistic."""
-    if not values:
-        raise ValueError("values must not be empty")
+    sample_values = _coerce_statistical_sample_values(values)
     if samples <= 0:
         raise ValueError("samples must be a positive integer")
     if confidence <= 0 or confidence >= 1:
         raise ValueError("confidence must be between 0 and 1")
 
     rng = Random(seed)
-    sample_size = len(values)
+    sample_size = len(sample_values)
     bootstrap_statistics = sorted(
-        statistic(rng.choices(values, k=sample_size))
+        statistic(rng.choices(sample_values, k=sample_size))
         for _ in range(samples)
     )
     tail = (1 - confidence) / 2
@@ -298,19 +297,17 @@ def random_baseline_distribution(
     statistic: Statistic = _default_statistic,
 ) -> list[float]:
     """Sample random baseline statistics without replacement."""
-    if not values:
-        raise ValueError("values must not be empty")
+    sample_values = _coerce_statistical_sample_values(values)
     if sample_size <= 0:
         raise ValueError("sample_size must be a positive integer")
-    if sample_size > len(values):
+    if sample_size > len(sample_values):
         raise ValueError("sample_size must not exceed values length")
     if samples <= 0:
         raise ValueError("samples must be a positive integer")
 
     rng = Random(seed)
-    population = list(values)
     return [
-        statistic(rng.sample(population, sample_size))
+        statistic(rng.sample(sample_values, sample_size))
         for _ in range(samples)
     ]
 
@@ -471,6 +468,24 @@ def _evaluate_distribution_value(value: float) -> float:
     if not isfinite(result):
         raise ValueError("distribution values must be finite numeric values")
     return result
+
+
+def _coerce_statistical_sample_values(values: Sequence[float]) -> list[float]:
+    if not isinstance(values, Sequence) or isinstance(values, str | bytes):
+        raise ValueError("values must be a sequence of finite numeric values")
+    if not values:
+        raise ValueError("values must not be empty")
+
+    coerced_values: list[float] = []
+    for value in values:
+        try:
+            coerced = float(value)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("values must contain finite numeric values") from exc
+        if not isfinite(coerced):
+            raise ValueError("values must contain finite numeric values")
+        coerced_values.append(coerced)
+    return coerced_values
 
 
 def _validate_report_id(identifier: object, *, singular_name: str) -> None:

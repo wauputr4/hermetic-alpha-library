@@ -36,6 +36,18 @@ def test_bootstrap_percentile_interval_supports_custom_statistic():
     assert tuple(round(value, 4) for value in interval) == (0.25, 1.0)
 
 
+@pytest.mark.parametrize("value", [object(), "bad"])
+def test_bootstrap_percentile_interval_rejects_malformed_sample_values(value):
+    with pytest.raises(ValueError, match="values must contain finite numeric values"):
+        bootstrap_percentile_interval([0.1, value], samples=10)
+
+
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
+def test_bootstrap_percentile_interval_rejects_non_finite_sample_values(value):
+    with pytest.raises(ValueError, match="values must contain finite numeric values"):
+        bootstrap_percentile_interval([0.1, value], samples=10)
+
+
 def test_bootstrap_interval_row_flattens_seeded_interval_metadata():
     interval = bootstrap_percentile_interval([0.01, 0.02, 0.05, -0.01], samples=200, seed=7)
 
@@ -125,6 +137,18 @@ def test_random_baseline_distribution_is_deterministic_with_seed():
 
     assert first == second
     assert first == [3.5, 3.0, 1.5, 3.5, 1.5]
+
+
+@pytest.mark.parametrize("value", [object(), "bad"])
+def test_random_baseline_distribution_rejects_malformed_sample_values(value):
+    with pytest.raises(ValueError, match="values must contain finite numeric values"):
+        random_baseline_distribution([0.1, value], 1, samples=10)
+
+
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
+def test_random_baseline_distribution_rejects_non_finite_sample_values(value):
+    with pytest.raises(ValueError, match="values must contain finite numeric values"):
+        random_baseline_distribution([0.1, value], 1, samples=10)
 
 
 def test_random_baseline_distribution_row_summarizes_seeded_distribution():
