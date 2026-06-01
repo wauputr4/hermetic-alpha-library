@@ -496,6 +496,11 @@ Event indexes supplied to summary helpers must be integers. Non-integer values
 are rejected before bounds checks run, while integer indexes outside the label
 range continue to be skipped so joined event-study results can tolerate
 unmatched or stale selections.
+Event-study horizons supplied to direct, validated, and multi-horizon summary
+helpers must be positive integers. Invalid horizon values are rejected before
+`return_<horizon>d` or `bullish_<horizon>d` field names are constructed, so
+callers receive a clear analysis-domain validation error instead of confusing
+missing-label behavior from stringified or non-positive keys.
 
 Use `timestamp_join_summary_row()` before CSV export when notebooks or future
 CLIs need only compact join audit metadata. The summary row intentionally keeps
