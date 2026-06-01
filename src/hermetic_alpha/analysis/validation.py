@@ -63,14 +63,15 @@ class PermutationTestResult:
 
 def permutation_test_result_row(result: PermutationTestResult) -> dict[str, float | int | str | None]:
     """Return a flat CSV-compatible summary row for a permutation test result."""
-    null_distribution = result.null_distribution
+    validated = _coerce_permutation_test_result(result)
+    null_distribution = validated["null_distribution"]
     return {
-        "observed_statistic": result.observed_statistic,
-        "p_value": result.p_value,
-        "alternative": result.alternative,
-        "permutations": result.permutations,
-        "seed": result.seed,
-        "null_mean": result.null_mean,
+        "observed_statistic": validated["observed_statistic"],
+        "p_value": validated["p_value"],
+        "alternative": validated["alternative"],
+        "permutations": validated["permutations"],
+        "seed": validated["seed"],
+        "null_mean": validated["null_mean"],
         "null_distribution_count": len(null_distribution),
         "null_distribution_min": min(null_distribution) if null_distribution else None,
         "null_distribution_max": max(null_distribution) if null_distribution else None,
@@ -486,6 +487,44 @@ def _coerce_statistical_sample_values(values: Sequence[float]) -> list[float]:
             raise ValueError("values must contain finite numeric values")
         coerced_values.append(coerced)
     return coerced_values
+
+
+def _coerce_permutation_test_result(
+    result: PermutationTestResult,
+) -> dict[str, float | int | str | list[float] | None]:
+    if not isinstance(result, PermutationTestResult):
+        raise ValueError("result must be a PermutationTestResult")
+    if result.alternative not in ("greater", "less", "two-sided"):
+        raise ValueError("result alternative must be 'greater', 'less', or 'two-sided'")
+    if not isinstance(result.permutations, int):
+        raise ValueError("result permutations must be an integer")
+    if result.seed is not None and not isinstance(result.seed, int):
+        raise ValueError("result seed must be an integer or None")
+    if not isinstance(result.null_distribution, Sequence) or isinstance(result.null_distribution, str | bytes):
+        raise ValueError("result null_distribution must be a sequence of finite numeric values")
+
+    return {
+        "observed_statistic": _evaluate_permutation_result_value(result.observed_statistic),
+        "p_value": _evaluate_permutation_result_value(result.p_value),
+        "alternative": result.alternative,
+        "permutations": result.permutations,
+        "seed": result.seed,
+        "null_mean": _evaluate_permutation_result_value(result.null_mean),
+        "null_distribution": [
+            _evaluate_permutation_result_value(value)
+            for value in result.null_distribution
+        ],
+    }
+
+
+def _evaluate_permutation_result_value(value: float) -> float:
+    try:
+        result = float(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("permutation result values must be finite numeric values") from exc
+    if not isfinite(result):
+        raise ValueError("permutation result values must be finite numeric values")
+    return result
 
 
 def _validate_report_id(identifier: object, *, singular_name: str) -> None:
