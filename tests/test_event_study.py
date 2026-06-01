@@ -778,6 +778,15 @@ def test_event_study_summary_rejects_malformed_event_indexes():
         summarize_event_study(labels, [object()], 1)  # type: ignore[list-item]
 
 
+def test_event_study_summary_rejects_malformed_horizons():
+    labels = add_forward_returns([100, 110], [1])
+
+    with pytest.raises(ValueError, match="event-study horizons must be positive integers"):
+        summarize_event_study(labels, [0], 0)
+    with pytest.raises(ValueError, match="event-study horizons must be positive integers"):
+        summarize_event_study(labels, [0], object())  # type: ignore[arg-type]
+
+
 def test_multi_horizon_event_study_summary():
     labels = add_forward_returns([100, 110, 121, 90], [1, 2])
     results = summarize_multi_horizon_event_study(labels, [0, 1, 99], [1, 2, 1])
@@ -795,6 +804,15 @@ def test_multi_horizon_event_study_summary_rejects_malformed_event_indexes():
 
     with pytest.raises(ValueError, match="event indexes must be integers"):
         summarize_multi_horizon_event_study(labels, [object()], [1])  # type: ignore[list-item]
+
+
+def test_multi_horizon_event_study_summary_rejects_malformed_horizons():
+    labels = add_forward_returns([100, 110], [1])
+
+    with pytest.raises(ValueError, match="event-study horizons must be positive integers"):
+        summarize_multi_horizon_event_study(labels, [], [1, -1])
+    with pytest.raises(ValueError, match="event-study horizons must be positive integers"):
+        summarize_multi_horizon_event_study(labels, [], [1, object()])  # type: ignore[list-item]
 
 
 def test_validated_event_study_report_is_seeded_and_warns_on_low_samples():
@@ -849,6 +867,15 @@ def test_validated_event_study_report_rejects_malformed_event_indexes():
         summarize_validated_event_study(labels, [object()], 1)  # type: ignore[list-item]
 
 
+def test_validated_event_study_report_rejects_malformed_horizons():
+    labels = add_forward_returns([100, 110], [1])
+
+    with pytest.raises(ValueError, match="event-study horizons must be positive integers"):
+        summarize_validated_event_study(labels, [0], 0)
+    with pytest.raises(ValueError, match="event-study horizons must be positive integers"):
+        summarize_validated_event_study(labels, [0], object())  # type: ignore[arg-type]
+
+
 def test_validated_multi_horizon_event_study_reports_preserve_order_and_settings():
     labels = add_forward_returns([100, 110, 99, 120, 126], [1, 2])
 
@@ -892,6 +919,15 @@ def test_validated_multi_horizon_event_study_deduplicates_horizons():
     assert list(reports.keys()) == [1, 2]
     assert reports[1].summary.events == 2
     assert reports[2].summary.events == 2
+
+
+def test_validated_multi_horizon_event_study_rejects_malformed_horizons():
+    labels = add_forward_returns([100, 110], [1])
+
+    with pytest.raises(ValueError, match="event-study horizons must be positive integers"):
+        summarize_validated_multi_horizon_event_study(labels, [], [1, 0])
+    with pytest.raises(ValueError, match="event-study horizons must be positive integers"):
+        summarize_validated_multi_horizon_event_study(labels, [], [1, object()])  # type: ignore[list-item]
 
 
 def test_validated_multi_horizon_event_study_keeps_missing_return_interval_behavior():

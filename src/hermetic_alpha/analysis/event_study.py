@@ -368,10 +368,11 @@ def summarize_event_study(
     horizon: int,
 ) -> EventStudyResult:
     """Summarize forward market behavior after selected event indexes."""
+    horizon_value = _validated_event_study_horizon(horizon)
     label_rows = _validated_event_study_label_rows(all_labels)
     selected_indexes = _validated_event_indexes(event_indexes)
-    return_key = f"return_{horizon}d"
-    bullish_key = f"bullish_{horizon}d"
+    return_key = f"return_{horizon_value}d"
+    bullish_key = f"bullish_{horizon_value}d"
 
     baseline_values = [row[bullish_key] for row in label_rows if row.get(bullish_key) is not None]
     event_rows = [label_rows[index] for index in selected_indexes if 0 <= index < len(label_rows)]
@@ -380,7 +381,7 @@ def summarize_event_study(
 
     return EventStudyResult(
         events=len(event_bullish),
-        horizon=horizon,
+        horizon=horizon_value,
         baseline_bullish_probability=(sum(1 for value in baseline_values if value is True) / len(baseline_values)) if baseline_values else None,
         conditional_bullish_probability=(sum(1 for value in event_bullish if value is True) / len(event_bullish)) if event_bullish else None,
         average_return=mean(event_returns) if event_returns else None,
@@ -437,7 +438,7 @@ def summarize_validated_multi_horizon_event_study(
     ``summarize_multi_horizon_event_study`` so callers can use one selected
     event set across comparable 1d, 7d, 30d, and other reports.
     """
-    unique_horizons = list(dict.fromkeys(horizons))
+    unique_horizons = _validated_event_study_horizons(horizons)
     return {
         horizon: summarize_validated_event_study(
             all_labels,
@@ -457,9 +458,10 @@ def _event_return_values(
     event_indexes: Sequence[int],
     horizon: int,
 ) -> list[float]:
+    horizon_value = _validated_event_study_horizon(horizon)
     label_rows = _validated_event_study_label_rows(all_labels)
     selected_indexes = _validated_event_indexes(event_indexes)
-    return_key = f"return_{horizon}d"
+    return_key = f"return_{horizon_value}d"
     values: list[float] = []
     for index in selected_indexes:
         if index < 0 or index >= len(label_rows):
@@ -468,6 +470,16 @@ def _event_return_values(
         if value is not None:
             values.append(float(value))
     return values
+
+
+def _validated_event_study_horizon(horizon: int) -> int:
+    if type(horizon) is not int or horizon <= 0:
+        raise ValueError("event-study horizons must be positive integers")
+    return horizon
+
+
+def _validated_event_study_horizons(horizons: Sequence[int]) -> list[int]:
+    return list(dict.fromkeys(_validated_event_study_horizon(horizon) for horizon in horizons))
 
 
 def _validated_event_study_label_rows(
@@ -552,7 +564,7 @@ def summarize_multi_horizon_event_study(
     30d, and other windows without rerunning event selection logic. Invalid event
     indexes are ignored consistently for every horizon.
     """
-    unique_horizons = list(dict.fromkeys(horizons))
+    unique_horizons = _validated_event_study_horizons(horizons)
     return {
         horizon: summarize_event_study(all_labels, event_indexes, horizon)
         for horizon in unique_horizons
