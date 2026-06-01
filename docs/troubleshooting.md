@@ -237,6 +237,11 @@ Mitigation:
 - Use bootstrap confidence intervals.
 - Compare against random baselines.
 - Seed bootstrap and random-baseline helpers when results need to be reproducible in docs, tests, or PR reviews.
+- `bootstrap_percentile_interval()` and `random_baseline_distribution()` require
+  raw sample values to be finite numeric values before resampling starts. Object
+  values, strings, `NaN`, and infinities are rejected with `ValueError` so
+  malformed samples do not leak statistic-function or RNG implementation
+  errors into reports.
 - Use `bootstrap_interval_row()` before writing standalone bootstrap interval
   reports to CSV. It expects the two-bound tuple returned by
   `bootstrap_percentile_interval()` and rejects malformed, missing, or non-finite
