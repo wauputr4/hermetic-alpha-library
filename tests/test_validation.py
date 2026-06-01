@@ -342,6 +342,43 @@ def test_permutation_test_result_row_handles_empty_distribution_explicitly():
     assert row["null_distribution_max"] is None
 
 
+def test_permutation_test_result_row_rejects_malformed_result_value():
+    with pytest.raises(ValueError, match="result must be a PermutationTestResult"):
+        permutation_test_result_row(object())  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    "result",
+    [
+        PermutationTestResult(float("nan"), 1.0, "two-sided", 1, None, [0.0], 0.0),
+        PermutationTestResult(0.1, float("inf"), "two-sided", 1, None, [0.0], 0.0),
+        PermutationTestResult(0.1, 1.0, "two-sided", 1, None, [object()], 0.0),  # type: ignore[list-item]
+        PermutationTestResult(0.1, 1.0, "two-sided", 1, None, [float("-inf")], 0.0),
+        PermutationTestResult(0.1, 1.0, "two-sided", 1, None, [0.0], float("nan")),
+    ],
+)
+def test_permutation_test_result_row_rejects_malformed_numeric_fields(result):
+    with pytest.raises(ValueError, match="permutation result values must be finite numeric values"):
+        permutation_test_result_row(result)
+
+
+def test_permutation_test_result_row_rejects_invalid_result_metadata():
+    with pytest.raises(ValueError, match="result alternative must be"):
+        permutation_test_result_row(
+            PermutationTestResult(0.1, 1.0, "different", 1, None, [0.0], 0.0)  # type: ignore[arg-type]
+        )
+
+    with pytest.raises(ValueError, match="result permutations must be an integer"):
+        permutation_test_result_row(
+            PermutationTestResult(0.1, 1.0, "two-sided", 1.5, None, [0.0], 0.0)  # type: ignore[arg-type]
+        )
+
+    with pytest.raises(ValueError, match="result seed must be an integer or None"):
+        permutation_test_result_row(
+            PermutationTestResult(0.1, 1.0, "two-sided", 1, "seed", [0.0], 0.0)  # type: ignore[arg-type]
+        )
+
+
 def test_permutation_test_result_rows_preserve_mapping_order():
     first = permutation_test(
         [1.0, 1.0, 0.0],

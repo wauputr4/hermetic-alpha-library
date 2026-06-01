@@ -299,7 +299,11 @@ flat CSV exporter. `PermutationTestResult.to_dict()` intentionally keeps the ful
 `null_distribution` list for JSON inspection, while the row helper emits compact
 distribution metadata (`count`, `min`, and `max`) that is CSV-safe. If a manually
 constructed result has an empty distribution, the count is `0` and the min/max
-fields are `None`.
+fields are `None`. Direct row inputs must be `PermutationTestResult` values with
+supported alternatives, integer permutation counts, integer-or-empty seeds, and
+finite numeric statistic, p-value, null-mean, and null-distribution values.
+Malformed hand-built results are rejected before field reads or distribution
+summaries can leak implementation-detail errors.
 Use `permutation_test_result_rows()` for compact multi-scenario permutation
 metadata tables. It preserves ordered mapping or pair-sequence input, rejects
 scenario IDs that are not non-blank strings, rejects duplicates, and prepends
