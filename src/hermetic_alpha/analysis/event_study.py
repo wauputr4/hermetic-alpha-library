@@ -374,10 +374,10 @@ def summarize_event_study(
     return_key = f"return_{horizon_value}d"
     bullish_key = f"bullish_{horizon_value}d"
 
-    baseline_values = [row[bullish_key] for row in label_rows if row.get(bullish_key) is not None]
     event_rows = [label_rows[index] for index in selected_indexes if 0 <= index < len(label_rows)]
-    event_returns = [row[return_key] for row in event_rows if row.get(return_key) is not None]
-    event_bullish = [row[bullish_key] for row in event_rows if row.get(bullish_key) is not None]
+    baseline_values = _event_study_bullish_values(label_rows, bullish_key)
+    event_returns = _event_study_return_values(event_rows, return_key)
+    event_bullish = _event_study_bullish_values(event_rows, bullish_key)
 
     return EventStudyResult(
         events=len(event_bullish),
@@ -462,13 +462,41 @@ def _event_return_values(
     label_rows = _validated_event_study_label_rows(all_labels)
     selected_indexes = _validated_event_indexes(event_indexes)
     return_key = f"return_{horizon_value}d"
-    values: list[float] = []
+    event_rows: list[Mapping[str, object]] = []
     for index in selected_indexes:
         if index < 0 or index >= len(label_rows):
             continue
-        value = label_rows[index].get(return_key)
-        if value is not None:
-            values.append(float(value))
+        event_rows.append(label_rows[index])
+    return _event_study_return_values(event_rows, return_key)
+
+
+def _event_study_return_values(label_rows: Sequence[Mapping[str, object]], return_key: str) -> list[float]:
+    values: list[float] = []
+    for index, row in enumerate(label_rows):
+        value = row.get(return_key)
+        if value is None:
+            continue
+        if type(value) not in (int, float):
+            raise ValueError(
+                "event-study label field values must be numeric returns or boolean bullish flags; "
+                f"{return_key} at row {index} has type {type(value).__name__}"
+            )
+        values.append(float(value))
+    return values
+
+
+def _event_study_bullish_values(label_rows: Sequence[Mapping[str, object]], bullish_key: str) -> list[bool]:
+    values: list[bool] = []
+    for index, row in enumerate(label_rows):
+        value = row.get(bullish_key)
+        if value is None:
+            continue
+        if type(value) is not bool:
+            raise ValueError(
+                "event-study label field values must be numeric returns or boolean bullish flags; "
+                f"{bullish_key} at row {index} has type {type(value).__name__}"
+            )
+        values.append(value)
     return values
 
 
