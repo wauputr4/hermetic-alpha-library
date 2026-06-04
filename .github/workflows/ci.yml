@@ -27,3 +27,18 @@ jobs:
 
       - name: Run tests
         run: python3 -m pytest -q
+
+      - name: Smoke import check
+        run: |
+          python3 - <<'PY'
+          import hermetic_alpha
+          from hermetic_alpha.labels import add_forward_returns
+          from hermetic_alpha.analysis import summarize_event_study
+
+          labels = add_forward_returns([100, 110, 99, 120, 95, 128], [1, 7])
+          result = summarize_event_study(labels, [1, 2], 1)
+          assert result.events == 2
+          assert isinstance(hermetic_alpha.__version__, str)
+          assert hermetic_alpha.__version__.count(".") == 2
+          print("smoke ok")
+          PY

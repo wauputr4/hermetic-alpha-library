@@ -1,11 +1,18 @@
 [project]
 name = "hermetic-alpha"
-version = "0.1.1"
+version = "0.1.2"
 description = "Core Python research engine for astro-financial pattern analysis."
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [{ name = "Hermetic Alpha Contributors" }]
 license = { text = "MIT" }
+keywords = [
+    "astro-finance",
+    "astrology",
+    "event-study",
+    "market-research",
+    "python-library",
+]
 dependencies = []
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -16,6 +23,13 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Information Analysis",
 ]
+
+[project.urls]
+Homepage = "https://github.com/wauputr4/hermetic-alpha-library"
+Documentation = "https://github.com/wauputr4/hermetic-alpha-library/blob/main/README.md"
+Repository = "https://github.com/wauputr4/hermetic-alpha-library"
+Issues = "https://github.com/wauputr4/hermetic-alpha-library/issues"
+Changelog = "https://github.com/wauputr4/hermetic-alpha-library/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]

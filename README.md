@@ -78,6 +78,26 @@ This repository contains only the reusable core logic. User-facing tools such as
 
 ## Development Quickstart
 
+### Install package
+
+Install dari PyPI:
+
+```bash
+python3 -m pip install hermetic-alpha
+```
+
+Opsional (fitur ephemeris nyata):
+
+```bash
+python3 -m pip install "hermetic-alpha[ephemeris]"
+```
+
+Untuk kontribusi pengembangan:
+
+```bash
+python3 -m pip install -e ".[dev,ephemeris]"
+```
+
 Create a local development environment with `uv` when it is available:
 
 ```bash
@@ -101,14 +121,14 @@ can import the package directly from the source tree even before an editable
 install is created.
 
 ```bash
-PYTHONPATH=src python3 examples/basic_event_study.py
+python3 examples/basic_event_study.py
 ```
 
 Fetch normalized BTC daily candles through the first market provider and write
 the local JSON cache with the library storage helper:
 
 ```bash
-PYTHONPATH=src python3 examples/provider_to_cache.py data/btc-daily.json --start 2024-01-01 --end 2024-01-31
+python3 examples/provider_to_cache.py data/btc-daily.json --start 2024-01-01 --end 2024-01-31
 ```
 
 Yahoo Finance is a convenient research input, not an audit-grade market feed.
@@ -126,7 +146,7 @@ Langkah cepat untuk jalankan riset dari nol:
 1. Buat label market dari close:
 
 ```bash
-PYTHONPATH=src python3 - <<'PY'
+python3 - <<'PY'
 from hermetic_alpha.labels import add_forward_returns
 returns = add_forward_returns([100, 110, 99, 120, 95, 128], [1, 7, 30])
 print(returns)
@@ -136,19 +156,19 @@ PY
 2. Jalankan contoh alur sintetik lengkap (conjunction Sun-Moon vs return 1d):
 
 ```bash
-PYTHONPATH=src python3 examples/synthetic_astronomy_return_case.py
+python3 examples/synthetic_astronomy_return_case.py
 ```
 
 3. Jalankan contoh real-market (data harga nyata dari Yahoo Finance):
 
 ```bash
-PYTHONPATH=src python3 examples/real_market_astronomy_return_case.py
+python3 examples/real_market_astronomy_return_case.py
 ```
 
 Untuk mode yang lebih kuat (multi-asset dan walk-forward), jalankan:
 
 ```bash
-PYTHONPATH=src python3 examples/real_market_astronomy_return_case.py \
+python3 examples/real_market_astronomy_return_case.py \
   --assets BTC-USD,ETH-USD,SOL-USD \
   --start 2025-01-01 \
   --end 2026-01-01 \
