@@ -4,6 +4,15 @@
 
 - Work in progress.
 
+## [0.1.3] - 2026-06-05
+
+### Added
+- Re-release with automated PyPI publish workflow validation.
+
+### Changed
+- Bump package version to `0.1.3` for validated release publication.
+- Keep existing install and research documentation; release path now includes GitHub tag -> PyPI publish.
+
 ## [0.1.2] - 2026-06-05
 
 ### Added
