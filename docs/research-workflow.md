@@ -1,50 +1,50 @@
-# Research flow + quick start
+# Research workflow + quick start
 
-Dokumen ini pakai pipeline yang sudah ada di repo untuk bikin riset mini: cari korelasi statistik antar aspek astrologi dan perilaku pasar tanpa membuat black-box.
+This document uses the repository's existing pipeline to run a compact statistical research flow: identify and evaluate potential relationships between astrological aspects and market behavior without building a black-box model.
 
-## 0) Siapkan environment
+## 0) Prepare the environment
 
 ```bash
 PYTHONPATH=src python3 -m pip install -U pip
 PYTHONPATH=src pip install -e .
 ```
 
-Jika mau jalankan test:
+To run tests:
 
 ```bash
 PYTHONPATH=src python3 -m pytest -q
 ```
 
-## 1) Alur riset singkat
+## 1) Short research flow
 
-1. **Rumusan hipotesis**  
-   Contoh: “Conjunction Sun-Moon hari *t* meningkatkan peluang return `1d` positif.”
+1. **Hypothesis setup**  
+   Example: "A Sun-Moon conjunction at timestamp *t* is associated with higher probability of positive `1d` return."
 
-2. **Siapkan label pasar**  
-   - Dari close price: `add_forward_returns(closes, horizons=[1])` (otomatis kasih `return_1d`, `bullish_1d`).  
-   - Tambahkan `timestamp` + `asset` ke tiap label jika akan di-*join* dengan aspek.
+2. **Prepare market labels**  
+   - From close price: `add_forward_returns(closes, horizons=[1])` (adds `return_1d`, `bullish_1d`).  
+   - Add `timestamp` and `asset` to each label if joining with aspects.
 
-3. **Siapkan data astro (position per timestamp)**  
-   - Pakai real data: `generate_planet_positions(...)` + `scan_aspect_series(...)`.
-   - Atau sintetik untuk prototipe cepat, tapi tetap valid terhadap validator library.
+3. **Prepare astronomy data (position per timestamp)**  
+   - Use real data: `generate_planet_positions(...)` + `scan_aspect_series(...)`.
+   - Or synthetic data for rapid prototyping, while still passing library validation.
 
-4. **Deteksi aspek**  
-   - `scan_aspect_series(...)` memindai aspek di tiap timestamp.
-   - Kalau perlu, filter aspek tertentu: contoh hanya `conjunction`.
+4. **Detect aspects**  
+   - `scan_aspect_series(...)` scans aspects at each timestamp.
+   - Filter by selected aspect when needed, e.g. only `conjunction`.
 
-5. **Join aspek ↔ label**
-   - Gunakan `join_aspect_events_to_market_labels(...)` untuk hasilkan `TimestampJoinResult`.
-   - Ini memastikan pemetaan berbasis timestamp, bukan hanya index.
+5. **Join aspect ↔ labels**
+   - Use `join_aspect_events_to_market_labels(...)` to produce `TimestampJoinResult`.
+   - This ensures alignment by timestamp, not by row index.
 
-6. **Event study + validasi**
-   - `summarize_event_study(labels, event_indexes, horizon)` untuk baseline vs conditional.
-   - `summarize_validated_event_study(... bootstrap_samples=..., bootstrap_seed=...)` untuk interval confidence + warning.
-   - `permutation_test(...)` untuk cek signifikansi kasar secara non-parametrik.
+6. **Event study + validation**
+   - `summarize_event_study(labels, event_indexes, horizon)` for baseline vs conditional comparison.
+   - `summarize_validated_event_study(... bootstrap_samples=..., bootstrap_seed=...)` for confidence intervals and low-sample warnings.
+   - `permutation_test(...)` for a non-parametric baseline significance check.
 
-7. **Eksport hasil**
-   - `to_json(...)` dan `to_csv(...)` untuk jejak audit/laporan.
+7. **Export results**
+   - `to_json(...)` and `to_csv(...)` for audit/report artifacts.
 
-## 2) Antarmuka antarmuka yang berguna
+## 2) Useful interfaces
 
 - `hermetic_alpha.astro`:
   - `generate_planet_positions`, `scan_aspect_series`, `detect_aspect`, `find_aspects`
@@ -55,19 +55,19 @@ PYTHONPATH=src python3 -m pytest -q
 - `hermetic_alpha.exports`:
   - `to_csv`, `to_json`
 
-## 3) Contoh mini riset (bukti kerja)
+## 3) Mini research example (evidence)
 
-Buka contoh ini untuk bukti end-to-end:
+Open these scripts for an end-to-end example:
 
-- Script sintetik: [`examples/synthetic_astronomy_return_case.py`](../examples/synthetic_astronomy_return_case.py)
-- Script real-market (multi-asset + walk-forward): [`examples/real_market_astronomy_return_case.py`](../examples/real_market_astronomy_return_case.py)
-- Jalankan yang sintetik:
+- Synthetic script: [`examples/synthetic_astronomy_return_case.py`](../examples/synthetic_astronomy_return_case.py)
+- Real-market script (multi-asset + walk-forward): [`examples/real_market_astronomy_return_case.py`](../examples/real_market_astronomy_return_case.py)
+- Run the synthetic case:
 
 ```bash
 PYTHONPATH=src python3 examples/synthetic_astronomy_return_case.py
 ```
 
-Atau jalankan yang real-market (multi-asset + walk-forward, data Yahoo Finance):
+Or run the real-market case (multi-asset + walk-forward, Yahoo Finance):
 
 ```bash
 PYTHONPATH=src python3 examples/real_market_astronomy_return_case.py \
@@ -83,30 +83,30 @@ PYTHONPATH=src python3 examples/real_market_astronomy_return_case.py \
   --walk-forward-step-size 60
 ```
 
-Pasang paket ephemeris agar posisi sungguhan bisa dipakai:
+Install the ephemeris extra to enable real planetary positions:
 
 ```bash
 PYTHONPATH=src pip install -e ".[ephemeris]"
 ```
 
-Script real-market otomatis pakai `pyswisseph` jika tersedia, atau fallback ke posisi sintetik yang reproducible agar pipeline tetap bisa dijalankan.
+The real-market script automatically uses `pyswisseph` when available; otherwise it falls back to reproducible synthetic positions so the pipeline remains runnable.
 
-Untuk melihat format laporan di output:
+Output report formats:
 - `tmp/market_multi_asset_<start>_<end>_<horizon>d.csv`
 - `tmp/market_multi_asset_<start>_<end>_<horizon>d.json`
 
-Script ini:
-- membuat seri harga sintetik,
-- generate posisi Sun/Moon sintetik per hari,
-- scan aspek untuk ambil conjunction,
-- hitung event-study 1-hari,
-- validasi dengan bootstrap + permutation test,
-- lalu cetak rekomendasi interpretasi.
+This script:
+- creates a synthetic price series,
+- generates synthetic Sun/Moon positions per day,
+- scans aspects to detect conjunction events,
+- computes 1-day event-study summaries,
+- validates with bootstrap + permutation test,
+- and prints interpretation guidance.
 
-## 4) Catatan kualitas riset
+## 4) Research quality notes
 
-Untuk publish, ikuti prinsip di [Anti-Overfitting Guide](anti-overfitting.md):
-- selalu bandingkan ke baseline,
-- pakai sample-size-aware (low sample warning),
-- simpan metode & parameter di log,
-- pisahkan data penemuan dan data verifikasi (kalau proyek skala lebih besar).
+For publishable research quality, follow the [Anti-Overfitting Guide](anti-overfitting.md):
+- always compare against baseline,
+- apply sample-size-aware warnings,
+- log method choices and parameters,
+- and separate discovery from verification data for larger studies.

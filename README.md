@@ -80,31 +80,31 @@ This repository contains only the reusable core logic. User-facing tools such as
 
 ### Install package
 
-Jika `hermetic-alpha` sudah dipublish ke PyPI, ini adalah cara paling sederhana:
+If `hermetic-alpha` is published on PyPI, use:
 
 ```bash
 python3 -m pip install hermetic-alpha
 ```
 
-Jika belum dipublish, install dari Git tag/repository GitHub:
+If not yet on PyPI, install from GitHub tag/repository:
 
 ```bash
-python3 -m pip install "git+https://github.com/wauputr4/hermetic-alpha-library.git@v0.1.2"
+python3 -m pip install "git+https://github.com/wauputr4/hermetic-alpha-library.git@v0.1.3"
 ```
 
-Atau dari arsip tag GitHub (jika tersedia jaringan ke GitHub):
+Or use the GitHub tag archive URL (if GitHub is reachable):
 
 ```bash
-python3 -m pip install "https://github.com/wauputr4/hermetic-alpha-library/archive/refs/tags/v0.1.2.tar.gz"
+python3 -m pip install "https://github.com/wauputr4/hermetic-alpha-library/archive/refs/tags/v0.1.3.tar.gz"
 ```
 
-Opsional fitur ephemeris nyata:
+Optional real ephemeris support:
 
 ```bash
-python3 -m pip install "git+https://github.com/wauputr4/hermetic-alpha-library.git@v0.1.2#egg=hermetic-alpha[ephemeris]"
+python3 -m pip install "git+https://github.com/wauputr4/hermetic-alpha-library.git@v0.1.3#egg=hermetic-alpha[ephemeris]"
 ```
 
-Untuk kontribusi pengembangan:
+For development contributors:
 
 ```bash
 python3 -m pip install -e ".[dev,ephemeris]"
@@ -151,11 +151,11 @@ When the development extra is installed:
 python3 -m pytest -q
 ```
 
-## Quick Start Penelitian
+## Research Quickstart
 
-Langkah cepat untuk jalankan riset dari nol:
+Run a research workflow from scratch:
 
-1. Buat label market dari close:
+1. Build market labels from closes:
 
 ```bash
 python3 - <<'PY'
@@ -165,19 +165,19 @@ print(returns)
 PY
 ```
 
-2. Jalankan contoh alur sintetik lengkap (conjunction Sun-Moon vs return 1d):
+2. Run the synthetic end-to-end example (Sun-Moon conjunction vs 1d return):
 
 ```bash
 python3 examples/synthetic_astronomy_return_case.py
 ```
 
-3. Jalankan contoh real-market (data harga nyata dari Yahoo Finance):
+3. Run the real-market example (Yahoo Finance price data):
 
 ```bash
 python3 examples/real_market_astronomy_return_case.py
 ```
 
-Untuk mode yang lebih kuat (multi-asset dan walk-forward), jalankan:
+For a stronger configuration (multi-asset + walk-forward), run:
 
 ```bash
 python3 examples/real_market_astronomy_return_case.py \
@@ -193,7 +193,7 @@ python3 examples/real_market_astronomy_return_case.py \
   --walk-forward-step-size 60
 ```
 
-4. Baca flow riset + catatan anti-overfitting di:
+4. Read the research workflow and anti-overfitting docs:
 
 - [Research workflow docs](docs/research-workflow.md)
 - [Anti-overfitting guide](docs/anti-overfitting.md)
