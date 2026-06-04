@@ -80,9 +80,13 @@ This repository contains only the reusable core logic. User-facing tools such as
 
 ### Install package
 
-Saat ini versi terbaru belum dipublish ke PyPI (jadi `pip install hermetic-alpha` bisa gagal dengan `No matching distribution found`).
+Jika `hermetic-alpha` sudah dipublish ke PyPI, ini adalah cara paling sederhana:
 
-Install dari Git tag/repository GitHub (saat ini paling andal):
+```bash
+python3 -m pip install hermetic-alpha
+```
+
+Jika belum dipublish, install dari Git tag/repository GitHub:
 
 ```bash
 python3 -m pip install "git+https://github.com/wauputr4/hermetic-alpha-library.git@v0.1.2"
@@ -98,12 +102,6 @@ Opsional fitur ephemeris nyata:
 
 ```bash
 python3 -m pip install "git+https://github.com/wauputr4/hermetic-alpha-library.git@v0.1.2#egg=hermetic-alpha[ephemeris]"
-```
-
-Jika di masa depan paket sudah dipublish ke PyPI, kamu bisa install langsung:
-
-```bash
-python3 -m pip install hermetic-alpha
 ```
 
 Untuk kontribusi pengembangan:
