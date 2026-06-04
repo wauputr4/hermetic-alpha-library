@@ -207,10 +207,10 @@ def _build_fallback_positions(candles: Sequence, bodies: Sequence[str]) -> list[
     timestamps = [candle.timestamp for candle in candles]
     normalized_bodies = list(dict.fromkeys(body.lower() for body in bodies))
     positions: list[PlanetPosition] = []
-    base_timestamp = min(timestamps)
+    base_date = min(timestamps).date()
 
     for index, timestamp in enumerate(timestamps):
-        day_index = int((timestamp - base_timestamp).total_seconds() // 86400)
+        day_index = (timestamp.date() - base_date).days
         for body_index, body in enumerate(normalized_bodies):
             body_speed = FALLBACK_SPEED_BY_BODY.get(body, 0.75 + body_index * 0.11)
             sun_base = (day_index * FALLBACK_SPEED_BY_BODY["sun"]) % 360
@@ -238,6 +238,17 @@ def _build_fallback_positions(candles: Sequence, bodies: Sequence[str]) -> list[
             )
 
     return positions
+
+
+def _walk_forward_step_size(args: argparse.Namespace) -> int:
+    return args.walk_forward_step_size if args.walk_forward_step_size > 0 else args.walk_forward_test_size
+
+
+def _with_report_type(row: dict[str, object], report_type: str) -> dict[str, object]:
+    return {
+        "report_type": report_type,
+        **row,
+    }
 
 
 def _build_positions(candles: Sequence, bodies: Sequence[str], *, use_ephemeris: bool) -> list[PlanetPosition]:
@@ -319,7 +330,7 @@ def _run_walk_forward(
         observations=labels,
         train_size=args.walk_forward_train_size,
         test_size=args.walk_forward_test_size,
-        step_size=args.walk_forward_step_size or args.walk_forward_test_size,
+        step_size=_walk_forward_step_size(args),
     )
 
     split_summary_rows: list[dict[str, object]] = []
@@ -463,7 +474,7 @@ def run_case_for_asset(asset: str, start: str, end: str, bodies: list[str], aspe
             "walk_forward_enabled": bool(walk_forward_rows),
             "walk_forward_train_size": args.walk_forward_train_size if walk_forward_rows else None,
             "walk_forward_test_size": args.walk_forward_test_size if walk_forward_rows else None,
-            "walk_forward_step_size": args.walk_forward_step_size if walk_forward_rows else None,
+            "walk_forward_step_size": _walk_forward_step_size(args) if walk_forward_rows else None,
         },
         "market_summary": market_summary,
         "label_coverage": label_coverage,
@@ -479,8 +490,8 @@ def run_case_for_asset(asset: str, start: str, end: str, bodies: list[str], aspe
     }
 
     csv_rows = [
-        market_summary,
-        label_coverage,
+        _with_report_type(market_summary, "market_summary"),
+        _with_report_type(label_coverage, "label_coverage"),
         {
             "report_type": "aspect_count",
             **{f"count_{aspect}": count for aspect, count in aspect_counts.items()},
@@ -519,8 +530,10 @@ def run_case() -> None:
     bodies = _split_csv_values(args.bodies)
     aspects = _split_csv_values(args.aspects)
 
-    if not all(value > 0 for value in [args.max_orb, args.bootstrap_samples, args.bootstrap_seed, args.minimum_events, args.permutations]):
-        raise ValueError("parameter bootstrap/permutation/minimum-events/horizon/seed harus positif")
+    if not all(
+        value > 0 for value in [args.max_orb, args.bootstrap_samples, args.minimum_events, args.permutations]
+    ):
+        raise ValueError("parameter bootstrap/permutation/minimum-events/horizon harus positif")
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)

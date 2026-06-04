@@ -145,10 +145,17 @@ def run_case() -> None:
     if validated.low_sample_warning:
         print(f"Warning: {validated.low_sample_warning}")
 
-    csv_report = to_csv([
-        event_study_baseline_comparison_row(summary),
-        validated_event_study_report_row(validated),
-    ])
+    csv_rows = [
+        {
+            "report_type": "synthetic_baseline",
+            **event_study_baseline_comparison_row(summary),
+        },
+        {
+            "report_type": "synthetic_validated",
+            **validated_event_study_report_row(validated),
+        },
+    ]
+    csv_report = to_csv(csv_rows)
     json_report = to_json(output)
 
     print("\nCSV:")
@@ -158,8 +165,8 @@ def run_case() -> None:
 
     out_dir = Path("tmp")
     out_dir.mkdir(exist_ok=True)
-    (out_dir / "synthetic_astronomy_case.csv").write_text(csv_report)
-    (out_dir / "synthetic_astronomy_case.json").write_text(json_report)
+    (out_dir / "synthetic_astronomy_case.csv").write_text(csv_report, encoding="utf-8")
+    (out_dir / "synthetic_astronomy_case.json").write_text(json_report, encoding="utf-8")
     print(f"\nReports saved to {out_dir}/synthetic_astronomy_case.*")
 
 
