@@ -80,28 +80,29 @@ This repository contains only the reusable core logic. User-facing tools such as
 
 ### Install package
 
-If `hermetic-alpha` is published on PyPI, use:
+Install from PyPI:
 
 ```bash
 python3 -m pip install hermetic-alpha
 ```
 
-If not yet on PyPI, install from GitHub tag/repository:
+Install from GitHub Packages (requires a GitHub token for read access):
 
 ```bash
-python3 -m pip install "git+https://github.com/wauputr4/hermetic-alpha-library.git@v0.1.3"
+export GH_PACKAGES_TOKEN=...
+python3 -m pip install --index-url "https://__token__:${GH_PACKAGES_TOKEN}@pypi.pkg.github.com/wauputr4/" hermetic-alpha
 ```
 
-Or use the GitHub tag archive URL (if GitHub is reachable):
+Install directly from a GitHub tag (useful for quick validation):
 
 ```bash
-python3 -m pip install "https://github.com/wauputr4/hermetic-alpha-library/archive/refs/tags/v0.1.3.tar.gz"
+python3 -m pip install "git+https://github.com/wauputr4/hermetic-alpha-library.git@v0.1.4"
 ```
 
 Optional real ephemeris support:
 
 ```bash
-python3 -m pip install "git+https://github.com/wauputr4/hermetic-alpha-library.git@v0.1.3#egg=hermetic-alpha[ephemeris]"
+python3 -m pip install "git+https://github.com/wauputr4/hermetic-alpha-library.git@v0.1.4#egg=hermetic-alpha[ephemeris]"
 ```
 
 For development contributors:
