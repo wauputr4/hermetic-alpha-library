@@ -4,6 +4,17 @@
 
 - Work in progress.
 
+## [0.1.7] - 2026-06-05
+
+### Added
+- Re-enable GitHub Packages publishing in the release workflow so tag-based releases publish to both PyPI and GitHub Packages.
+
+### Changed
+- Keep PyPI as primary install path (`python -m pip install hermetic-alpha`) while also publishing to GitHub Packages.
+
+### Fixed
+- Align runtime and package metadata version for the `0.1.7` release.
+
 ## [0.1.6] - 2026-06-05
 
 ### Changed
