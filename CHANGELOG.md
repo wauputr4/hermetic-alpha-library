@@ -4,6 +4,17 @@
 
 - Work in progress.
 
+## [0.1.8] - 2026-06-05
+
+### Added
+- Add explicit PyPI-only release mode to avoid failed GitHub Packages publish attempts.
+
+### Changed
+- Update install documentation to standardize on `python3 -m pip install hermetic-alpha` and current tag references.
+
+### Fixed
+- Keep release workflow aligned with a single distribution registry to prevent “No packages published” ambiguity.
+
 ## [0.1.7] - 2026-06-05
 
 ### Added

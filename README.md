@@ -104,16 +104,20 @@ Install from PyPI:
 python3 -m pip install hermetic-alpha
 ```
 
+```bash
+python3 -m pip install "hermetic-alpha[ephemeris]"
+```
+
 Install directly from a GitHub tag (useful for quick validation):
 
 ```bash
-python3 -m pip install "git+https://github.com/wauputr4/hermetic-alpha-library.git@v0.1.6"
+python3 -m pip install "git+https://github.com/wauputr4/hermetic-alpha-library.git@v0.1.8"
 ```
 
 Optional real ephemeris support:
 
 ```bash
-python3 -m pip install "git+https://github.com/wauputr4/hermetic-alpha-library.git@v0.1.6#egg=hermetic-alpha[ephemeris]"
+python3 -m pip install "git+https://github.com/wauputr4/hermetic-alpha-library.git@v0.1.8#egg=hermetic-alpha[ephemeris]"
 ```
 
 For development contributors:
