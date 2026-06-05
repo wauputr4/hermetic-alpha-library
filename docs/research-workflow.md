@@ -110,3 +110,16 @@ For publishable research quality, follow the [Anti-Overfitting Guide](anti-overf
 - apply sample-size-aware warnings,
 - log method choices and parameters,
 - and separate discovery from verification data for larger studies.
+
+## 5) Agent-assisted workflow
+
+For repeatable agent-assisted studies, use the companion Agent Skill repository:
+
+- [wauputr4/financial-astrology-skills](https://github.com/wauputr4/financial-astrology-skills)
+- Skill: `financial-astrology-pattern-search`
+
+The skill turns the research workflow above into an operator checklist for AI agents: select assets, fetch candles, generate aspect windows, collapse multi-day aspect windows to exact events, compute baseline/event/train/test metrics, enforce anti-overfitting rules, and produce Markdown/PDF-ready research artifacts.
+
+```bash
+npx skills add wauputr4/financial-astrology-skills --skill financial-astrology-pattern-search
+```

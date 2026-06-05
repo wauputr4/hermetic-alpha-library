@@ -17,6 +17,19 @@ Hermetic Alpha Library is the reusable Python core for astro-financial pattern r
 - [ADR 0001: First Ephemeris Engine](adr/0001-first-ephemeris-engine.md)
 - [Research Workflow + Quick Start](research-workflow.md)
 
+## Companion Agent Skill
+
+Researchers who want an AI agent to run repeatable Hermetic Alpha studies can use the companion open Agent Skill:
+
+- Repository: [wauputr4/financial-astrology-skills](https://github.com/wauputr4/financial-astrology-skills)
+- Skill: `financial-astrology-pattern-search`
+
+It provides a portable workflow for asset selection, aspect event construction, train/test validation, anti-overfitting controls, cross-asset checks, and publishable research reporting on top of this library.
+
+```bash
+npx skills add wauputr4/financial-astrology-skills --skill financial-astrology-pattern-search
+```
+
 ## Core Philosophy
 
 Hermetic Alpha should be built as a transparent research engine, not a black-box prediction system.

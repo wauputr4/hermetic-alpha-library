@@ -76,6 +76,24 @@ structures before writing CSV so downstream column names remain explicit.
 
 This repository contains only the reusable core logic. User-facing tools such as command-line interfaces, APIs, and dashboards should call this library instead of duplicating analysis logic.
 
+## Companion Agent Skill
+
+For agent-assisted research workflows, use the companion open Agent Skill repository:
+
+- [wauputr4/financial-astrology-skills](https://github.com/wauputr4/financial-astrology-skills)
+- Skill: `financial-astrology-pattern-search`
+
+The skill packages a reusable workflow for running exploratory financial astrology event studies with Hermetic Alpha: asset selection, aspect-window construction, train/test validation, anti-overfitting checks, cross-asset comparisons, and publishable research reporting.
+
+Install or inspect it with the skills CLI:
+
+```bash
+npx skills add wauputr4/financial-astrology-skills --list
+npx skills add wauputr4/financial-astrology-skills --skill financial-astrology-pattern-search
+```
+
+Use the skill when you want an AI coding/research agent to operate this library consistently rather than improvising a one-off notebook or script.
+
 ## Development Quickstart
 
 ### Install package
