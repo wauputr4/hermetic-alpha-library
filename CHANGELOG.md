@@ -4,6 +4,12 @@
 
 - Work in progress.
 
+## [0.1.6] - 2026-06-05
+
+### Changed
+- Disable GitHub Packages publish step in release workflow because current GitHub Packages upload endpoint is not reliably reachable from the CI runner (SSL/endpoint mismatch).
+- Keep release pipeline focused on successful PyPI publish (`python3 -m pip install hermetic-alpha`).
+
 ## [0.1.5] - 2026-06-05
 
 ### Added

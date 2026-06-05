@@ -104,23 +104,16 @@ Install from PyPI:
 python3 -m pip install hermetic-alpha
 ```
 
-Install from GitHub Packages (requires a GitHub token for read access):
-
-```bash
-export GH_PACKAGES_TOKEN=...
-python3 -m pip install --index-url "https://__token__:${GH_PACKAGES_TOKEN}@pypi.pkg.github.com/wauputr4/" hermetic-alpha
-```
-
 Install directly from a GitHub tag (useful for quick validation):
 
 ```bash
-python3 -m pip install "git+https://github.com/wauputr4/hermetic-alpha-library.git@v0.1.5"
+python3 -m pip install "git+https://github.com/wauputr4/hermetic-alpha-library.git@v0.1.6"
 ```
 
 Optional real ephemeris support:
 
 ```bash
-python3 -m pip install "git+https://github.com/wauputr4/hermetic-alpha-library.git@v0.1.5#egg=hermetic-alpha[ephemeris]"
+python3 -m pip install "git+https://github.com/wauputr4/hermetic-alpha-library.git@v0.1.6#egg=hermetic-alpha[ephemeris]"
 ```
 
 For development contributors:
