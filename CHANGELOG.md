@@ -4,6 +4,15 @@
 
 - Work in progress.
 
+## [0.1.4] - 2026-06-05
+
+### Added
+- Publish release workflow now publishes to both PyPI and GitHub Packages.
+- Document installation path from GitHub Packages for token-authenticated installs.
+
+### Changed
+- Keep package metadata and runtime version in sync with release `0.1.4`.
+
 ## [0.1.3] - 2026-06-05
 
 ### Added
