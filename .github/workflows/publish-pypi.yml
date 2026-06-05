@@ -45,5 +45,5 @@ jobs:
         with:
           user: __token__
           password: ${{ secrets.GITHUB_TOKEN }}
-          repository-url: https://upload.pypi.pkg.github.com/wauputr4/
+          repository-url: https://pypi.pkg.github.com/wauputr4/
           skip-existing: true

@@ -114,13 +114,13 @@ python3 -m pip install --index-url "https://__token__:${GH_PACKAGES_TOKEN}@pypi.
 Install directly from a GitHub tag (useful for quick validation):
 
 ```bash
-python3 -m pip install "git+https://github.com/wauputr4/hermetic-alpha-library.git@v0.1.4"
+python3 -m pip install "git+https://github.com/wauputr4/hermetic-alpha-library.git@v0.1.5"
 ```
 
 Optional real ephemeris support:
 
 ```bash
-python3 -m pip install "git+https://github.com/wauputr4/hermetic-alpha-library.git@v0.1.4#egg=hermetic-alpha[ephemeris]"
+python3 -m pip install "git+https://github.com/wauputr4/hermetic-alpha-library.git@v0.1.5#egg=hermetic-alpha[ephemeris]"
 ```
 
 For development contributors:

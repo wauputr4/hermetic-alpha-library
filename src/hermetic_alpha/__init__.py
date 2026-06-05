@@ -1,6 +1,6 @@
 """Hermetic Alpha core library."""
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 
 from .models import (
     AspectDefinition,

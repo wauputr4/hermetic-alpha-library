@@ -1,6 +1,6 @@
 [project]
 name = "hermetic-alpha"
-version = "0.1.4"
+version = "0.1.5"
 description = "Core Python research engine for astro-financial pattern analysis."
 readme = "README.md"
 requires-python = ">=3.11"

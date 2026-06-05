@@ -4,6 +4,15 @@
 
 - Work in progress.
 
+## [0.1.5] - 2026-06-05
+
+### Added
+- Fix GitHub Packages publish endpoint in release workflow (`pypi.pkg.github.com/...`) to eliminate SSL hostname mismatch failures.
+- Keep quick-release docs aligned to the latest Git tag.
+
+### Changed
+- Bump package version to `0.1.5` in runtime and packaging metadata.
+
 ## [0.1.4] - 2026-06-05
 
 ### Added
